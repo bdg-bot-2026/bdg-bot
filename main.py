@@ -19,7 +19,7 @@ def run_web():
     app_web.run(host='0.0.0.0', port=port)
 
 # 🔴 বট টোকেন
-TOKEN = "8752459278:AAGojryTHduibUpZaToGzSdmAJI_D6EwJIK"
+TOKEN = "8752459278:AAGojryTHDuibUpZaToGzSdmAJI_D6EwJIk"
 
 def get_current_30s_period():
     ist = pytz.timezone('Asia/Kolkata')
