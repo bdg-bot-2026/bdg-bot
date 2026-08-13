@@ -1,88 +1,101 @@
-import asyncio
-import datetime
 import os
 import random
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import threading
-from telegram import Bot
+from datetime import datetime
+import pytz
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
 
-# ১. আপনার আসল বট টোকেনটি এখানে বসাবেন
-BOT_TOKEN = "8752459278:AAEFYk3jP1FOT-G3k3JgBwWwkzOIUnroGgg"
-
-# ২. আপনার চ্যানেলের ইউজারনেম
-CHANNEL_ID = "@bdgplayvipwin"
-
-bot = Bot(token=BOT_TOKEN)
-base_period_count = 52174
+TOKEN = "8752459278:AAEFYk3jP1FOT-G3k3..."
 
 
-# Render সার্ভার চালু রাখার জন্য
-class HealthCheckHandler(BaseHTTPRequestHandler):
+user_data = {}
 
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b"Bot is active!")
+def get_current_30s_period():
+    # IST Timezone (India/Bangladesh alignment)
+    ist = pytz.timezone('Asia/Kolkata')
+    now = datetime.now(ist)
+    
+    # Calculate 30-second interval index for the day
+    total_seconds = (now.hour * 3600) + (now.minute * 60) + now.second
+    period_index = (total_seconds // 30) + 1  # Started from 1
+    
+    date_str = now.strftime("%Y%m%d")
+    # BDG WIN 30s format
+    return f"{date_str}10005{period_index:04d}"
 
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    msg = (
+        "👋 **BDG WIN 30s Auto-Period Bot!**\n\n"
+        "👉 **ব্যবহারের নিয়ম:**\n"
+        "শুধু লিখুন `/predict` — বট বর্তমান সময় অনুযায়ী লাইভ পিরিয়ড নম্বর ও প্রেডিকশন দিয়ে দেবে!"
+    )
+    await update.message.reply_markdown(msg)
 
-def run_health_server():
-    port = int(os.environ.get("PORT", 8080))
-    server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
-    server.serve_forever()
+async def predict(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    
+    # Auto generate period number based on current time
+    current_period = get_current_30s_period()
+    prediction = random.choice(["BIG", "SMALL"])
+    
+    user_data[chat_id] = {'period': current_period, 'prediction': prediction}
+    
+    emoji = "🟢" if prediction == "BIG" else "🔴"
+    
+    keyboard = [
+        [
+            InlineKeyboardButton("Result was BIG 🟢", callback_data="WIN_BIG"),
+            InlineKeyboardButton("Result was SMALL 🔴", callback_data="WIN_SMALL")
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
 
+    msg = (
+        f"🎮 **BDG WIN 30-SEC PREDICTION**\n"
+        f"━━━━━━━━━━━━━━━━━━━━\n"
+        f"📌 **Period:** `{current_period}` *(Auto Generated)*\n"
+        f"🎯 **Prediction:** **{prediction} {emoji}**\n"
+        f"━━━━━━━━━━━━━━━━━━━━\n"
+        f"⏳ *৩০ সেকেন্ড পর গেমে আসল রেজাল্ট কী এলো বাটনে চাপ দিন:* "
+    )
+    
+    await update.message.reply_markdown(msg, reply_markup=reply_markup)
 
-def get_bdg_period_id(counter):
-    today = datetime.datetime.now().strftime("%Y%m%d")
-    return f"{today}1000{counter}"
+async def handle_result(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    
+    chat_id = query.message.chat.id
+    actual_result = "BIG" if query.data == "WIN_BIG" else "SMALL"
+    
+    if chat_id not in user_data:
+        await query.edit_message_text("❌ কোনো সক্রিয় প্রেডিকশন পাওয়া যায়নি! আবার `/predict` করুন।")
+        return
 
+    saved_info = user_data[chat_id]
+    predicted = saved_info['prediction']
+    
+    status_msg = f"🎉 **RESULT: WIN!** ✅" if actual_result == predicted else f"❌ **RESULT: LOSS!** 💔"
 
-async def main():
-    global base_period_count
-    print("Bot is starting...")
+    final_text = (
+        f"🎮 **BDG WIN 30-SEC RESULT**\n"
+        f"━━━━━━━━━━━━━━━━━━━━\n"
+        f"📌 **Period:** `{saved_info['period']}`\n"
+        f"{status_msg}\n"
+        f"(বটের প্রেডিকশন: {predicted}, আসল রেজাল্ট: {actual_result})\n\n"
+        f"🚀 পরবর্তী পিরিয়ডের জন্য আবার `/predict` লিখুন!"
+    )
+    
+    await query.edit_message_text(text=final_text, parse_mode='Markdown')
 
-    while True:
-        period_id = get_bdg_period_id(base_period_count)
-        my_prediction = random.choice(["BIG 🟢", "SMALL 🔴"])
+def main():
+    app = ApplicationBuilder().token(TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("predict", predict))
+    app.add_handler(CallbackQueryHandler(handle_result))
+    
+    print("Bot is running...")
+    app.run_polling()
 
-        init_message = (
-            f"🏆 **BDG WIN 30 SEC** 🏆\n\n"
-            f"🔹 **PERIOD:** `{period_id}`\n"
-            f"🎯 **PREDICTION:** **{my_prediction}**\n"
-            f"📊 **RESULT:** ⏳ *Waiting...*"
-        )
-
-        try:
-            sent_msg = await bot.send_message(
-                chat_id=CHANNEL_ID, text=init_message, parse_mode="Markdown"
-            )
-            await asyncio.sleep(30)
-
-            is_win = random.choice([True, False])
-            status = "✅ WIN" if is_win else "❌ LOSS"
-
-            final_message = (
-                f"🏆 **BDG WIN 30 SEC** 🏆\n\n"
-                f"🔹 **PERIOD:** `{period_id}`\n"
-                f"🎯 **PREDICTION:** **{my_prediction}**\n"
-                f"📊 **RESULT:** **{status}**"
-            )
-
-            await bot.edit_message_text(
-                chat_id=CHANNEL_ID,
-                message_id=sent_msg.message_id,
-                text=final_message,
-                parse_mode="Markdown",
-            )
-
-            base_period_count += 1
-            await asyncio.sleep(2)
-
-        except Exception as e:
-            print(f"Error: {e}")
-            await asyncio.sleep(5)
-
-
-if __name__ == "__main__":
-    threading.Thread(target=run_health_server, daemon=True).start()
-    asyncio.run(main())
-  
+if __name__ == '__main__':
+    main()
