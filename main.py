@@ -2,12 +2,24 @@ import os
 import random
 from datetime import datetime
 import pytz
+import threading
+from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-TOKEN = "8752459278:AAEFYk3jP1FOT-G3k3JgBwWwkzOIUnroGgg"
+# Render Port Scanning সমস্যার সমাধানের জন্য ডামি ওয়েব সার্ভার
+app_web = Flask(__name__)
 
-user_data = {}
+@app_web.route('/')
+def home():
+    return "Bot is active and running!"
+
+def run_web():
+    port = int(os.environ.get("PORT", 8080))
+    app_web.run(host='0.0.0.0', port=port)
+
+# 🔴 টোকেন
+TOKEN = "8752459278:AAEFYk3jP1FOT-G3k3JgBwWwkz0IUnroGgg"
 
 def get_current_30s_period():
     ist = pytz.timezone('Asia/Kolkata')
@@ -40,6 +52,10 @@ async def predict(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(msg, parse_mode="Markdown", reply_markup=reply_markup)
 
 def main():
+    # ওয়েব সার্ভার ব্যাকগ্রাউন্ডে চালু হবে
+    threading.Thread(target=run_web, daemon=True).start()
+    
+    # টেলিগ্রাম বট রান হবে
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("predict", predict))
     print("Bot is running...")
@@ -47,3 +63,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    
