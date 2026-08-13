@@ -5,7 +5,8 @@ import pytz
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
 
-TOKEN = "8752459278:AAEFYk3jP1FOT-G3k3"
+TOKEN = "8752459278:AAEFYk3jP1FOT-G3k3JgBwWwkz0IUnroGgg"
+
 
 
 user_data = {}
