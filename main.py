@@ -7,19 +7,21 @@ import threading
 from flask import Flask
 from telegram.ext import ApplicationBuilder
 
-# Web server for Render
+# Render Port Scan ইস্যু সমাধানের ডামি সার্ভার
 app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot is running perfectly!"
+    return "Bot status: ONLINE"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
     app_web.run(host='0.0.0.0', port=port)
 
-# 🔴 আপনার নতুন Token ও Channel ID
-TOKEN = "8752459278:AAGk160ZREsFuDUk0Hp45cz4MiF6TFv27Is"
+# 🔴 আপনার একদম নতুন ও সঠিক টোকেন
+RAW_TOKEN = "8752459278:AAEyMFVDsOCNwcD9bYxolxvukLM41QPs0wQ"
+TOKEN = RAW_TOKEN.strip()
+
 CHANNEL_ID = "@bdgplayvipwin"
 
 def get_current_30s_period():
@@ -54,12 +56,12 @@ async def send_auto_prediction(app):
                 chat_id=CHANNEL_ID, 
                 text=msg
             )
-            print(f"Message sent for period {period_num}")
+            print(f"Sent prediction for period: {period_num}")
             
         except Exception as e:
-            print(f"Error sending auto message: {e}")
+            print(f"Error sending message: {e}")
             
-        # প্রতি ৩০ সেকেন্ড পর পর মেসেজ পাঠাবে
+        # প্রতি ৩০ সেকেন্ড পর পর মেসেজ সেন্ড করবে
         await asyncio.sleep(30)
 
 async def post_init(app):
@@ -69,9 +71,9 @@ def main():
     threading.Thread(target=run_web, daemon=True).start()
     
     app = ApplicationBuilder().token(TOKEN).post_init(post_init).build()
-    print("Starting bot polling...")
+    print("Bot is starting...")
     app.run_polling()
 
 if __name__ == '__main__':
     main()
-    
+        
