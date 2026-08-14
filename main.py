@@ -24,6 +24,39 @@ TOKEN = RAW_TOKEN.strip()
 
 CHANNEL_ID = "@bdgplayvipwin"
 
+# 🧠 স্মার্ট প্যাটার্ন ট্র্যাকার (Smart Pattern Logic)
+last_prediction = None
+streak_count = 0
+
+def get_smart_prediction():
+    global last_prediction, streak_count
+    
+    choices = ["SMALL", "BIG"]
+    
+    if last_prediction is None:
+        selected = random.choice(choices)
+        last_prediction = selected
+        streak_count = 1
+        return selected
+
+    # টানা ৪ বার বা তার বেশি একই ফলাফল এলে অপোজিট সিগন্যাল ফায়ার করবে (স্মার্ট সেফটি)
+    if streak_count >= 4:
+        selected = "BIG" if last_prediction == "SMALL" else "SMALL"
+        last_prediction = selected
+        streak_count = 1
+        return selected
+
+    # ৬০% সম্ভাবনা থাকে আগের ট্রেন্ড ধরে রাখার, ৪০% সম্ভাবনা ট্রেন্ড পরিবর্তনের
+    if random.random() < 0.60:
+        selected = last_prediction
+        streak_count += 1
+    else:
+        selected = "BIG" if last_prediction == "SMALL" else "SMALL"
+        last_prediction = selected
+        streak_count = 1
+
+    return selected
+
 def get_current_30s_period():
     try:
         ist = pytz.timezone('Asia/Kolkata')
@@ -44,7 +77,7 @@ def get_current_30s_period():
 async def send_auto_prediction(app):
     last_sent_period = ""
     
-    # 🔘 BDG WIN লিঙ্ক ও নামসহ বাটন
+    # 🔘 Play BDG Win ও VIP চ্যানেল ইনলাইন বাটন
     keyboard = [
         [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
         [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
@@ -56,14 +89,21 @@ async def send_auto_prediction(app):
             period_num = get_current_30s_period()
             
             if period_num != last_sent_period:
-                prediction_type = random.choice(["SMALL 🔴", "BIG 🟢"])
+                # স্মার্ট অ্যালগরিদম দিয়ে প্রেডিকশন তৈরি
+                raw_pred = get_smart_prediction()
                 
-                # প্রিমিয়াম ভিআইপি ফরম্যাট
+                # কোড বক্সে প্রিমিয়াম হাইলাইট ডিসপ্লে
+                if raw_pred == "SMALL":
+                    pred_display = "<code>SMALL 🔴</code>"
+                else:
+                    pred_display = "<code>BIG 🟢</code>"
+                
+                # সুন্দর ভিআইপি ফরম্যাট
                 msg = (
                     f"🏆 <b><u>BDG WIN 30 SEC VIP</u></b> 🏆\n"
                     f"━━━━━━━━━━━━━━━━━━━\n"
                     f"🔹 <b>PERIOD:</b> <code>{period_num}</code>\n"
-                    f"🎯 <b>PREDICTION:</b> <b>{prediction_type}</b>\n"
+                    f"🎯 <b>PREDICTION:</b> {pred_display}\n"
                     f"━━━━━━━━━━━━━━━━━━━\n"
                     f"💡 <i>1-10 Level Martingale Use Karain</i>"
                 )
@@ -74,7 +114,7 @@ async def send_auto_prediction(app):
                     parse_mode=ParseMode.HTML,
                     reply_markup=reply_markup
                 )
-                print(f"Sent prediction for period: {period_num}")
+                print(f"Sent smart prediction for period: {period_num} -> {raw_pred}")
                 last_sent_period = period_num
 
         except Exception as e:
