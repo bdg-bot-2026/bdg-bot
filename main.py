@@ -5,8 +5,7 @@ import pytz
 import asyncio
 import threading
 from flask import Flask
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-from telegram import Update
+from telegram.ext import ApplicationBuilder
 
 app_web = Flask(__name__)
 
@@ -44,15 +43,14 @@ async def send_auto_prediction(app):
             
             msg = (
                 f"🏋️ BDG WIN 30 SEC\n\n"
-                f"🔹 PERIOD: `{period_num}`\n"
+                f"🔹 PERIOD: {period_num}\n"
                 f"🎯 PREDICTION: {prediction_type}\n\n"
                 f"💡 1-3 Level Martingale Use Karain"
             )
             
             await app.bot.send_message(
                 chat_id=CHANNEL_ID,
-                text=msg,
-                parse_mode='Markdown'
+                text=msg
             )
             print(f"Sent prediction for period: {period_num}")
 
