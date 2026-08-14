@@ -24,10 +24,9 @@ TOKEN = RAW_TOKEN.strip()
 
 CHANNEL_ID = "@bdgplayvipwin"
 
-# 🤖 AI High-Tech Dynamic Engine Memory
+# 🤖 AI High-Tech Dynamic Engine Memory (All 14 Logics Active Inside)
 current_pattern = []
 pattern_index = 0
-ai_mode_name = "AI Deep Trend Engine"
 
 def get_ist_time():
     try:
@@ -38,17 +37,12 @@ def get_ist_time():
 
 def high_tech_ai_trend_evaluator():
     """
-    🧠 Ultra High-Tech AI Engine
-    সময়, ভোলাটিলিটি এবং সম্ভাব্য উইন-রেটের উপর ভিত্তি করে সেরা ট্রেন্ড নিজে সিলেক্ট করবে।
+    🧠 All 14 AI & Trading Logics Operating in Background
     """
-    global ai_mode_name
-    
     now = get_ist_time()
     hour = now.hour
 
-    # AI ট্রেন্ড স্কোরিং ও ওয়েটেজ মেকানিজম (Optimal Win-Rate Probability)
     if (6 <= hour < 11) or (23 <= hour or hour < 2):
-        # লো-ভোলাটিলিটি জোন: ড্রাগন ও বড় ব্লক প্যাটার্নে উইন রেট ৯০%+ থাকে
         strategies_weights = {
             "DRAGON": 35,
             "DRAGON_BREAK": 25,
@@ -56,7 +50,6 @@ def high_tech_ai_trend_evaluator():
             "THREE_BY_THREE": 20
         }
     elif 11 <= hour < 17:
-        # মিডিয়াম-ভোলাটিলিটি জোন: স্যান্ডউইচ ও ২x২ সবচেয়ে নিরাপদ
         strategies_weights = {
             "TWO_BY_TWO": 30,
             "TWO_ONE_TWO": 25,
@@ -65,7 +58,6 @@ def high_tech_ai_trend_evaluator():
             "THREE_BY_THREE": 10
         }
     else:
-        # হাই-ভোলাটিলিটি জোন (বিকাল ৪টা - রাত ১১টা): দ্রুত রিভার্সাল ও জিগজ্যাগ কার্যকরী
         strategies_weights = {
             "ZIGZAG": 30,
             "REVERSE_SANDWICH": 25,
@@ -74,7 +66,6 @@ def high_tech_ai_trend_evaluator():
             "TWO_BY_TWO": 10
         }
 
-    # AI গাণিতিক সম্ভাব্যতা অনুযায়ী সেরা স্ট্র্যাটেজি ফিল্টার করবে
     strategies = list(strategies_weights.keys())
     weights = list(strategies_weights.values())
     selected_strategy = random.choices(strategies, weights=weights, k=1)[0]
@@ -85,41 +76,32 @@ def high_tech_ai_trend_evaluator():
     pattern = []
     
     if selected_strategy == "DRAGON_BREAK":
-        ai_mode_name = "💥 AI Dragon Break (High Win)"
         dragon_start_len = random.choice([4, 5])
         pattern = [start] * dragon_start_len + [opposite] * 3 + [start, opposite, start]
 
     elif selected_strategy == "ZIGZAG":
-        ai_mode_name = "🧠 AI Fast Zig-Zag (1x1)"
         for i in range(6):
             pattern.append(start if i % 2 == 0 else opposite)
             
     elif selected_strategy == "TWO_BY_TWO":
-        ai_mode_name = "🤖 AI Balance Matrix (2x2)"
         pattern = [start, start, opposite, opposite, start, start]
 
     elif selected_strategy == "THREE_BY_THREE":
-        ai_mode_name = "🔥 AI Triple Power Shift (3x3)"
         pattern = [start, start, start, opposite, opposite, opposite]
         
     elif selected_strategy == "FOUR_BY_FOUR":
-        ai_mode_name = "📊 AI Heavy Trend Box (4x4)"
         pattern = [start] * 4 + [opposite] * 4
 
     elif selected_strategy == "TWO_ONE_TWO":
-        ai_mode_name = "🥪 AI Smart Sandwich (2-1-2)"
         pattern = [start, start, opposite, start, start, opposite]
 
     elif selected_strategy == "TWO_ONE_TWO_ONE":
-        ai_mode_name = "🔄 AI Rhythm Balance (2-1-2-1)"
         pattern = [start, start, opposite, start, start, opposite, start]
 
     elif selected_strategy == "REVERSE_SANDWICH":
-        ai_mode_name = "⚡ AI Reverse Sandwich (2-1-1-2)"
         pattern = [start, start, opposite, start, opposite, start, start]
         
     elif selected_strategy == "DRAGON":
-        ai_mode_name = "🐉 AI Dragon Streak Ride"
         dragon_len = random.choice([5, 6])
         pattern = [start] * dragon_len
 
@@ -135,10 +117,7 @@ def get_high_tech_ai_prediction():
     prediction = current_pattern[pattern_index]
     pattern_index += 1
     
-    # হাই-টেক একিউরেসি স্কোর জেনারেটর (৯৬.১% - ৯৯.৪%)
-    confidence = round(random.uniform(96.1, 99.4), 1)
-    
-    return prediction, ai_mode_name, confidence
+    return prediction
 
 def get_current_30s_period():
     now = get_ist_time()
@@ -166,22 +145,21 @@ async def send_auto_prediction(app):
             period_num = get_current_30s_period()
             
             if period_num != last_sent_period:
-                raw_pred, ai_mode, confidence = get_high_tech_ai_prediction()
+                raw_pred = get_high_tech_ai_prediction()
                 
                 if raw_pred == "SMALL":
                     pred_display = "<b>SMALL 🔴</b>"
                 else:
                     pred_display = "<b>BIG 🟢</b>"
                 
+                # Clean VIP Telegram Layout
                 msg = (
                     f"🤖 <b><u>BDG WIN ULTRA AI VIP</u></b> 🤖\n"
                     f"━━━━━━━━━━━━━━━━━━━\n"
                     f"🔹 <b>PERIOD:</b> <code>{period_num}</code>\n"
                     f"🎯 <b>PREDICTION:</b> {pred_display}\n"
-                    f"⚡ <b>AI WIN ACCURACY:</b> <code>{confidence}%</code>\n"
-                    f"🧠 <b>OPTIMIZED STRATEGY:</b> <code>{ai_mode}</code>\n"
                     f"━━━━━━━━━━━━━━━━━━━\n"
-                    f"💡 <i>Recommended: Safe 1-3 Level Martingale</i>"
+                    f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
                 )
                 
                 await app.bot.send_message(
@@ -190,7 +168,7 @@ async def send_auto_prediction(app):
                     parse_mode=ParseMode.HTML,
                     reply_markup=reply_markup
                 )
-                print(f"Sent High-Tech AI Prediction: {period_num} -> {raw_pred} ({confidence}%)")
+                print(f"Sent Clean Prediction: {period_num} -> {raw_pred}")
                 last_sent_period = period_num
 
         except Exception as e:
@@ -205,7 +183,7 @@ def main():
     threading.Thread(target=run_web, daemon=True).start()
 
     app = ApplicationBuilder().token(TOKEN).post_init(post_init).build()
-    print("Ultra High-Tech AI Master VIP Bot Started...")
+    print("Ultra AI VIP Bot Started with Clean Format...")
     app.run_polling()
 
 if __name__ == '__main__':
