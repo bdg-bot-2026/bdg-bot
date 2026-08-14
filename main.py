@@ -1,6 +1,6 @@
 import os
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 import asyncio
 import threading
@@ -27,10 +27,16 @@ def get_current_30s_period():
         ist = pytz.timezone('Asia/Kolkata')
         now = datetime.now(ist)
     except Exception:
-        now = datetime.utcnow()
+        now = datetime.utcnow() + timedelta(hours=5, minutes=30)
 
-    total_seconds = (now.hour * 3600) + (now.minute * 60) + now.second
-    interval_index = (total_seconds // 30) + 1
+    # BDG Game 30s period counter resets at 05:30 AM IST
+    start_time = now.replace(hour=5, minute=30, second=0, microsecond=0)
+    if now < start_time:
+        start_time -= timedelta(days=1)
+
+    elapsed_seconds = int((now - start_time).total_seconds())
+    interval_index = (elapsed_seconds // 30) + 1
+    
     date_str = now.strftime('%Y%m%d')
     return f"{date_str}10005{interval_index:04d}"
 
@@ -45,7 +51,7 @@ async def send_auto_prediction(app):
                 f"🏋️ BDG WIN 30 SEC\n\n"
                 f"🔹 PERIOD: {period_num}\n"
                 f"🎯 PREDICTION: {prediction_type}\n\n"
-                f"💡 1-3 Level Martingale Use Karain"
+                f"💡 1-10 Level Martingale Use Karain"
             )
             
             await app.bot.send_message(
