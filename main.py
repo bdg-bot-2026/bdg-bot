@@ -17,7 +17,7 @@ def run_web():
     port = int(os.environ.get("PORT", 8080))
     app_web.run(host='0.0.0.0', port=port)
 
-RAW_TOKEN = "8752459278:AAEyMFVDsDCWwcD9bYxo1xvukLN41QPsOwQ"
+RAW_TOKEN = "8752459278:AAGbwu4j7JqT3R4Auwhj2PLMidKzhRaSkS0"
 TOKEN = RAW_TOKEN.strip()
 
 CHANNEL_ID = "@bdgplayvipwin"
