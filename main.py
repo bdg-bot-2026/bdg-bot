@@ -24,7 +24,7 @@ TOKEN = RAW_TOKEN.strip()
 
 CHANNEL_ID = "@bdgplayvipwin"
 
-# 🤖 AI High-Tech Dynamic Engine Memory (All 14 Logics Active Inside)
+# 🤖 AI Dynamic Engine Memory (15 Logics Active)
 current_pattern = []
 pattern_index = 0
 
@@ -37,33 +37,34 @@ def get_ist_time():
 
 def high_tech_ai_trend_evaluator():
     """
-    🧠 All 14 AI & Trading Logics Operating in Background
+    🧠 Background AI Engine with 15 Logics (10 Patterns + 5 AI Engines)
     """
     now = get_ist_time()
     hour = now.hour
 
     if (6 <= hour < 11) or (23 <= hour or hour < 2):
         strategies_weights = {
-            "DRAGON": 35,
-            "DRAGON_BREAK": 25,
-            "FOUR_BY_FOUR": 20,
-            "THREE_BY_THREE": 20
+            "DRAGON": 30,
+            "THREE_ONE_THREE": 25,
+            "DRAGON_BREAK": 20,
+            "FOUR_BY_FOUR": 15,
+            "THREE_BY_THREE": 10
         }
     elif 11 <= hour < 17:
         strategies_weights = {
-            "TWO_BY_TWO": 30,
-            "TWO_ONE_TWO": 25,
-            "TWO_ONE_TWO_ONE": 20,
-            "DRAGON_BREAK": 15,
-            "THREE_BY_THREE": 10
+            "TWO_BY_TWO": 25,
+            "THREE_ONE_THREE": 25,
+            "TWO_ONE_TWO": 20,
+            "TWO_ONE_TWO_ONE": 15,
+            "DRAGON_BREAK": 15
         }
     else:
         strategies_weights = {
-            "ZIGZAG": 30,
-            "REVERSE_SANDWICH": 25,
-            "TWO_ONE_TWO_ONE": 20,
-            "DRAGON_BREAK": 15,
-            "TWO_BY_TWO": 10
+            "ZIGZAG": 25,
+            "THREE_ONE_THREE": 25,
+            "REVERSE_SANDWICH": 20,
+            "TWO_ONE_TWO_ONE": 15,
+            "TWO_BY_TWO": 15
         }
 
     strategies = list(strategies_weights.keys())
@@ -75,7 +76,10 @@ def high_tech_ai_trend_evaluator():
     
     pattern = []
     
-    if selected_strategy == "DRAGON_BREAK":
+    if selected_strategy == "THREE_ONE_THREE":
+        pattern = [start, start, start, opposite, start, start, start]
+
+    elif selected_strategy == "DRAGON_BREAK":
         dragon_start_len = random.choice([4, 5])
         pattern = [start] * dragon_start_len + [opposite] * 3 + [start, opposite, start]
 
@@ -152,14 +156,14 @@ async def send_auto_prediction(app):
                 else:
                     pred_display = "<b>BIG 🟢</b>"
                 
-                # Clean VIP Telegram Layout
+                # Clean VIP Telegram Format
                 msg = (
                     f"🤖 <b><u>BDG WIN ULTRA AI VIP</u></b> 🤖\n"
                     f"━━━━━━━━━━━━━━━━━━━\n"
                     f"🔹 <b>PERIOD:</b> <code>{period_num}</code>\n"
                     f"🎯 <b>PREDICTION:</b> {pred_display}\n"
                     f"━━━━━━━━━━━━━━━━━━━\n"
-                    f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
+                    f"💡 <i>Recommended: Safe 1-6 Level Martingale</i>"
                 )
                 
                 await app.bot.send_message(
@@ -168,7 +172,7 @@ async def send_auto_prediction(app):
                     parse_mode=ParseMode.HTML,
                     reply_markup=reply_markup
                 )
-                print(f"Sent Clean Prediction: {period_num} -> {raw_pred}")
+                print(f"Sent Prediction: {period_num} -> {raw_pred}")
                 last_sent_period = period_num
 
         except Exception as e:
@@ -183,7 +187,7 @@ def main():
     threading.Thread(target=run_web, daemon=True).start()
 
     app = ApplicationBuilder().token(TOKEN).post_init(post_init).build()
-    print("Ultra AI VIP Bot Started with Clean Format...")
+    print("Ultra AI VIP Bot Started with 15 Logics...")
     app.run_polling()
 
 if __name__ == '__main__':
