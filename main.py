@@ -20,7 +20,7 @@ def run_web():
 RAW_TOKEN = "8752459278:AAEyMFVDsDCWwcD9bYxo1xvukLN41QPsOwQ"
 TOKEN = RAW_TOKEN.strip()
 
-CHANNEL_ID = "@bdgplayvipvin"
+CHANNEL_ID = "@bdgplayvipwin"
 
 def get_current_30s_period():
     try:
