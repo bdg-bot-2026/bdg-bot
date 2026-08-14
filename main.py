@@ -29,7 +29,6 @@ def get_current_30s_period():
     except Exception:
         now = datetime.utcnow() + timedelta(hours=5, minutes=30)
 
-    # BDG Game 30s period counter resets at 05:30 AM IST
     start_time = now.replace(hour=5, minute=30, second=0, microsecond=0)
     if now < start_time:
         start_time -= timedelta(days=1)
@@ -41,29 +40,41 @@ def get_current_30s_period():
     return f"{date_str}10005{interval_index:04d}"
 
 async def send_auto_prediction(app):
-    await asyncio.sleep(5)
+    last_sent_period = ""
+    
     while True:
         try:
+            try:
+                ist = pytz.timezone('Asia/Kolkata')
+                now = datetime.now(ist)
+            except Exception:
+                now = datetime.utcnow() + timedelta(hours=5, minutes=30)
+
             period_num = get_current_30s_period()
-            prediction_type = random.choice(["SMALL 🔴", "BIG 🟢"])
             
-            msg = (
-                f"🏋️ BDG WIN 30 SEC\n\n"
-                f"🔹 PERIOD: {period_num}\n"
-                f"🎯 PREDICTION: {prediction_type}\n\n"
-                f"💡 1-10 Level Martingale Use Karain"
-            )
-            
-            await app.bot.send_message(
-                chat_id=CHANNEL_ID,
-                text=msg
-            )
-            print(f"Sent prediction for period: {period_num}")
+            # প্রতি ৩০ সেকেন্ড পিরিয়ড শুরু হলেই সাথে সাথে পাঠাবে
+            if period_num != last_sent_period:
+                prediction_type = random.choice(["SMALL 🔴", "BIG 🟢"])
+                
+                msg = (
+                    f"🏋️ BDG WIN 30 SEC\n\n"
+                    f"🔹 PERIOD: {period_num}\n"
+                    f"🎯 PREDICTION: {prediction_type}\n\n"
+                    f"💡 1-10 Level Martingale Use Karain"
+                )
+                
+                await app.bot.send_message(
+                    chat_id=CHANNEL_ID,
+                    text=msg
+                )
+                print(f"Sent prediction instantly for period: {period_num}")
+                last_sent_period = period_num
 
         except Exception as e:
             print(f"Error sending message: {e}")
 
-        await asyncio.sleep(30)
+        # সময় সিঙ্ক রাখার জন্য প্রতি ০.৫ সেকেন্ড পর পর চেক করবে
+        await asyncio.sleep(0.5)
 
 async def post_init(app):
     asyncio.create_task(send_auto_prediction(app))
@@ -77,3 +88,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    
