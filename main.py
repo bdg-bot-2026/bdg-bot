@@ -39,7 +39,7 @@ def get_smart_prediction():
         streak_count = 1
         return selected
 
-    # টানা ৪ বার বা তার বেশি একই ফলাফল এলে অপোজিট সিগন্যাল ফায়ার করবে (স্মার্ট সেফটি)
+    # টানা ৪ বার বা তার বেশি একই ফলাফল এলে অপোজিট সিগন্যাল ফায়ার করবে
     if streak_count >= 4:
         selected = "BIG" if last_prediction == "SMALL" else "SMALL"
         last_prediction = selected
@@ -92,13 +92,13 @@ async def send_auto_prediction(app):
                 # স্মার্ট অ্যালগরিদম দিয়ে প্রেডিকশন তৈরি
                 raw_pred = get_smart_prediction()
                 
-                # কোড বক্সে প্রিমিয়াম হাইলাইট ডিসপ্লে
+                # মোটা (Bold) টেক্সট ফরম্যাট
                 if raw_pred == "SMALL":
-                    pred_display = "<code>SMALL 🔴</code>"
+                    pred_display = "<b>SMALL 🔴</b>"
                 else:
-                    pred_display = "<code>BIG 🟢</code>"
+                    pred_display = "<b>BIG 🟢</b>"
                 
-                # সুন্দর ভিআইপি ফরম্যাট
+                # প্রিমিয়াম ভিআইপি ফরম্যাট
                 msg = (
                     f"🏆 <b><u>BDG WIN 30 SEC VIP</u></b> 🏆\n"
                     f"━━━━━━━━━━━━━━━━━━━\n"
@@ -134,4 +134,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
