@@ -5,7 +5,9 @@ import pytz
 import asyncio
 import threading
 from flask import Flask
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder
+from telegram.constants import ParseMode
 
 app_web = Flask(__name__)
 
@@ -42,38 +44,42 @@ def get_current_30s_period():
 async def send_auto_prediction(app):
     last_sent_period = ""
     
+    # 🔘 BDG WIN লিঙ্ক ও নামসহ বাটন
+    keyboard = [
+        [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
+        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
     while True:
         try:
-            try:
-                ist = pytz.timezone('Asia/Kolkata')
-                now = datetime.now(ist)
-            except Exception:
-                now = datetime.utcnow() + timedelta(hours=5, minutes=30)
-
             period_num = get_current_30s_period()
             
-            # প্রতি ৩০ সেকেন্ড পিরিয়ড শুরু হলেই সাথে সাথে পাঠাবে
             if period_num != last_sent_period:
                 prediction_type = random.choice(["SMALL 🔴", "BIG 🟢"])
                 
+                # প্রিমিয়াম ভিআইপি ফরম্যাট
                 msg = (
-                    f"🏋️ BDG WIN 30 SEC\n\n"
-                    f"🔹 PERIOD: {period_num}\n"
-                    f"🎯 PREDICTION: {prediction_type}\n\n"
-                    f"💡 1-10 Level Martingale Use Karain"
+                    f"🏆 <b><u>BDG WIN 30 SEC VIP</u></b> 🏆\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"🔹 <b>PERIOD:</b> <code>{period_num}</code>\n"
+                    f"🎯 <b>PREDICTION:</b> <b>{prediction_type}</b>\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"💡 <i>1-10 Level Martingale Use Karain</i>"
                 )
                 
                 await app.bot.send_message(
                     chat_id=CHANNEL_ID,
-                    text=msg
+                    text=msg,
+                    parse_mode=ParseMode.HTML,
+                    reply_markup=reply_markup
                 )
-                print(f"Sent prediction instantly for period: {period_num}")
+                print(f"Sent prediction for period: {period_num}")
                 last_sent_period = period_num
 
         except Exception as e:
             print(f"Error sending message: {e}")
 
-        # সময় সিঙ্ক রাখার জন্য প্রতি ০.৫ সেকেন্ড পর পর চেক করবে
         await asyncio.sleep(0.5)
 
 async def post_init(app):
