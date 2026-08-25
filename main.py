@@ -115,24 +115,19 @@ def get_current_30s_period():
     date_str = now.strftime('%Y%m%d')
     return f"{date_str}10005{interval_index:04d}"
 
-# 🕒 ৫টি নির্দিষ্ট টাইম স্লট (প্রতিটি ১ ঘণ্টা করে চলবে)
+# 🕒 দিনে ২টি নির্দিষ্ট টাইম স্লট (প্রতিটি ঠিক ১০ মিনিট করে চলবে)
 def is_active_prediction_time():
     now = get_ist_time()
     current_hour = now.hour
+    current_minute = now.minute
 
-    active_slots = [
-        (7, 8),    # Slot 1: Morning 7:00 AM - 8:00 AM
-        (10, 11),  # Slot 2: Morning 10:00 AM - 11:00 AM
-        (14, 15),  # Slot 3: Afternoon 2:00 PM - 3:00 PM
-        (19, 20),  # Slot 4: Evening 7:00 PM - 8:00 PM
-        (22, 23)   # Slot 5: Night 10:00 PM - 11:00 PM
-    ]
+    # স্লট ১: সকাল ১০:০০ টা থেকে ১০:১০ টা পর্যন্ত
+    slot1_active = (current_hour == 10 and 0 <= current_minute < 10)
+    
+    # স্লট ২: সন্ধ্যা ৭:০০ টা থেকে ৭:১০ টা পর্যন্ত
+    slot2_active = (current_hour == 19 and 0 <= current_minute < 10)
 
-    for start_h, end_h in active_slots:
-        if start_h <= current_hour < end_h:
-            return True
-            
-    return False
+    return slot1_active or slot2_active
 
 async def send_auto_prediction(app):
     last_sent_period = ""
@@ -184,3 +179,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    
