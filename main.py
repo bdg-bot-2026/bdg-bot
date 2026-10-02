@@ -9,18 +9,23 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder
 from telegram.constants import ParseMode
 
-# Flask Web Server (Render বা অন্য ক্লাউডে লাইভ রাখার জন্য)
+# ==========================================
+# 🌐 Flask Web Server (Render বা ক্লাউডে লাইভ রাখার জন্য)
+# ==========================================
 app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Reverse Signal Mode)"
+    return "Bot status: ONLINE (Scheduled Signal Mode)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
     app_web.run(host='0.0.0.0', port=port)
 
-# Telegram Bot Configurations
+
+# ==========================================
+# 🤖 Telegram Bot Configurations
+# ==========================================
 RAW_TOKEN = "8752459278:AAGbwu4j7JqT3R4Auwhj2PLMidKzhRaSkS0"
 TOKEN = RAW_TOKEN.strip()
 CHANNEL_ID = "@bdgplayvipwin"
@@ -28,6 +33,10 @@ CHANNEL_ID = "@bdgplayvipwin"
 current_pattern = []
 pattern_index = 0
 
+
+# ==========================================
+# ⏰ Time & AI Trend Evaluator Functions
+# ==========================================
 def get_ist_time():
     """IST (Indian Standard Time) বা UTC টাইম রিটার্ন করে"""
     try:
@@ -98,7 +107,7 @@ def high_tech_ai_trend_evaluator():
     return pattern
 
 def get_high_tech_ai_prediction():
-    """প্যাটার্ন থেকে পরবর্তী প্রেডিকশন ফেচ করে এবং তা রিভার্স (উল্টো) করে দেয়"""
+    """প্যাটার্ন থেকে পরবর্তী অরিজিনাল প্রেডিকশন ফেচ করে (রিভার্স ছাড়া)"""
     global current_pattern, pattern_index
     if not current_pattern or pattern_index >= len(current_pattern):
         current_pattern = high_tech_ai_trend_evaluator()
@@ -106,10 +115,7 @@ def get_high_tech_ai_prediction():
     
     raw_prediction = current_pattern[pattern_index]
     pattern_index += 1
-    
-    # রিভার্স লজিক: BIG হলে SMALL এবং SMALL হলে BIG রিটার্ন করবে
-    reversed_prediction = "SMALL" if raw_prediction == "BIG" else "BIG"
-    return reversed_prediction
+    return raw_prediction
 
 def get_current_30s_period():
     """৩০ সেকেন্ডের গেম পিরিয়ড আইডি জেনারেট করে"""
@@ -122,8 +128,12 @@ def get_current_30s_period():
     date_str = now.strftime('%Y%m%d')
     return f"{date_str}10005{interval_index:04d}"
 
+
+# ==========================================
+# 🚀 Telegram Automation Functions (Scheduled Time)
+# ==========================================
 async def send_auto_prediction(app):
-    """স্বয়ংক্রিয়ভাবে টেলিগ্রাম চ্যানেলে রিভার্স সিগন্যাল পাঠাতে থাকে"""
+    """নির্দিষ্ট সময়ে (সকাল ৭টা থেকে ৭:১০ এবং রাত ৮টা থেকে ৮:১০) সিগন্যাল পাঠাবে"""
     last_sent_period = ""
     keyboard = [
         [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
@@ -133,36 +143,50 @@ async def send_auto_prediction(app):
 
     while True:
         try:
-            period_num = get_current_30s_period()
-            if period_num != last_sent_period:
-                pred = get_high_tech_ai_prediction()
-                pred_display = "<b>SMALL 🔴</b>" if pred == "SMALL" else "<b>BIG 🟢</b>"
-                
-                msg = (
-                    f"🤖 <b><u>BDG WIN ULTRA AI VIP (REVERSE)</u></b> 🤖\n"
-                    f"━━━━━━━━━━━━━━━━━━━\n"
-                    f"🔹 <b>PERIOD:</b> <code>{period_num}</code>\n"
-                    f"🎯 <b>PREDICTION:</b> {pred_display}\n"
-                    f"━━━━━━━━━━━━━━━━━━━\n"
-                    f"💡 <i>Recommended: Safe 1-6 Level Martingale</i>"
-                )
-                
-                await app.bot.send_message(
-                    chat_id=CHANNEL_ID,
-                    text=msg,
-                    parse_mode=ParseMode.HTML,
-                    reply_markup=reply_markup
-                )
-                last_sent_period = period_num
+            now = get_ist_time()
+            hour = now.hour
+            minute = now.minute
+
+            # সময় চেক করা: সকাল ৭:০০ থেকে ৭:১০ অথবা রাত ৮:০০ থেকে ৮:১০ এর মধ্যে আছে কি না
+            is_morning_session = (hour == 7 and 0 <= minute < 10)
+            is_night_session = (hour == 20 and 0 <= minute < 10)
+
+            if is_morning_session or is_night_session:
+                period_num = get_current_30s_period()
+                if period_num != last_sent_period:
+                    pred = get_high_tech_ai_prediction()
+                    pred_display = "<b>SMALL 🔴</b>" if pred == "SMALL" else "<b>BIG 🟢</b>"
+                    
+                    msg = (
+                        f"🤖 <b><u>BDG WIN ULTRA AI VIP (SCHEDULED)</u></b> 🤖\n"
+                        f"━━━━━━━━━━━━━━━━━━━\n"
+                        f"🔹 <b>PERIOD:</b> <code>{period_num}</code>\n"
+                        f"🎯 <b>PREDICTION:</b> {pred_display}\n"
+                        f"━━━━━━━━━━━━━━━━━━━\n"
+                        f"💡 <i>Recommended: Safe 1-6 Level Martingale</i>"
+                    )
+                    
+                    await app.bot.send_message(
+                        chat_id=CHANNEL_ID,
+                        text=msg,
+                        parse_mode=ParseMode.HTML,
+                        reply_markup=reply_markup
+                    )
+                    last_sent_period = period_num
 
         except Exception as e:
             print(f"Error: {e}")
 
+        # সারাদিন ২৪ ঘণ্টা চালু থাকলেও সিগন্যাল শুধু নির্দিষ্ট সময়েই ট্রিগার হবে
         await asyncio.sleep(0.5)
 
 async def post_init(app):
     asyncio.create_task(send_auto_prediction(app))
 
+
+# ==========================================
+# 🏁 Main Function
+# ==========================================
 def main():
     # ব্যাকগ্রাউন্ডে Flask সার্ভার রান করার জন্য Thread শুরু করা হলো
     threading.Thread(target=run_web, daemon=True).start()
@@ -173,4 +197,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
+                
