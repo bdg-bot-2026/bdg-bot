@@ -14,7 +14,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE"
+    return "Bot status: ONLINE (Reverse Signal Mode)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -98,14 +98,18 @@ def high_tech_ai_trend_evaluator():
     return pattern
 
 def get_high_tech_ai_prediction():
-    """প্যাটার্ন থেকে পরবর্তী প্রেডিকশন ফেচ করে"""
+    """প্যাটার্ন থেকে পরবর্তী প্রেডিকশন ফেচ করে এবং তা রিভার্স (উল্টো) করে দেয়"""
     global current_pattern, pattern_index
     if not current_pattern or pattern_index >= len(current_pattern):
         current_pattern = high_tech_ai_trend_evaluator()
         pattern_index = 0
-    prediction = current_pattern[pattern_index]
+    
+    raw_prediction = current_pattern[pattern_index]
     pattern_index += 1
-    return prediction
+    
+    # রিভার্স লজিক: BIG হলে SMALL এবং SMALL হলে BIG রিটার্ন করবে
+    reversed_prediction = "SMALL" if raw_prediction == "BIG" else "BIG"
+    return reversed_prediction
 
 def get_current_30s_period():
     """৩০ সেকেন্ডের গেম পিরিয়ড আইডি জেনারেট করে"""
@@ -119,7 +123,7 @@ def get_current_30s_period():
     return f"{date_str}10005{interval_index:04d}"
 
 async def send_auto_prediction(app):
-    """স্বয়ংক্রিয়ভাবে টেলিগ্রাম চ্যানেলে সিগন্যাল পাঠাতে থাকে"""
+    """স্বয়ংক্রিয়ভাবে টেলিগ্রাম চ্যানেলে রিভার্স সিগন্যাল পাঠাতে থাকে"""
     last_sent_period = ""
     keyboard = [
         [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
@@ -131,11 +135,11 @@ async def send_auto_prediction(app):
         try:
             period_num = get_current_30s_period()
             if period_num != last_sent_period:
-                raw_pred = get_high_tech_ai_prediction()
-                pred_display = "<b>SMALL 🔴</b>" if raw_pred == "SMALL" else "<b>BIG 🟢</b>"
+                pred = get_high_tech_ai_prediction()
+                pred_display = "<b>SMALL 🔴</b>" if pred == "SMALL" else "<b>BIG 🟢</b>"
                 
                 msg = (
-                    f"🤖 <b><u>BDG WIN ULTRA AI VIP</u></b> 🤖\n"
+                    f"🤖 <b><u>BDG WIN ULTRA AI VIP (REVERSE)</u></b> 🤖\n"
                     f"━━━━━━━━━━━━━━━━━━━\n"
                     f"🔹 <b>PERIOD:</b> <code>{period_num}</code>\n"
                     f"🎯 <b>PREDICTION:</b> {pred_display}\n"
