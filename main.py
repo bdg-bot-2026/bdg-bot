@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Absolute Sync Mode)"
+    return "Bot status: ONLINE (All Logics, Alerts & Period Sync)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -115,19 +115,14 @@ def get_high_tech_ai_prediction():
     return raw_prediction
 
 def get_current_1min_period():
-    """
-    গেমের লাইভ পিরিয়ডের সাথে নিখুঁতভাবে মিল রাখার জন্য পারফেক্ট টাইম ও মিনিট ক্যালকুলেশন।
-    """
+    """১ মিনিটের গেমের রিয়েল পিরিয়ড আইডি জেনারেট করে"""
     now = get_ist_time()
     date_str = now.strftime('%Y%m%d')
-    
-    # সারদিনের মোট মিনিট হিসাব করা
     start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - start_of_day).total_seconds() // 60)
     
-    # গেমের রিয়েল পিরিয়ডের সাথে মিল রাখার জন্য সুনির্দিষ্ট বেস এবং ডায়নামিক অফসেট
     base_period = int(f"{date_str}100000000")
-    current_period = base_period + total_minutes + 1496
+    current_period = base_period + total_minutes + 1090
     return str(current_period)
 
 
@@ -178,10 +173,10 @@ async def send_auto_prediction(app):
                     last_alert_date_session = alert_key
 
 
-            # ২. মূল সিগন্যাল পাঠানোর অংশ (রিয়েল-টাইম পিরিয়ড সিঙ্ক)
+            # ২. মূল সিগন্যাল পাঠানোর অংশ (সকাল ৭-১০, দুপুর ২-৫, রাত ৮-১১ ইত্যাদি অথবা আপনার ইচ্ছামতো সময়)
             period_num = get_current_1min_period()
             if period_num != last_sent_period:
-                pred = high_tech_ai_trend_evaluator() if not current_pattern else get_high_tech_ai_prediction()
+                pred = get_high_tech_ai_prediction()
                 
                 if pred == "SMALL":
                     pred_text = "SMALL"
@@ -213,7 +208,7 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("💎 Contact For Support", url="https://t.me/bdgplayvipwin")]
             ])
 
-            # ৩. প্রমোশন মেসেজ
+            # ৩. সেশন শেষ হওয়ার পরের প্রমোশন মেসেজ
             if (hour == 7 and minute == 36) or (hour == 14 and minute == 36) or (hour == 20 and minute == 36):
                 promo_key = f"{current_date_str}_{hour}_PROMO"
                 if last_promo_date_session != promo_key:
@@ -249,75 +244,33 @@ async def send_ready_alert(app, session_name, markup):
         f"🚨 🔥 <b>ATTENTION: {session_name} IS ABOUT TO START!</b> 🔥 🚨\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🎯 <b>Get ready & prepare your account! / तैयार हो जाइए! / সবাই রেডি থাকুন!</b>\n\n"
-        
-        f"🇬🇧 <b>ENGLISH:</b>\n"
-        f"• <b>Maintain Balance:</b> Follow safe <b>10-Level Martingale</b>.\n"
-        f"• <b>No Illegal Bets:</b> Do NOT place Big & Small together.\n"
-        f"• <b>No Red/Green Mix:</b> Do not bet on Red & Green simultaneously.\n"
-        f"• <b>Single Device:</b> Do not use 2 accounts on 1 phone.\n"
-        f"• <b>Network:</b> Avoid public Wi-Fi.\n\n"
-
-        f"🇮🇳 <b>हिंदी (HINDI):</b>\n"
-        f"• <b>बैलेंस बनाए रखें:</b> सुरक्षित <b>10-लेवल मार्टिंगेल</b> फॉलो करें।\n"
-        f"• <b>कोई अवैध शर्त नहीं:</b> Big और Small एकसाथ न लगाएं।\n"
-        f"• <b>रेड/ग्रीन मिक्स न करें:</b> एकसाथ दोनों पर बेट न लगाएं।\n"
-        f"• <b>एक डिवाइस नियम:</b> एक फोन में दो आईडी लॉगिन न करें।\n"
-        f"• <b>नेटवर्क चेतावनी:</b> पब्लिक वाई-फाई का उपयोग न करें।\n\n"
-
-        f"🇧🇩 <b>বাংলা (BANGLA):</b>\n"
-        f"• <b>ব্যালেন্স মেইনটেইন করুন:</b> নিরাপদ <b>১০ লেভেল মার্টিনগেল</b> ফলো করুন।\n"
-        f"• <b>ইল্লিগাল বেট নিষেধ:</b> বিগ এবং স্মল একসঙ্গে কেউ করবেন না।\n"
-        f"• <b>রেড-গ্রীন একসঙ্গে নয়:</b> রেড ও গ্রীনে একসাথে বেট লাগাবেন না।\n"
-        f"• <b>এক ফোনে এক আইডি:</b> একটা ফোনে দুটো আইডি লগইন করবেন না।\n"
-        f"• <b>ওয়াইফাই সতর্কবার্তা:</b> ওয়াইফাই প্লে বা পাবলিক নেটওয়ার্ক এড়িয়ে চলুন।\n\n"
-        f"⚠️ <i>Follow company rules strictly to protect your account! / कंपनी के नियमों का पालन करें! / কোম্পানির রুলস ফলো করুন!</i>\n"
+        f"🇬🇧 <b>ENGLISH:</b> Maintain balance & follow safe 10-Level Martingale.\n"
+        f"🇮🇳 <b>हिंदी (HINDI):</b> सुरक्षित 10-लेवल मार्टिंगेल फॉलो करें।\n"
+        f"🇧🇩 <b>বাংলা (BANGLA):</b> নিরাপদ ১০ লেভেল মার্টিনগেল ফলো করুন।\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     )
-    await app.bot.send_message(
-        chat_id=CHANNEL_ID,
-        text=alert_msg,
-        parse_mode=ParseMode.HTML,
-        reply_markup=markup
-    )
+    await app.bot.send_message(chat_id=CHANNEL_ID, text=alert_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
 
 async def send_referral_promo(app, markup):
     promo_msg = (
         f"🌟 🔥 <b>MAXIMIZE YOUR EARNINGS WITH BDG WIN!</b> 🔥 🌟\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"🇬🇧 <b>ENGLISH:</b>\n"
-        f"<i>Build your powerful team and generate passive daily income! Earn lifetime commissions, daily salaries, and referral bonuses. Share your link now!</i>\n\n"
-        f"🇮🇳 <b>हिंदी (HINDI):</b>\n"
-        f"<i>अपनी खुद की मजबूत टीम बनाएं और रोजाना पैसिव इनकम कमाएं! लाइफटाइम कमीशन, डेली सैलरी और रेफरल बोनस पाएं। अभी अपना लिंक शेयर करें!</i>\n\n"
-        f"🇧🇩 <b>বাংলা (BANGLA):</b>\n"
-        f"<i>একটি শক্তিশালী টিম তৈরি করুন এবং প্রতিদিন প্যাসিভ ইনকাম করুন! লাইফটাইম কমিশন, ডেইলি স্যালারি এবং রেফারেল বোনাস উপভোগ করুন। এখনই শেয়ার করুন!</i>\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━"
+        f"<i>Build your team and generate passive daily income! Earn lifetime commissions and referral bonuses. Share your link now!</i>"
     )
-    await app.bot.send_message(
-        chat_id=CHANNEL_ID,
-        text=promo_msg,
-        parse_mode=ParseMode.HTML,
-        reply_markup=markup
-    )
+    await app.bot.send_message(chat_id=CHANNEL_ID, text=promo_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
 
 async def send_next_session_info(app, next_session_name, next_time_str):
     next_msg = (
         f"⏰ 🔔 <b>NEXT SESSION UPDATE</b> 🔔 ⏰\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"📌 <b>Upcoming Session:</b> {next_session_name}\n"
-        f"🕒 <b>Start Time:</b> {next_time_str} Sharp\n\n"
-        f"💡 <i>Prepare your funds, recharge your account, and stay active on the channel before time! Don't miss out on high profits.</i> 🚀\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        f"🕒 <b>Start Time:</b> {next_time_str} Sharp"
     )
     next_markup = InlineKeyboardMarkup([
         [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
         [InlineKeyboardButton("📢 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
     ])
-    await app.bot.send_message(
-        chat_id=CHANNEL_ID,
-        text=next_msg,
-        parse_mode=ParseMode.HTML,
-        reply_markup=next_markup
-    )
+    await app.bot.send_message(chat_id=CHANNEL_ID, text=next_msg, parse_mode=ParseMode.HTML, reply_markup=next_markup)
 
 async def post_init(app):
     asyncio.create_task(send_auto_prediction(app))
@@ -326,19 +279,11 @@ async def post_init(app):
 # ==========================================
 # 🏁 Main Function
 # ==========================================
-main_called = False
-
 def main():
-    global main_called
-    if main_called:
-        return
-    main_called = True
-    
     threading.Thread(target=run_web, daemon=True).start()
-    
     app = ApplicationBuilder().token(TOKEN).post_init(post_init).build()
     app.run_polling()
 
 if __name__ == '__main__':
     main()
-    
+                
