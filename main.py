@@ -1,6 +1,6 @@
 import os
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 import pytz
 import asyncio
 import threading
@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Perfect Period Match Active)"
+    return "Bot status: ONLINE (Absolute Period Match Fix)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -32,24 +32,24 @@ CHANNEL_ID = "@bdgplayvipwin"
 
 
 # ==========================================
-# ⏰ Exact Real-time Period Synchronization
+# ⏰ Direct Accurate Period Sync
 # ==========================================
-def get_ist_time():
+def get_current_1min_period():
     try:
         ist = pytz.timezone('Asia/Kolkata')
-        return datetime.now(ist)
+        now = datetime.now(ist)
     except Exception:
-        return datetime.utcnow() + timedelta(hours=5, minutes=30)
-
-def get_current_1min_period():
-    now = get_ist_time()
+        now = datetime.utcnow()
+        
     date_str = now.strftime('%Y%m%d')
-    start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    total_minutes = int((now - start_of_day).total_seconds() // 60)
     
-    # একদম নিখুঁত গেম ফরম্যাট: YYYYMMDD + 1000 + minute_count (যেমন: 20261006100011049)
-    current_period = f"{date_str}1000{total_minutes}"
-    return current_period
+    # আজকের দিনের শুরু থেকে কত মিনিট পার হয়েছে তার সঠিক হিসাব
+    midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    total_minutes = int((now - midnight).total_seconds() // 60)
+    
+    # গেমের রিয়েল স্ট্রাকচার: YYYYMMDD + 1000 + total_minutes
+    period = f"{date_str}1000{total_minutes}"
+    return period
 
 
 # ==========================================
