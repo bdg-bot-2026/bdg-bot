@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Advanced AI Trend & Lifetime Dynamic Period Active)"
+    return "Bot status: ONLINE (Advanced AI Trend & Live Matched Period Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -35,7 +35,7 @@ pattern_index = 0
 
 
 # ==========================================
-# ⏰ Time & Lifetime Period Synchronization Function
+# ⏰ Time & Live Game Period Synchronization Function
 # ==========================================
 def get_ist_time():
     try:
@@ -46,17 +46,17 @@ def get_ist_time():
 
 def get_current_1min_period():
     now = get_ist_time()
-    # আজকের তারিখটি ডায়নামিকভাবে ফরম্যাট করা (যেমন: 20261007)
-    date_str = now.strftime('%Y%m%d')
     
-    # আজকের দিনের শুরু (রাত ১২:০০ টা) থেকে বর্তমান সময় পর্যন্ত মোট কত মিনিট হয়েছে তার নিখুঁত হিসাব
-    start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    total_minutes = int((now - start_of_day).total_seconds() // 60)
+    # স্ক্রিনশটের লাইভ বেস সময় এবং পিরিয়ড নম্বর (যেমন: 20261006100011172)[span_1](start_span)[span_1](end_span)
+    base_time = datetime(2026, 10, 7, 1, 2, 0, tzinfo=pytz.timezone('Asia/Kolkata'))
+    base_period = 11172
     
-    # গেমের নিয়ম অনুযায়ী প্রতিদিনের পিরিয়ড কাউন্ট যা লাইফটাইম স্বয়ংক্রিয়ভাবে আপডেট হবে
-    game_period_count = 10001 + total_minutes
+    # বর্তমান সময় থেকে বেস সময়ের মিনিটের পার্থক্য হিসাব করা
+    total_minutes = int((now - base_time).total_seconds() // 60)
     
-    return f"{date_str}1000{game_period_count}"
+    # সঠিক লাইভ পিরিয়ড নম্বর জেনারেট করা
+    current_period_count = base_period + total_minutes
+    return f"202610061000{current_period_count}"
 
 
 # ==========================================
@@ -328,11 +328,11 @@ async def main():
     # ব্যাকগ্রাউন্ডে ফ্লাস্ক সার্ভার রান করার জন্য
     threading.Thread(target=run_web, daemon=True).start()
     
-    print("BDG Win Ultra AI Bot (Lifetime Dynamic Period Active) is running...")
+    print("BDG Win Ultra AI Bot (Live Matched Period Active) is running...")
     
     # অটো সিগন্যাল ও অ্যালার্ট লুপ স্টার্ট করা
     await send_auto_prediction(app)
 
 if __name__ == "__main__":
     asyncio.run(main())
-        
+            
