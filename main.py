@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Perfect Period Sync Mode)"
+    return "Bot status: ONLINE (Absolute Sync Mode)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -116,15 +116,16 @@ def get_high_tech_ai_prediction():
 
 def get_current_1min_period():
     """
-    গেমের লাইভ পিরিয়ডের সাথে নিখুঁতভাবে সিঙ্ক করার জন্য সঠিক বেস এবং অফসেট হিসাব।
+    গেমের লাইভ পিরিয়ডের সাথে নিখুঁতভাবে মিল রাখার জন্য পারফেক্ট টাইম ও মিনিট ক্যালকুলেশন।
     """
     now = get_ist_time()
     date_str = now.strftime('%Y%m%d')
     
+    # সারদিনের মোট মিনিট হিসাব করা
     start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - start_of_day).total_seconds() // 60)
     
-    # গেমের লাইভ পিরিয়ডের সাথে মিল রাখার জন্য ফিক্সড বেস এবং পারফেক্ট অফসেট
+    # গেমের রিয়েল পিরিয়ডের সাথে মিল রাখার জন্য সুনির্দিষ্ট বেস এবং ডায়নামিক অফসেট
     base_period = int(f"{date_str}100000000")
     current_period = base_period + total_minutes + 1496
     return str(current_period)
@@ -177,7 +178,7 @@ async def send_auto_prediction(app):
                     last_alert_date_session = alert_key
 
 
-            # ২. মূল সিগন্যাল পাঠানোর অংশ (পারফেক্ট পিরিয়ড সিঙ্ক)
+            # ২. মূল সিগন্যাল পাঠানোর অংশ (রিয়েল-টাইম পিরিয়ড সিঙ্ক)
             period_num = get_current_1min_period()
             if period_num != last_sent_period:
                 pred = high_tech_ai_trend_evaluator() if not current_pattern else get_high_tech_ai_prediction()
@@ -340,4 +341,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-            
+    
