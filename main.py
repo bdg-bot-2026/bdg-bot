@@ -187,7 +187,9 @@ async def send_auto_prediction(app):
                         pred_text = "BIG"
                         color_text = "GREEN 🟢"
                     
+                    # এখানে হেডিং থেকে '30s' সম্পূর্ণ বাদ দিয়ে ১ মিনিটের প্রফেশনাল ফরম্যাট করা হয়েছে
                     msg = (
+                        f"💎 <b>BDG VIP PREDICTION 1 Min</b> 💎\n\n"
                         f"💎 <b>BDG WIN ULTRA AI VIP</b> 💎\n\n"
                         f"🔹 <b>PERIOD:</b> {period_num}\n"
                         f"🎯 <b>PREDICTION:</b> {pred_text}\n"
@@ -307,7 +309,7 @@ async def send_next_session_info(app, next_session_name, next_time_str):
     )
     next_markup = InlineKeyboardMarkup([
         [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
-        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
+        [InlineKeyboardButton("📢 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
     ])
     await app.bot.send_message(
         chat_id=CHANNEL_ID,
@@ -338,4 +340,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
+            
