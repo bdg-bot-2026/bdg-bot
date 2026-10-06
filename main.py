@@ -17,7 +17,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Advanced AI Trend & Fully Automatic API Period Active)"
+    return "Bot status: ONLINE (Advanced AI Trend & Live Matched Period Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -36,7 +36,7 @@ pattern_index = 0
 
 
 # ==========================================
-# ⏰ Time & Fully Automatic API Period Synchronization Function
+# ⏰ Time & Live Game Period Synchronization Function
 # ==========================================
 def get_ist_time():
     try:
@@ -47,7 +47,6 @@ def get_ist_time():
 
 def get_current_1min_period():
     try:
-        # গেমের অফিশিয়াল সার্ভার থেকে রিয়েল-টাইম পিরিয়ড অটোমেটিক ফেচ করার এপিআই লজিক
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         }
@@ -58,10 +57,10 @@ def get_current_1min_period():
     except Exception:
         pass
     
-    # ব্যাকআপ সেলফ-অ্যাডজাস্টিং লজিক (যদি কোনো কারণে এপিআই কানেক্ট না হয়)
+    # বর্তমান স্ক্রিনশটের লাইভ বেস সময় (১:০৮ AM) এবং পিরিয়ড নম্বর (11179) অনুযায়ী ক্যালকুলেশন
     now = get_ist_time()
-    base_time = datetime(2026, 10, 7, 1, 2, 0, tzinfo=pytz.timezone('Asia/Kolkata'))
-    base_period = 11172
+    base_time = datetime(2026, 10, 7, 1, 8, 0, tzinfo=pytz.timezone('Asia/Kolkata'))
+    base_period = 11179
     total_minutes = int((now - base_time).total_seconds() // 60)
     current_period_count = base_period + total_minutes
     return f"202610061000{current_period_count}"
@@ -336,11 +335,11 @@ async def main():
     # ব্যাকগ্রাউন্ডে ফ্লাস্ক সার্ভার রান করার জন্য
     threading.Thread(target=run_web, daemon=True).start()
     
-    print("BDG Win Ultra AI Bot (Fully Automatic API Period Active) is running...")
+    print("BDG Win Ultra AI Bot (API & Live Matched Period Active) is running...")
     
     # অটো সিগন্যাল ও অ্যালার্ট লুপ স্টার্ট করা
     await send_auto_prediction(app)
 
 if __name__ == "__main__":
     asyncio.run(main())
-    
+            
