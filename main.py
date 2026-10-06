@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (1 Min Professional Mode)"
+    return "Bot status: ONLINE (1 Min Synced Mode)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -120,8 +120,8 @@ def get_current_1min_period():
     total_minutes = int((now - start_time).total_seconds() // 60)
     
     date_str = now.strftime('%Y%m%d')
-    # গেমের রিয়েল-টাইম পিরিয়ডের সাথে নিখুঁতভাবে মেলানোর জন্য অফসেট ফিক্স করা হয়েছে
-    current_period = int(f"{date_str}100010000") + total_minutes - 331
+    # গেমের রিয়েল-টাইম পিরিয়ডের সাথে নিখুঁতভাবে সিঙ্ক রাখার অফসেট
+    current_period = int(f"{date_str}100010000") + total_minutes - 325
     return str(current_period)
 
 
@@ -172,7 +172,7 @@ async def send_auto_prediction(app):
                     last_alert_date_session = alert_key
 
 
-            # ২. মূল সিগন্যাল পাঠানোর অংশ (১ মিনিট ইন্টারভ্যাল)
+            # ২. মূল সিগন্যাল পাঠানোর অংশ (প্রতি ১ মিনিট পরপর নিখুঁতভাবে)
             is_morning = (hour == 7 and 0 <= minute < 35)
             is_afternoon = (hour == 14 and 0 <= minute < 35)
             is_night = (hour == 20 and 0 <= minute < 35)
@@ -189,8 +189,9 @@ async def send_auto_prediction(app):
                         pred_text = "BIG"
                         color_text = "GREEN 🟢"
                     
+                    # এখানে হেডিং একদম পরিষ্কার করে শুধু '1 Min' প্রফেশনাল ফরম্যাটে দেওয়া হয়েছে
                     msg = (
-                        f"💎 <b>BDG WIN ULTRA AI VIP</b> 💎\n\n"
+                        f"💎 <b>BDG WIN 1 Min PREDICTION</b> 💎\n\n"
                         f"🔹 <b>PERIOD:</b> {period_num}\n"
                         f"🎯 <b>PREDICTION:</b> {pred_text}\n"
                         f"🎨 <b>COLOR:</b> {color_text}\n"
@@ -340,4 +341,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
+                    
