@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (1 Min Synced Mode)"
+    return "Bot status: ONLINE (Full Features Testing Mode)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -116,17 +116,15 @@ def get_high_tech_ai_prediction():
 
 def get_current_1min_period():
     """
-    গেমের লাইভ পিরিয়ডের সাথে নিখুঁতভাবে মিল রাখার জন্য সঠিক বেস এবং মিনিট ক্যালকুলেশন।
+    গেমের লাইভ পিরিয়ডের সাথে নিখুঁতভাবে সিঙ্ক রাখার সঠিক ক্যালকুলেশন।
     """
     now = get_ist_time()
     date_str = now.strftime('%Y%m%d')
     
-    # আজকের দিন শুরুর পর থেকে মোট কত মিনিট অতিবাহিত হয়েছে
     start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - start_of_day).total_seconds() // 60)
     
-    # আপনার গেমের হিস্ট্রি অনুযায়ী বেস পিরিয়ড নাম্বার সেট করা হলো
-    base_period = int(f"{date_str}100000000")
+    base_period = int(f"{date_str}100010000")
     current_period = base_period + total_minutes
     return str(current_period)
 
@@ -158,7 +156,7 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("📢 Channel Link", url="https://t.me/bdgplayvipwin")]
             ])
 
-            # ১. সেশন শুরুর আগের ৫ মিনিটের অ্যালার্ট
+            # ১. সেশন শুরুর আগের ৫ মিনিটের অ্যালার্ট (টেস্টিংয়ের জন্য চালু রাখা হয়েছে)
             if hour == 6 and 55 <= minute < 60:
                 alert_key = f"{current_date_str}_MORNING_ALERT"
                 if last_alert_date_session != alert_key:
@@ -178,40 +176,34 @@ async def send_auto_prediction(app):
                     last_alert_date_session = alert_key
 
 
-            # ২. মূল সিগন্যাল পাঠানোর অংশ (সঠিক সময়ে প্রতি ১ মিনিট পরপর)
-            is_morning = (hour == 7 and 0 <= minute < 35)
-            is_afternoon = (hour == 14 and 0 <= minute < 35)
-            is_night = (hour == 20 and 0 <= minute < 35)
-
-            if is_morning or is_afternoon or is_night:
-                period_num = get_current_1min_period()
-                if period_num != last_sent_period:
-                    pred = high_tech_ai_trend_evaluator() if not current_pattern else get_high_tech_ai_prediction()
-                    
-                    if pred == "SMALL":
-                        pred_text = "SMALL"
-                        color_text = "RED 🔴"
-                    else:
-                        pred_text = "BIG"
-                        color_text = "GREEN 🟢"
-                    
-                    # কোনো ভুল বা ডাবল হেডিং ছাড়াই প্রফেশনাল ফরম্যাট
-                    msg = (
-                        f"💎 <b>BDG WIN 1 Min PREDICTION</b> 💎\n\n"
-                        f"🔹 <b>PERIOD:</b> {period_num}\n"
-                        f"🎯 <b>PREDICTION:</b> {pred_text}\n"
-                        f"🎨 <b>COLOR:</b> {color_text}\n"
-                        f"───────────────────\n"
-                        f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
-                    )
-                    
-                    await app.bot.send_message(
-                        chat_id=CHANNEL_ID,
-                        text=msg,
-                        parse_mode=ParseMode.HTML,
-                        reply_markup=reply_markup
-                    )
-                    last_sent_period = period_num
+            # ২. মূল সিগন্যাল পাঠানোর অংশ: ২৪ ঘণ্টা কন্টিনিউয়াস টেস্টিংয়ের জন্য টাইম লিমিট তুলে দেওয়া হয়েছে
+            period_num = get_current_1min_period()
+            if period_num != last_sent_period:
+                pred = high_tech_ai_trend_evaluator() if not current_pattern else get_high_tech_ai_prediction()
+                
+                if pred == "SMALL":
+                    pred_text = "SMALL"
+                    color_text = "RED 🔴"
+                else:
+                    pred_text = "BIG"
+                    color_text = "GREEN 🟢"
+                
+                msg = (
+                    f"💎 <b>BDG WIN 1 Min PREDICTION</b> 💎\n\n"
+                    f"🔹 <b>PERIOD:</b> {period_num}\n"
+                    f"🎯 <b>PREDICTION:</b> {pred_text}\n"
+                    f"🎨 <b>COLOR:</b> {color_text}\n"
+                    f"───────────────────\n"
+                    f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
+                )
+                
+                await app.bot.send_message(
+                    chat_id=CHANNEL_ID,
+                    text=msg,
+                    parse_mode=ParseMode.HTML,
+                    reply_markup=reply_markup
+                )
+                last_sent_period = period_num
 
 
             promo_markup = InlineKeyboardMarkup([
@@ -219,14 +211,14 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("💎 Contact For Support", url="https://t.me/bdgplayvipwin")]
             ])
 
-            # ৩. সেশন শেষের ১ মিনিট পর প্রমোশন মেসেজ
+            # ৩. প্রমোশন মেসেজ
             if (hour == 7 and minute == 36) or (hour == 14 and minute == 36) or (hour == 20 and minute == 36):
                 promo_key = f"{current_date_str}_{hour}_PROMO"
                 if last_promo_date_session != promo_key:
                     await send_referral_promo(app, promo_markup)
                     last_promo_date_session = promo_key
 
-            # ৪. সেশন শেষের ২ মিনিট পর পরবর্তী সেশনের আপডেট
+            # ৪. পরবর্তী সেশনের আপডেট মেসেজ
             if hour == 7 and minute == 37:
                 next_key = f"{current_date_str}_MORNING_NEXT"
                 if last_next_date_session != next_key:
@@ -248,7 +240,7 @@ async def send_auto_prediction(app):
         except Exception as e:
             print(f"Error: {e}")
 
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.5)
 
 async def send_ready_alert(app, session_name, markup):
     alert_msg = (
@@ -347,4 +339,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
+                    
