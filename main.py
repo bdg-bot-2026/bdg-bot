@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Random Green & Red Only)"
+    return "Bot status: ONLINE (Perfect Period & Single Message Fix)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -47,28 +47,22 @@ def get_current_1min_period():
     start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - start_of_day).total_seconds() // 60)
     
-    current_period = int(f"{date_str}1000") + total_minutes
+    # গেমের সাথে ১০০% ম্যাচ করার জন্য সঠিক ফরম্যাট: YYYYMMDD + 100000000 + minute_count
+    current_period = int(f"{date_str}100000000") + total_minutes
     return str(current_period)
 
 
 # ==========================================
-# 🎲 Random Big/Small & Green/Red Only Generator
+# 🎲 Random Big/Small & Green/Red Generator
 # ==========================================
 def get_fully_random_prediction():
     pred_text = random.choice(["BIG", "SMALL"])
-    
-    # শুধুমাত্র Green এবং Red রাখা হলো (কোনো Violet নেই)
-    colors = [
-        "GREEN 🟢", 
-        "RED 🔴"
-    ]
-    color_text = random.choice(colors)
-    
+    color_text = random.choice(["GREEN 🟢", "RED 🔴"])
     return pred_text, color_text
 
 
 # ==========================================
-# 🚀 Telegram Automation Functions
+# 🚀 Telegram Automation Functions (Single Message Fix)
 # ==========================================
 async def send_auto_prediction(application):
     last_sent_period = ""
@@ -101,23 +95,7 @@ async def send_auto_prediction(application):
                     reply_markup=reply_markup
                 )
                 
-                await asyncio.sleep(50)
-                
-                post_msg = (
-                    f"📢 <b>PERIOD RESULT UPDATE</b> 📢\n"
-                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                    f"📌 <b>Period:</b> {period_num}\n"
-                    f"🎯 <b>Our Prediction was:</b> {pred_text} ({color_text})\n"
-                    f"✅ <i>Check your game history. If Level 1 win, great! If not, proceed safely up to 10-Level Martingale.</i>\n"
-                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━"
-                )
-                await application.bot.send_message(
-                    chat_id=CHANNEL_ID,
-                    text=post_msg,
-                    parse_mode=ParseMode.HTML,
-                    reply_markup=reply_markup
-                )
-                
+                # ডাবল মেসেজ সমস্যা সমাধানের জন্য এক্সট্রা রেজাল্ট আপডেট মেসেজটি পুরোপুরি রিমুভ করা হয়েছে
                 last_sent_period = period_num
 
         except Exception as e:
