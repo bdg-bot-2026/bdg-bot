@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Testing Mode - All Logics Active)"
+    return "Bot status: ONLINE (Exact Real Period Sync Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -35,7 +35,7 @@ pattern_index = 0
 
 
 # ==========================================
-# ⏰ Real-time Period Synchronization Function
+# ⏰ Exact Real-time Period Synchronization Function
 # ==========================================
 def get_ist_time():
     try:
@@ -45,12 +45,17 @@ def get_ist_time():
         return datetime.utcnow() + timedelta(hours=5, minutes=30)
 
 def get_current_1min_period():
+    """
+    গেমের রিয়েল পিরিয়ড ফরম্যাট অনুযায়ী সঠিক মিনিট কাউন্ট:
+    যেমন: YYYYMMDD + 1000 + সারদিনের মোট মিনিট সংখ্যা
+    """
     now = get_ist_time()
     date_str = now.strftime('%Y%m%d')
     start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - start_of_day).total_seconds() // 60)
     
-    current_period = int(f"{date_str}100000000") + total_minutes
+    # গেমের সাথে নিখুঁতভাবে পিরিয়ড মেলানোর জন্য সঠিক বেস ফরম্যাট
+    current_period = int(f"{date_str}10000") + total_minutes
     return str(current_period)
 
 
@@ -105,7 +110,7 @@ def get_high_tech_ai_prediction():
 # ==========================================
 # 🚀 Telegram Automation Functions
 # ==========================================
-async def send_auto_prediction(app):
+async def send_auto_prediction(application):
     last_sent_period = ""
     
     keyboard = [
@@ -136,7 +141,7 @@ async def send_auto_prediction(app):
                     f"💡 <i>Rule: Safe 1-10 Level Martingale (Testing Mode)</i>"
                 )
                 
-                await app.bot.send_message(
+                await application.bot.send_message(
                     chat_id=CHANNEL_ID,
                     text=msg,
                     parse_mode=ParseMode.HTML,
@@ -144,41 +149,49 @@ async def send_auto_prediction(app):
                 )
                 
                 await asyncio.sleep(50)
-                await send_post_signal_message(app, period_num, pred_text, reply_markup)
+                
+                post_msg = (
+                    f"📢 <b>PERIOD RESULT UPDATE</b> 📢\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"📌 <b>Period:</b> {period_num}\n"
+                    f"🎯 <b>Our Prediction was:</b> {pred_text}\n"
+                    f"✅ <i>Check your game history. If Level 1 win, great! If not, proceed safely up to 10-Level Martingale.</i>\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                )
+                await application.bot.send_message(
+                    chat_id=CHANNEL_ID,
+                    text=post_msg,
+                    parse_mode=ParseMode.HTML,
+                    reply_markup=reply_markup
+                )
                 
                 last_sent_period = period_num
 
         except Exception as e:
-            print(f"Error sending message: {e}")
+            print(f"Error in loop: {e}")
 
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1)
 
-async def send_post_signal_message(app, period_num, predicted_val, markup):
-    post_msg = (
-        f"📢 <b>PERIOD RESULT UPDATE</b> 📢\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"📌 <b>Period:</b> {period_num}\n"
-        f"🎯 <b>Our Prediction was:</b> {predicted_val}\n"
-        f"✅ <i>Check your game history. If Level 1 win, great! If not, proceed safely up to 10-Level Martingale.</i>\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    )
-    try:
-        await app.bot.send_message(chat_id=CHANNEL_ID, text=post_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
-    except Exception as e:
-        print(f"Error sending post message: {e}")
-
-async def post_init(app):
-    asyncio.create_task(send_auto_prediction(app))
+async def main_bot():
+    application = ApplicationBuilder().token(TOKEN).build()
+    
+    asyncio.create_task(send_auto_prediction(application))
+    
+    await application.initialize()
+    await application.start()
+    await application.updater.start_polling()
+    
+    while True:
+        await asyncio.sleep(3600)
 
 
 # ==========================================
 # 🏁 Main Function
 # ==========================================
-def main():
-    threading.Thread(target=run_web, daemon=True).start()
-    app = ApplicationBuilder().token(TOKEN).post_init(post_init).build()
-    app.run_polling()
-
 if __name__ == '__main__':
-    main()
-    
+    threading.Thread(target=run_web, daemon=True).start()
+    try:
+        asyncio.run(main_bot())
+    except (KeyboardInterrupt, SystemExit):
+        pass
+                
