@@ -120,8 +120,8 @@ def get_current_1min_period():
     total_minutes = int((now - start_time).total_seconds() // 60)
     
     date_str = now.strftime('%Y%m%d')
-    # গেমের রিয়েল-টাইম পিরিয়ডের সাথে নিখুঁতভাবে সিঙ্ক রাখার অফসেট
-    current_period = int(f"{date_str}100010000") + total_minutes - 325
+    # গেমের রিয়েল-টাইম পিরিয়ডের সাথে নিখুঁতভাবে মেলানোর সঠিক ক্যালকুলেশন
+    current_period = int(f"{date_str}100000000") + total_minutes
     return str(current_period)
 
 
@@ -189,7 +189,7 @@ async def send_auto_prediction(app):
                         pred_text = "BIG"
                         color_text = "GREEN 🟢"
                     
-                    # এখানে হেডিং একদম পরিষ্কার করে শুধু '1 Min' প্রফেশনাল ফরম্যাটে দেওয়া হয়েছে
+                    # শুধু সঠিক '1 Min' ফরম্যাট রাখা হয়েছে, কোনো অতিরিক্ত হেডিং রাখা হয়নি
                     msg = (
                         f"💎 <b>BDG WIN 1 Min PREDICTION</b> 💎\n\n"
                         f"🔹 <b>PERIOD:</b> {period_num}\n"
@@ -341,4 +341,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-                    
+                              
