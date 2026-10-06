@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Exact Period Matched Mode)"
+    return "Bot status: ONLINE (Fixed Period Sync Mode)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -116,18 +116,15 @@ def get_high_tech_ai_prediction():
 
 def get_current_1min_period():
     """
-    গেমের রিয়েল পিরিয়ড ফরম্যাটের সাথে সরাসরি সিঙ্ক করার জন্য 
-    সঠিক বেস এবং মিনিট অফসেট ক্যালকুলেশন।
+    গেমের লাইভ পিরিয়ডের সাথে নিখুঁতভাবে সিঙ্ক করার জন্য সঠিক ক্যালকুলেশন।
+    আপনার স্ক্রিনশট অনুযায়ী পিরিয়ড ফরম্যাট: YYYYMMDD100010000 + মিনিট অফসেট
     """
     now = get_ist_time()
     date_str = now.strftime('%Y%m%d')
     
-    # আজকের দিন শুরুর পর থেকে মোট কত মিনিট পার হয়েছে তা বের করা
     start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - start_of_day).total_seconds() // 60)
     
-    # গেমের স্ক্রিনশট অনুযায়ী সঠিক বেস পিরিয়ড (যেমন: 20261006 + 100010000 এর পরিবর্তে সঠিক সিকোয়েন্স)
-    # আপনার গেমের হিস্ট্রি অনুযায়ী বেস ফরম্যাট হলো: YYYYMMDD + 100010000 + মিনিট কাউন্ট
     base_period = int(f"{date_str}100010000")
     current_period = base_period + total_minutes
     return str(current_period)
@@ -180,7 +177,7 @@ async def send_auto_prediction(app):
                     last_alert_date_session = alert_key
 
 
-            # ২. মূল সিগন্যাল পাঠানোর অংশ (২৪ ঘণ্টা টেস্টিং মোڈ)
+            # ২. মূল সিগন্যাল পাঠানোর অংশ (রিয়েল-টাইম পিরিয়ড সিঙ্ক)
             period_num = get_current_1min_period()
             if period_num != last_sent_period:
                 pred = high_tech_ai_trend_evaluator() if not current_pattern else get_high_tech_ai_prediction()
@@ -272,7 +269,7 @@ async def send_ready_alert(app, session_name, markup):
         f"• <b>রেড-গ্রীন একসঙ্গে নয়:</b> রেড ও গ্রীনে একসাথে বেট লাগাবেন না।\n"
         f"• <b>এক ফোনে এক আইডি:</b> একটা ফোনে দুটো আইডি লগইন করবেন না।\n"
         f"• <b>ওয়াইফাই সতর্কবার্তা:</b> ওয়াইফাই প্লে বা পাবলিক নেটওয়ার্ক এড়িয়ে চলুন।\n\n"
-        f"⚠️ <i>Follow company rules strictly to protect your account! / कंपनी के नियमों का पालन करें! / কোম্পানির রুলস ফলো করুন!</i>\n"
+        f"⚠️️ <i>Follow company rules strictly to protect your account! / कंपनी के नियमों का पालन करें! / কোম্পানির রুলস ফলো করুন!</i>\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     )
     await app.bot.send_message(
@@ -343,4 +340,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-                
