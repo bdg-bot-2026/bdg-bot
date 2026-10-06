@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (All Logics Active, Time Off for Testing)"
+    return "Bot status: ONLINE (Testing Mode - All Logics Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -59,12 +59,12 @@ def get_current_1min_period():
 # ==========================================
 def high_tech_ai_trend_evaluator():
     strategies_weights = {
-        "DRAGON_TREND": 25,       # লম্বা ড্রাগন ট্রেন্ড
-        "THREE_BY_THREE": 20,     # ৩ বার বিগ, ৩ বার স্মল
-        "CROSS_WAVE": 20,         # ক্রস ওয়েব মিক্সড ট্রেন্ড
-        "TWO_BY_TWO_ZONE": 15,    # ২ বাই ২ ট্রেন্ড
-        "STABLE_ZIGZAG": 10,      # অল্টারনেট ট্রেন্ড
-        "SMART_MIXED": 10         # স্মার্ট মিক্সড জোন
+        "DRAGON_TREND": 25,       
+        "THREE_BY_THREE": 20,     
+        "CROSS_WAVE": 20,         
+        "TWO_BY_TWO_ZONE": 15,    
+        "STABLE_ZIGZAG": 10,      
+        "SMART_MIXED": 10         
     }
 
     strategies = list(strategies_weights.keys())
@@ -103,7 +103,7 @@ def get_high_tech_ai_prediction():
 
 
 # ==========================================
-# 🚀 Telegram Automation Functions (Time Off for Testing)
+# 🚀 Telegram Automation Functions
 # ==========================================
 async def send_auto_prediction(app):
     last_sent_period = ""
@@ -116,7 +116,6 @@ async def send_auto_prediction(app):
 
     while True:
         try:
-            # বর্তমান সময়ের কোনো টাইম রেস্ট্রিকশন রাখা হয়নি, পিরিয়ড চেンジ হওয়ার সাথে সাথে সিগন্যাল যাবে
             period_num = get_current_1min_period()
             if period_num != last_sent_period:
                 pred = get_high_tech_ai_prediction()
@@ -134,7 +133,7 @@ async def send_auto_prediction(app):
                     f"🎯 <b>PREDICTION:</b> {pred_text}\n"
                     f"🎨 <b>SUGGESTED COLOR:</b> {color_text}\n"
                     f"───────────────────\n"
-                    f"💡 <i>Rule: Safe 1-10 Level Martingale (Testing Mode Active)</i>"
+                    f"💡 <i>Rule: Safe 1-10 Level Martingale (Testing Mode)</i>"
                 )
                 
                 await app.bot.send_message(
@@ -144,14 +143,13 @@ async def send_auto_prediction(app):
                     reply_markup=reply_markup
                 )
                 
-                # রাউন্ড শেষে আপডেট মেসেজ
                 await asyncio.sleep(50)
                 await send_post_signal_message(app, period_num, pred_text, reply_markup)
                 
                 last_sent_period = period_num
 
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Error sending message: {e}")
 
         await asyncio.sleep(0.5)
 
@@ -164,7 +162,10 @@ async def send_post_signal_message(app, period_num, predicted_val, markup):
         f"✅ <i>Check your game history. If Level 1 win, great! If not, proceed safely up to 10-Level Martingale.</i>\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━"
     )
-    await app.bot.send_message(chat_id=CHANNEL_ID, text=post_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
+    try:
+        await app.bot.send_message(chat_id=CHANNEL_ID, text=post_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
+    except Exception as e:
+        print(f"Error sending post message: {e}")
 
 async def post_init(app):
     asyncio.create_task(send_auto_prediction(app))
@@ -173,10 +174,11 @@ async def post_init(app):
 # ==========================================
 # 🏁 Main Function
 # ==========================================
-main():
+def main():
     threading.Thread(target=run_web, daemon=True).start()
     app = ApplicationBuilder().token(TOKEN).post_init(post_init).build()
     app.run_polling()
 
 if __name__ == '__main__':
     main()
+    
