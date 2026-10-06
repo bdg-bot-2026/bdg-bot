@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import pytz
 import asyncio
 import threading
+import requests
 from flask import Flask
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder
@@ -16,7 +17,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Advanced AI Trend & Live Matched Period Active)"
+    return "Bot status: ONLINE (Advanced AI Trend & Fully Automatic API Period Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -35,7 +36,7 @@ pattern_index = 0
 
 
 # ==========================================
-# ⏰ Time & Live Game Period Synchronization Function
+# ⏰ Time & Fully Automatic API Period Synchronization Function
 # ==========================================
 def get_ist_time():
     try:
@@ -45,16 +46,23 @@ def get_ist_time():
         return datetime.utcnow() + timedelta(hours=5, minutes=30)
 
 def get_current_1min_period():
-    now = get_ist_time()
+    try:
+        # গেমের অফিশিয়াল সার্ভার থেকে রিয়েল-টাইম পিরিয়ড অটোমেটিক ফেচ করার এপিআই লজিক
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        }
+        response = requests.get("https://bdgwin.com/api/web/index.php?r=game/get-game-issue&game_type=1", headers=headers, timeout=3)
+        data = response.json()
+        if data and "data" in data and "issueNumber" in data["data"]:
+            return str(data["data"]["issueNumber"])
+    except Exception:
+        pass
     
-    # স্ক্রিনশটের লাইভ বেস সময় এবং পিরিয়ড নম্বর (যেমন: 20261006100011172)[span_1](start_span)[span_1](end_span)
+    # ব্যাকআপ সেলফ-অ্যাডজাস্টিং লজিক (যদি কোনো কারণে এপিআই কানেক্ট না হয়)
+    now = get_ist_time()
     base_time = datetime(2026, 10, 7, 1, 2, 0, tzinfo=pytz.timezone('Asia/Kolkata'))
     base_period = 11172
-    
-    # বর্তমান সময় থেকে বেস সময়ের মিনিটের পার্থক্য হিসাব করা
     total_minutes = int((now - base_time).total_seconds() // 60)
-    
-    # সঠিক লাইভ পিরিয়ড নম্বর জেনারেট করা
     current_period_count = base_period + total_minutes
     return f"202610061000{current_period_count}"
 
@@ -328,11 +336,11 @@ async def main():
     # ব্যাকগ্রাউন্ডে ফ্লাস্ক সার্ভার রান করার জন্য
     threading.Thread(target=run_web, daemon=True).start()
     
-    print("BDG Win Ultra AI Bot (Live Matched Period Active) is running...")
+    print("BDG Win Ultra AI Bot (Fully Automatic API Period Active) is running...")
     
     # অটো সিগন্যাল ও অ্যালার্ট লুপ স্টার্ট করা
     await send_auto_prediction(app)
 
 if __name__ == "__main__":
     asyncio.run(main())
-            
+    
