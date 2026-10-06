@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Absolute Period Match Fix)"
+    return "Bot status: ONLINE (Exact Offset Period Fixed)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -32,7 +32,7 @@ CHANNEL_ID = "@bdgplayvipwin"
 
 
 # ==========================================
-# ⏰ Direct Accurate Period Sync
+# ⏰ Exact Offset Period Synchronization
 # ==========================================
 def get_current_1min_period():
     try:
@@ -43,12 +43,13 @@ def get_current_1min_period():
         
     date_str = now.strftime('%Y%m%d')
     
-    # আজকের দিনের শুরু থেকে কত মিনিট পার হয়েছে তার সঠিক হিসাব
+    # আজকের দিনের শুরু থেকে মোট মিনিট বের করা
     midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - midnight).total_seconds() // 60)
     
-    # গেমের রিয়েল স্ট্রাকচার: YYYYMMDD + 1000 + total_minutes
-    period = f"{date_str}1000{total_minutes}"
+    # গেমের রিয়েল অফসেট (৯৬৭০) যোগ করে সঠিক পিরিয়ড তৈরি
+    game_period_count = total_minutes + 9670
+    period = f"{date_str}1000{game_period_count}"
     return period
 
 
@@ -123,4 +124,4 @@ if __name__ == '__main__':
         asyncio.run(main_bot())
     except (KeyboardInterrupt, SystemExit):
         pass
-        
+    
