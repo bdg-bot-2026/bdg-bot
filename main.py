@@ -116,7 +116,7 @@ def get_high_tech_ai_prediction():
 
 def get_current_1min_period():
     """
-    গেমের লাইভ পিরিয়ডের সাথে নিখুঁতভাবে সিঙ্ক করার জন্য সঠিক বেস এবং মিনিট ক্যালকুলেশন।
+    গেমের লাইভ পিরিয়ডের সাথে নিখুঁতভাবে সিঙ্ক করার জন্য সঠিক বেস এবং অফসেট হিসাব।
     """
     now = get_ist_time()
     date_str = now.strftime('%Y%m%d')
@@ -124,9 +124,9 @@ def get_current_1min_period():
     start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - start_of_day).total_seconds() // 60)
     
-    # আপনার গেমের লাইভ স্ক্রিনশটের পিরিয়ডের সাথে নিখুঁতভাবে মিলিয়ে বেস সেট করা হলো
-    base_period = int(f"{date_str}100009700")
-    current_period = base_period + total_minutes
+    # গেমের লাইভ পিরিয়ডের সাথে মিল রাখার জন্য ফিক্সড বেস এবং পারফেক্ট অফসেট
+    base_period = int(f"{date_str}100000000")
+    current_period = base_period + total_minutes + 1496
     return str(current_period)
 
 
@@ -177,7 +177,7 @@ async def send_auto_prediction(app):
                     last_alert_date_session = alert_key
 
 
-            # ২. মূল সিগন্যাল পাঠানোর অংশ (২৪ ঘণ্টা টেস্টিং ও পারফেক্ট পিরিয়ড সিঙ্ক)
+            # ২. মূল সিগন্যাল পাঠানোর অংশ (পারফেক্ট পিরিয়ড সিঙ্ক)
             period_num = get_current_1min_period()
             if period_num != last_sent_period:
                 pred = high_tech_ai_trend_evaluator() if not current_pattern else get_high_tech_ai_prediction()
@@ -340,4 +340,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-                
+            
