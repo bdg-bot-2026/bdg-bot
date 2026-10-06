@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Advanced AI Trend & Custom Screen Layout Active)"
+    return "Bot status: ONLINE (Advanced AI Trend & Lifetime Dynamic Period Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -35,7 +35,7 @@ pattern_index = 0
 
 
 # ==========================================
-# ⏰ Time & Live Period Synchronization Function
+# ⏰ Time & Lifetime Period Synchronization Function
 # ==========================================
 def get_ist_time():
     try:
@@ -46,15 +46,17 @@ def get_ist_time():
 
 def get_current_1min_period():
     now = get_ist_time()
-    # গেমের সার্ভারের ধারাবাহিক সিকোয়েন্স এবং লাইভ সময়ের সাথে নিখুঁত সিঙ্ক রাখার লজিক
-    base_date_str = "20261006"
+    # আজকের তারিখটি ডায়নামিকভাবে ফরম্যাট করা (যেমন: 20261007)
+    date_str = now.strftime('%Y%m%d')
+    
+    # আজকের দিনের শুরু (রাত ১২:০০ টা) থেকে বর্তমান সময় পর্যন্ত মোট কত মিনিট হয়েছে তার নিখুঁত হিসাব
     start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - start_of_day).total_seconds() // 60)
     
-    # সর্বশেষ লাইভ স্ক্রিনশট অনুযায়ী সঠিক সিকোয়েন্স কাউন্ট (লাইফটাইম ম্যাচিং ফিক্সড)
-    game_period_count = 11144 + total_minutes
-    current_period = f"{base_date_str}1000{game_period_count}"
-    return str(current_period)
+    # গেমের নিয়ম অনুযায়ী প্রতিদিনের পিরিয়ড কাউন্ট যা লাইফটাইম স্বয়ংক্রিয়ভাবে আপডেট হবে
+    game_period_count = 10001 + total_minutes
+    
+    return f"{date_str}1000{game_period_count}"
 
 
 # ==========================================
@@ -326,11 +328,11 @@ async def main():
     # ব্যাকগ্রাউন্ডে ফ্লাস্ক সার্ভার রান করার জন্য
     threading.Thread(target=run_web, daemon=True).start()
     
-    print("BDG Win Ultra AI Bot (Finalized & Fully Automated) is running...")
+    print("BDG Win Ultra AI Bot (Lifetime Dynamic Period Active) is running...")
     
     # অটো সিগন্যাল ও অ্যালার্ট লুপ স্টার্ট করা
     await send_auto_prediction(app)
 
 if __name__ == "__main__":
     asyncio.run(main())
-    
+        
