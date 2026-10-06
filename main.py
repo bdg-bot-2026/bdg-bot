@@ -194,7 +194,7 @@ async def send_auto_prediction(app):
                         color_text = "GREEN 🟢"
                     
                     msg = (
-                        f"❤️ <b>BDG WIN ULTRA AI VIP</b> ❤️️\n\n"
+                        f"💎 <b>BDG WIN ULTRA AI VIP</b> 💎\n\n"
                         f"🔹 <b>PERIOD:</b> <code>{period_num}</code>\n"
                         f"🎯 <b>PREDICTION:</b> {pred_text}\n"
                         f"🎨 <b>COLOR:</b> {color_text}\n"
@@ -274,7 +274,7 @@ async def send_ready_alert(app, session_name, markup):
         f"• <b>রেড-গ্রীন একসঙ্গে নয়:</b> রেড ও গ্রীনে একসাথে বেট লাগাবেন না।\n"
         f"• <b>এক ফোনে এক আইডি:</b> একটা ফোনে দুটো আইডি লগইন করবেন না।\n"
         f"• <b>ওয়াইফাই সতর্কবার্তা:</b> ওয়াইফাই প্লে বা পাবলিক নেটওয়ার্ক এড়িয়ে চলুন।\n\n"
-        f"⚠️ <i>Follow company rules strictly to protect your account! / कंपनी के नियमों का पालन करें! / কোম্পানির রুলস ফলো করুন!</i>\n"
+        f"⚠️️ <i>Follow company rules strictly to protect your account! / कंपनी के नियमों का पालन करें! / কোম্পানির রুলস ফলো করুন!</i>\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     )
     await app.bot.send_message(
