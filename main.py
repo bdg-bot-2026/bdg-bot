@@ -117,10 +117,11 @@ def get_high_tech_ai_prediction():
 def get_current_1min_period():
     now = get_ist_time()
     start_time = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    elapsed_seconds = int((now - start_time).total_seconds())
-    interval_index = (elapsed_seconds // 60) + 1
+    total_minutes = int((now - start_time).total_seconds() // 60)
+    
     date_str = now.strftime('%Y%m%d')
-    return f"{date_str}10001{interval_index:04d}"
+    current_period = int(f"{date_str}100010000") + total_minutes + 1
+    return str(current_period)
 
 
 # ==========================================
@@ -187,9 +188,7 @@ async def send_auto_prediction(app):
                         pred_text = "BIG"
                         color_text = "GREEN 🟢"
                     
-                    # এখানে হেডিং থেকে '30s' সম্পূর্ণ বাদ দিয়ে ১ মিনিটের প্রফেশনাল ফরম্যাট করা হয়েছে
                     msg = (
-                        f"💎 <b>BDG VIP PREDICTION 1 Min</b> 💎\n\n"
                         f"💎 <b>BDG WIN ULTRA AI VIP</b> 💎\n\n"
                         f"🔹 <b>PERIOD:</b> {period_num}\n"
                         f"🎯 <b>PREDICTION:</b> {pred_text}\n"
@@ -309,7 +308,7 @@ async def send_next_session_info(app, next_session_name, next_time_str):
     )
     next_markup = InlineKeyboardMarkup([
         [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
-        [InlineKeyboardButton("📢 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
+        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
     ])
     await app.bot.send_message(
         chat_id=CHANNEL_ID,
@@ -340,4 +339,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-            
+                
