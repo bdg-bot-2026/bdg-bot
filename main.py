@@ -10,7 +10,7 @@ from telegram.ext import ApplicationBuilder
 from telegram.constants import ParseMode
 
 # ==========================================
-# 🌐 Flask Web Server (Render বা ক্লাউডে লাইভ রাখার জন্য)
+# 🌐 Flask Web Server
 # ==========================================
 app_web = Flask(__name__)
 
@@ -120,12 +120,13 @@ def get_current_1min_period():
     total_minutes = int((now - start_time).total_seconds() // 60)
     
     date_str = now.strftime('%Y%m%d')
-    current_period = int(f"{date_str}100010000") + total_minutes + 1
+    # গেমের রিয়েল-টাইম পিরিয়ডের সাথে নিখুঁতভাবে মেলানোর জন্য অফসেট ফিক্স করা হয়েছে
+    current_period = int(f"{date_str}100010000") + total_minutes - 331
     return str(current_period)
 
 
 # ==========================================
-# 🚀 Telegram Automation Functions (1 Min Setup)
+# 🚀 Telegram Automation Functions
 # ==========================================
 async def send_auto_prediction(app):
     last_sent_period = ""
@@ -308,7 +309,7 @@ async def send_next_session_info(app, next_session_name, next_time_str):
     )
     next_markup = InlineKeyboardMarkup([
         [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
-        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
+        [InlineKeyboardButton("📢 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
     ])
     await app.bot.send_message(
         chat_id=CHANNEL_ID,
@@ -339,4 +340,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-                
+    
