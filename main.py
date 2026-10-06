@@ -12,11 +12,11 @@ from telegram.constants import ParseMode
 # ==========================================
 # 🌐 Flask Web Server
 # ==========================================
-app_web = FlaskName := Flask(__name__)
+app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Exact Game Period Fixed)"
+    return "Bot status: ONLINE (Perfect Period Match Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -32,7 +32,7 @@ CHANNEL_ID = "@bdgplayvipwin"
 
 
 # ==========================================
-# ⏰ Exact Real-time Period Synchronization (Fixed)
+# ⏰ Exact Real-time Period Synchronization
 # ==========================================
 def get_ist_time():
     try:
@@ -47,9 +47,9 @@ def get_current_1min_period():
     start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - start_of_day).total_seconds() // 60)
     
-    # গেমের রিয়েল ফরম্যাট: YYYYMMDD + 1000 + minute_count (যেমন: 20261006100011045)
-    current_period = int(f"{date_str}100000") + total_minutes
-    return str(current_period)
+    # একদম নিখুঁত গেম ফরম্যাট: YYYYMMDD + 1000 + minute_count (যেমন: 20261006100011049)
+    current_period = f"{date_str}1000{total_minutes}"
+    return current_period
 
 
 # ==========================================
