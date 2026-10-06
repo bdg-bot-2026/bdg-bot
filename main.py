@@ -1,6 +1,6 @@
 import os
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 import asyncio
 import threading
@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Exact Offset Period Fixed)"
+    return "Bot status: ONLINE (Exact 1-Min Sync Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -32,7 +32,7 @@ CHANNEL_ID = "@bdgplayvipwin"
 
 
 # ==========================================
-# ⏰ Exact Offset Period Synchronization
+# ⏰ Exact Real-time Period Synchronization (Synced)
 # ==========================================
 def get_current_1min_period():
     try:
@@ -47,8 +47,8 @@ def get_current_1min_period():
     midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - midnight).total_seconds() // 60)
     
-    # গেমের রিয়েল অফসেট (৯৬৭০) যোগ করে সঠিক পিরিয়ড তৈরি
-    game_period_count = total_minutes + 9670
+    # গেমের সাথে ১ মিনিটের ল্যাগ ঠিক করতে এখানে +1 মিনিট এড করা হলো
+    game_period_count = total_minutes + 9670 + 1
     period = f"{date_str}1000{game_period_count}"
     return period
 
@@ -124,4 +124,4 @@ if __name__ == '__main__':
         asyncio.run(main_bot())
     except (KeyboardInterrupt, SystemExit):
         pass
-    
+        
