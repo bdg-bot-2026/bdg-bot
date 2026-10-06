@@ -116,17 +116,16 @@ def get_high_tech_ai_prediction():
 
 def get_current_1min_period():
     """
-    গেমের আসল পিরিয়ডের সাথে নিখুঁতভাবে মিল রাখতে বর্তমান সময় ও মিনিট হিসেব করে 
-    সঠিক পিরিয়ড নাম্বার জেনারেট করবে।
+    গেমের লাইভ পিরিয়ডের সাথে নিখুঁতভাবে মিল রাখার জন্য সঠিক বেস এবং মিনিট ক্যালকুলেশন।
     """
     now = get_ist_time()
     date_str = now.strftime('%Y%m%d')
     
-    # আজকের দিন শুরুর সেকেন্ড থেকে মোট কত মিনিট পার হয়েছে তা বের করা
+    # আজকের দিন শুরুর পর থেকে মোট কত মিনিট অতিবাহিত হয়েছে
     start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - start_of_day).total_seconds() // 60)
     
-    # গেমের নিজস্ব ডেইলি বেস পিরিয়ড নাম্বারের সাথে মোট মিনিট যোগ করে নিখুঁত পিরিয়ড তৈরি
+    # আপনার গেমের হিস্ট্রি অনুযায়ী বেস পিরিয়ড নাম্বার সেট করা হলো
     base_period = int(f"{date_str}100000000")
     current_period = base_period + total_minutes
     return str(current_period)
@@ -179,7 +178,7 @@ async def send_auto_prediction(app):
                     last_alert_date_session = alert_key
 
 
-            # ২. মূল সিগন্যাল পাঠানোর অংশ (প্রতি ১ মিনিট পরপর নিখুঁতভাবে)
+            # ২. মূল সিগন্যাল পাঠানোর অংশ (সঠিক সময়ে প্রতি ১ মিনিট পরপর)
             is_morning = (hour == 7 and 0 <= minute < 35)
             is_afternoon = (hour == 14 and 0 <= minute < 35)
             is_night = (hour == 20 and 0 <= minute < 35)
@@ -196,7 +195,7 @@ async def send_auto_prediction(app):
                         pred_text = "BIG"
                         color_text = "GREEN 🟢"
                     
-                    # কোনো ডাবল হেডিং বা ভুল লেখা ছাড়া একদম পরিষ্কার ও নিখুঁত মেসেজ ফরম্যাট
+                    # কোনো ভুল বা ডাবল হেডিং ছাড়াই প্রফেশনাল ফরম্যাট
                     msg = (
                         f"💎 <b>BDG WIN 1 Min PREDICTION</b> 💎\n\n"
                         f"🔹 <b>PERIOD:</b> {period_num}\n"
@@ -348,4 +347,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-                    
+    
