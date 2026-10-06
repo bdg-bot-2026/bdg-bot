@@ -12,11 +12,11 @@ from telegram.constants import ParseMode
 # ==========================================
 # 🌐 Flask Web Server
 # ==========================================
-app_web = Flask(__name__)
+app_web = FlaskName := Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Perfect Period & Single Message Fix)"
+    return "Bot status: ONLINE (Exact Game Period Fixed)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -32,7 +32,7 @@ CHANNEL_ID = "@bdgplayvipwin"
 
 
 # ==========================================
-# ⏰ Exact Real-time Period Synchronization
+# ⏰ Exact Real-time Period Synchronization (Fixed)
 # ==========================================
 def get_ist_time():
     try:
@@ -47,8 +47,8 @@ def get_current_1min_period():
     start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - start_of_day).total_seconds() // 60)
     
-    # গেমের সাথে ১০০% ম্যাচ করার জন্য সঠিক ফরম্যাট: YYYYMMDD + 100000000 + minute_count
-    current_period = int(f"{date_str}100000000") + total_minutes
+    # গেমের রিয়েল ফরম্যাট: YYYYMMDD + 1000 + minute_count (যেমন: 20261006100011045)
+    current_period = int(f"{date_str}100000") + total_minutes
     return str(current_period)
 
 
@@ -62,7 +62,7 @@ def get_fully_random_prediction():
 
 
 # ==========================================
-# 🚀 Telegram Automation Functions (Single Message Fix)
+# 🚀 Telegram Automation Functions
 # ==========================================
 async def send_auto_prediction(application):
     last_sent_period = ""
@@ -85,7 +85,7 @@ async def send_auto_prediction(application):
                     f"🎯 <b>PREDICTION:</b> {pred_text}\n"
                     f"🎨 <b>SUGGESTED COLOR:</b> {color_text}\n"
                     f"───────────────────\n"
-                    f"💡 <i>Rule: Safe 1-10 Level Martingale (Testing Active)</i>"
+                    f"💡 <i>Rule: Safe 1-10 Level Martingale</i>"
                 )
                 
                 await application.bot.send_message(
@@ -95,7 +95,6 @@ async def send_auto_prediction(application):
                     reply_markup=reply_markup
                 )
                 
-                # ডাবল মেসেজ সমস্যা সমাধানের জন্য এক্সট্রা রেজাল্ট আপডেট মেসেজটি পুরোপুরি রিমুভ করা হয়েছে
                 last_sent_period = period_num
 
         except Exception as e:
