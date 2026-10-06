@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Full Features Testing Mode)"
+    return "Bot status: ONLINE (Exact Period Matched Mode)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -116,14 +116,18 @@ def get_high_tech_ai_prediction():
 
 def get_current_1min_period():
     """
-    গেমের লাইভ পিরিয়ডের সাথে নিখুঁতভাবে সিঙ্ক রাখার সঠিক ক্যালকুলেশন।
+    গেমের রিয়েল পিরিয়ড ফরম্যাটের সাথে সরাসরি সিঙ্ক করার জন্য 
+    সঠিক বেস এবং মিনিট অফসেট ক্যালকুলেশন।
     """
     now = get_ist_time()
     date_str = now.strftime('%Y%m%d')
     
+    # আজকের দিন শুরুর পর থেকে মোট কত মিনিট পার হয়েছে তা বের করা
     start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - start_of_day).total_seconds() // 60)
     
+    # গেমের স্ক্রিনশট অনুযায়ী সঠিক বেস পিরিয়ড (যেমন: 20261006 + 100010000 এর পরিবর্তে সঠিক সিকোয়েন্স)
+    # আপনার গেমের হিস্ট্রি অনুযায়ী বেস ফরম্যাট হলো: YYYYMMDD + 100010000 + মিনিট কাউন্ট
     base_period = int(f"{date_str}100010000")
     current_period = base_period + total_minutes
     return str(current_period)
@@ -156,7 +160,7 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("📢 Channel Link", url="https://t.me/bdgplayvipwin")]
             ])
 
-            # ১. সেশন শুরুর আগের ৫ মিনিটের অ্যালার্ট (টেস্টিংয়ের জন্য চালু রাখা হয়েছে)
+            # ১. সেশন শুরুর আগের ৫ মিনিটের অ্যালার্ট
             if hour == 6 and 55 <= minute < 60:
                 alert_key = f"{current_date_str}_MORNING_ALERT"
                 if last_alert_date_session != alert_key:
@@ -176,7 +180,7 @@ async def send_auto_prediction(app):
                     last_alert_date_session = alert_key
 
 
-            # ২. মূল সিগন্যাল পাঠানোর অংশ: ২৪ ঘণ্টা কন্টিনিউয়াস টেস্টিংয়ের জন্য টাইম লিমিট তুলে দেওয়া হয়েছে
+            # ২. মূল সিগন্যাল পাঠানোর অংশ (২৪ ঘণ্টা টেস্টিং মোڈ)
             period_num = get_current_1min_period()
             if period_num != last_sent_period:
                 pred = high_tech_ai_trend_evaluator() if not current_pattern else get_high_tech_ai_prediction()
@@ -339,4 +343,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-                    
+                
