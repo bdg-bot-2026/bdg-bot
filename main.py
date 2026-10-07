@@ -324,10 +324,9 @@ async def main():
     
     threading.Thread(target=run_web, daemon=True).start()
     
-    print("BDG Win Direct API Bot is running successfully with dynamic random trends...")
+    print("BDG Win Direct API Bot is running successfully with dynamic random trends for 1 Min...")
     
     await send_auto_prediction(app)
 
 if __name__ == "__main__":
     asyncio.run(main())
-        
