@@ -5,7 +5,8 @@ import pytz
 import asyncio
 import threading
 from flask import Flask
-from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import ApplicationBuilder
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ParseMode
 
 # ==========================================
@@ -15,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Period Exact Match & Continuous Mode)"
+    return "Bot status: ONLINE (Bangladesh Time & Perfect Period Sync Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -34,21 +35,21 @@ pattern_index = 0
 
 
 # ==========================================
-# ⏰ Time & Live Game Period Synchronization Function (Exact Match Fixed)
+# ⏰ Time & Live Game Period Synchronization Function
 # ==========================================
-def get_ist_time():
+def get_bd_time():
     try:
-        ist = pytz.timezone('Asia/Kolkata')
-        return datetime.now(ist)
+        bd_tz = pytz.timezone('Asia/Dhaka')
+        return datetime.now(bd_tz)
     except Exception:
-        return datetime.utcnow() + timedelta(hours=5, minutes=30)
+        return datetime.utcnow() + timedelta(hours=6)
 
 def get_current_1min_period():
+    # গেমের সার্ভার পিরিয়ডের সাথে নিখুঁতভাবে মেলানোর জন্য ইউটিসি সময় ব্যবহার করা হয়েছে
     now_utc = datetime.now(pytz.utc)
     date_str = now_utc.strftime("%Y%m%d")
     
     total_minutes_utc = (now_utc.hour * 60) + now_utc.minute
-    # রানিং পিরিয়ডের সাথে নিখুঁতভাবে মেলানোর জন্য এখানে +1 যুক্ত করা হয়েছে
     period_count = 10000 + total_minutes_utc + 1
     
     return f"{date_str}1000{period_count}"
@@ -127,38 +128,86 @@ def get_smart_trend_color(pred_text):
 # ==========================================
 # 📢 Extra Supporting Message Functions
 # ==========================================
-async def send_ready_alert(bot, session_name, markup):
+async def send_ready_alert(app, session_name, markup):
     alert_msg = (
         f"<b>BDG VIP PREDICTION 1 Min:</b>\n"
         f"🚨 🔥 <b>ATTENTION: {session_name} IS ABOUT TO START!</b> 🔥 🚨\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"🎯 <b>Get ready & prepare your account! / तैयार हो जाइए! / সবাই রেডি থাকুন!</b>"
+        f"🎯 <b>Get ready & prepare your account! / तैयार हो जाइए! / সবাই রেডি থাকুন!</b>\n\n"
+        f"🇬🇧 <b>ENGLISH:</b>\n"
+        f"💎 <b>Maintain Balance:</b> Follow safe 10-Level Martingale.\n"
+        f"🛡️ <b>3x Turnover Rule:</b> Complete 3x betting of your deposit amount before withdrawal.\n"
+        f"🚫 <b>No Illegal Bets:</b> Do NOT place Big & Small together.\n"
+        f"⚠️ <b>No Red/Green Mix:</b> Do not bet on Red & Green simultaneously.\n"
+        f"📱 <b>Single Device:</b> Do not use 2 accounts on 1 phone.\n"
+        f"📶 <b>Network:</b> Avoid public Wi-Fi.\n\n"
+        f"🇮🇳 <b>हिंदी (HINDI):</b>\n"
+        f"💎 <b>बैलेंस बनाए रखें:</b> सुरक्षित 10-लेवल मार्टिंगेल फॉलो करें।\n"
+        f"🛡️ <b>3x टर्नओवर नियम:</b> विथड्रॉल से पहले 3x बेटिंग पूरी करें।\n"
+        f"🚫 <b>कोई अवैध शर्त नहीं:</b> Big और Small एकसाथ न लगाएं।\n"
+        f"⚠️ <b>रेड/ग्रीन मिक्स न करें:</b> एकसाथ दोनों पर बेट न लगाएं।\n"
+        f"📱 <b>एक डिवाइस नियम:</b> एक फोन में दो आईडी लॉगिन न करें।\n"
+        f"📶 <b>नेटवर्क चेतावनी:</b> पब्लिक वाई-फाई का उपयोग न करें।\n\n"
+        f"🇧🇩 <b>বাংলা (BANGLA):</b>\n"
+        f"💎 <b>ব্যালেন্স মেইনটেইন করুন:</b> নিরাপদ ১০ লেভেল মার্টিনগেল ফলো করুন।\n"
+        f"🛡️ <b>৩x টার্নওভার রুল:</b> ডিপোজিটের পর ৩x বেটিং কমপ্লিট করুন।\n"
+        f"🚫 <b>ইল্লিগাল বেট নিষেধ:</b> বিগ এবং স্মল একসঙ্গে কেউ করবেন না।\n"
+        f"⚠️ <b>রেড-গ্রীন একসঙ্গে নয়: রেড ও গ্রীনে একসাথে বেট লাগাবেন না।</b>\n"
+        f"📱 <b>এক ফোনে এক আইডি:</b> একটা ফোনে দুটো আইডি লগইন করবেন না।\n"
+        f"📶 <b>ওয়াইফাই সতর্কবার্তা:</b> ওয়াইফাই প্লে বা পাবলিক নেটওয়ার্ক এড়িয়ে চলুন।"
     )
     try:
-        await bot.send_message(chat_id=CHANNEL_ID, text=alert_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
+        await app.bot.send_message(chat_id=CHANNEL_ID, text=alert_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
     except Exception as e:
         print(f"Alert Error: {e}")
 
-async def send_referral_promo(bot, markup):
+async def send_referral_promo(app, markup):
     promo_msg = (
         f"💎 ✨ <b>MAXIMIZE YOUR EARNINGS WITH BDG WIN!</b> ✨ 💎\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"Build your powerful team and generate passive daily income!"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+        f"🇬🇧 <b>ENGLISH:</b>\n"
+        f"Build your powerful team and generate passive daily income! Earn lifetime commissions, daily salaries, and referral bonuses. Share your link now!\n\n"
+        f"🇮🇳 <b>हिंदी (HINDI):</b>\n"
+        f"अपनी खुद की मजबूत टीम बनाएं और रोजाना पैसिव इनकम कमाएं! लाइफटाइम कमीशन, डेली सैलरी और रेफरल बोनस पाएं। अभी अपना लिंक शेयर करें!\n\n"
+        f"🇧🇩 <b>বাংলা (BANGLA):</b>\n"
+        f"একটি শক্তিশালী টিম তৈরি করুন এবং প্রতিদিন প্যাসিভ ইনকাম করুন! লাইফটাইম কমিশন, ডেইলি স্যালারি এবং রেফারেল বোনাস উপভোগ করুন। এখনই শেয়ার করুন!\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━"
     )
     try:
-        await bot.send_message(chat_id=CHANNEL_ID, text=promo_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
+        await app.bot.send_message(chat_id=CHANNEL_ID, text=promo_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
     except Exception as e:
         print(f"Promo Error: {e}")
+
+async def send_next_session_info(app, next_session_name, time_str):
+    next_msg = (
+        f"💎 ⏰ <b>NEXT SESSION INFO / अगली सेशन की जानकारी / পরবর্তী সেশনের তথ্য</b> ⏰ 💎\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"🇬🇧 🔹 <b>ENGLISH:</b>\n"
+        f"Next VIP Session: {next_session_name} at {time_str}. Get ready for the next profit wave!\n\n"
+        f"🇮🇳 🔸 <b>हिंदी (HINDI):</b>\n"
+        f"अगला वीआईपी सेशन: {time_str} पर {next_session_name} शुरू होगा। अगले प्रॉफिट वेव के लिए तैयार रहें!\n\n"
+        f"🇧🇩 🔹 <b>বাংলা (BANGLA):</b>\n"
+        f"পরবর্তী ভিআইপি সেশন: {time_str} এ {next_session_name} শুরু হবে। পরবর্তী প্রফিটের জন্য প্রস্তুত থাকুন!\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━"
+    )
+    markup = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
+        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
+    ])
+    try:
+        await app.bot.send_message(chat_id=CHANNEL_ID, text=next_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
+    except Exception as e:
+        print(f"Next Session Error: {e}")
 
 
 # ==========================================
 # 🚀 Telegram Automation Main Loop
 # ==========================================
-async def main_bot_loop():
-    bot = Bot(token=TOKEN)
+async def send_auto_prediction(app):
     last_sent_period = ""
     last_alert_date_session = ""    
     last_promo_date_session = ""    
+    last_next_date_session = ""     
     
     keyboard = [
         [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
@@ -166,11 +215,11 @@ async def main_bot_loop():
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    print("BDG Win Stable Direct Bot Loop started successfully...")
+    print("BDG Win Automation Loop started successfully with BD Time & Exact Period Sync...")
 
     while True:
         try:
-            now = get_ist_time()
+            now = get_bd_time()
             hour = now.hour
             minute = now.minute
             current_date_str = now.strftime('%Y-%m-%d')
@@ -180,16 +229,32 @@ async def main_bot_loop():
                 [InlineKeyboardButton("📢 Channel Link", url="https://t.me/bdgplayvipwin")]
             ])
 
+            # ১. সেশন শুরুর ৫ মিনিটের অ্যালার্ট মেসেজ (বাংলাদেশ সময়)
             if hour == 6 and 55 <= minute < 60:
                 alert_key = f"{current_date_str}_MORNING_ALERT"
                 if last_alert_date_session != alert_key:
-                    await send_ready_alert(bot, "Morning Session (7:00 AM)", alert_markup)
+                    await send_ready_alert(app, "Morning Session (7:00 AM)", alert_markup)
                     last_alert_date_session = alert_key
 
-            # কন্টিনিউয়াস টেস্টিং মোড চালু রাখা হয়েছে
-            is_active_testing_mode = True
+            elif hour == 13 and 55 <= minute < 60:
+                alert_key = f"{current_date_str}_AFTERNOON_ALERT"
+                if last_alert_date_session != alert_key:
+                    await send_ready_alert(app, "Afternoon Session (2:00 PM)", alert_markup)
+                    last_alert_date_session = alert_key
 
-            if is_active_testing_mode:
+            elif hour == 19 and 55 <= minute < 60:
+                alert_key = f"{current_date_str}_NIGHT_ALERT"
+                if last_alert_date_session != alert_key:
+                    await send_ready_alert(app, "Night Session (8:00 PM)", alert_markup)
+                    last_alert_date_session = alert_key
+
+
+            # ২. মূল সিগন্যাল পাঠানোর নির্দিষ্ট সময় (সকাল ৭:০০-৭:৩৫, দুপুর ২:০০-২:৩৫, রাত ৮:০০-৮:৩৫)
+            is_morning_session = (hour == 7 and minute <= 35)
+            is_afternoon_session = (hour == 14 and minute <= 35)
+            is_night_session = (hour == 20 and minute <= 35)
+
+            if is_morning_session or is_afternoon_session or is_night_session:
                 period_num = get_current_1min_period()
                 if period_num != last_sent_period:
                     pred = get_high_tech_ai_prediction()
@@ -206,7 +271,7 @@ async def main_bot_loop():
                         f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
                     )
                     
-                    await bot.send_message(
+                    await app.bot.send_message(
                         chat_id=CHANNEL_ID,
                         text=msg,
                         parse_mode=ParseMode.HTML,
@@ -221,11 +286,31 @@ async def main_bot_loop():
                 [InlineKeyboardButton("💎 Contact For Support", url="https://t.me/bdgplayvipwin")]
             ])
 
+            # ৪. সেশন শেষ হওয়ার পরের প্রমোশন মেসেজ
             if (hour == 7 and minute == 36) or (hour == 14 and minute == 36) or (hour == 20 and minute == 36):
                 promo_key = f"{current_date_str}_{hour}_PROMO"
                 if last_promo_date_session != promo_key:
-                    await send_referral_promo(bot, promo_markup)
+                    await send_referral_promo(app, promo_markup)
                     last_promo_date_session = promo_key
+
+            # ৫. পরবর্তী সেশনের আপডেট মেসেজ
+            if hour == 7 and minute == 37:
+                next_key = f"{current_date_str}_MORNING_NEXT"
+                if last_next_date_session != next_key:
+                    await send_next_session_info(app, "Afternoon Session", "2:00 PM")
+                    last_next_date_session = next_key
+
+            elif hour == 14 and minute == 37:
+                next_key = f"{current_date_str}_AFTERNOON_NEXT"
+                if last_next_date_session != next_key:
+                    await send_next_session_info(app, "Night Session", "8:00 PM")
+                    last_next_date_session = next_key
+
+            elif hour == 20 and minute == 37:
+                next_key = f"{current_date_str}_NIGHT_NEXT"
+                if last_next_date_session != next_key:
+                    await send_next_session_info(app, "Morning Session", "7:00 AM (Tomorrow)")
+                    last_next_date_session = next_key
 
         except Exception as e:
             print(f"Loop Error: {e}")
@@ -236,7 +321,18 @@ async def main_bot_loop():
 # ==========================================
 # ⚙️ Main Application Launcher
 # ==========================================
-if __name__ == "__main__":
+async def main():
+    app = ApplicationBuilder().token(TOKEN).build()
+    
+    await app.initialize()
+    await app.start()
+    
     threading.Thread(target=run_web, daemon=True).start()
-    asyncio.run(main_bot_loop())
+    
+    print("BDG Win Ultra AI Bot is fully running and active...")
+    
+    await send_auto_prediction(app)
+
+if __name__ == "__main__":
+    asyncio.run(main())
     
