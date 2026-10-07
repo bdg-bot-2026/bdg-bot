@@ -28,7 +28,6 @@ def run_web():
 # 🤖 Telegram Bot Configurations
 # ==========================================
 TOKEN = os.getenv("TELEGRAM_TOKEN", "8752459278:AAGbwu4j7JqT3R4Auwhj2PLMidKzhRaSkS0").strip()
-# এখানে আপনার চ্যানেলের সঠিক নিউমেরিক আইডি বসানো হয়েছে
 CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_ID", "-1004492973133")
 
 current_pattern = []
@@ -311,7 +310,7 @@ async def send_auto_prediction(app):
             if (hour == 7 and minute == 36) or (hour == 14 and minute == 36) or (hour == 20 and minute == 36):
                 promo_key = f"{current_date_str}_{hour}_PROMO"
                 if last_promo_date_session != promo_key:
-                    await send_referral_promo(app, promo_promo if 'promo_promo' in locals() else promo_markup)
+                    await send_referral_promo(app, promo_markup)
                     last_promo_date_session = promo_key
 
             # ৪. পরবর্তী সেশনের আপডেট মেসেজ (৭:৩৭, ২:৩৭, ৮:৩৭)
@@ -362,4 +361,4 @@ if __name__ == "__main__":
     
     # সঠিকভাবে বট রান করার জন্য polling শুরু করা
     app.run_polling()
-    
+                                    
