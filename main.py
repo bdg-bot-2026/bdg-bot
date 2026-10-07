@@ -33,7 +33,7 @@ CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_ID", "@bdgplayvipwin")
 current_pattern = []
 pattern_index = 0
 
-# ম্যানুয়াল কন্ট্রোল সুইচ (ডিফল্টভাবে চালু বা বন্ধ রাখতে পারেন)
+# ম্যানুয়াল কন্ট্রোল সুইচ (ডিফল্টভাবে True রাখা হয়েছে)
 prediction_active = True
 
 
@@ -234,7 +234,7 @@ async def send_auto_prediction(app):
 
     while True:
         try:
-            # যদি ম্যানুয়ালি স্টপ করা থাকে, তবে সিগন্যাল পাঠানো স্কিপ করবে কিন্তু লুপ চালু থাকবে
+            # যদি ম্যানুয়ালি স্টপ করা থাকে, তবে লুপের কাজ বন্ধ থাকবে
             if not prediction_active:
                 await asyncio.sleep(2)
                 continue
@@ -268,12 +268,12 @@ async def send_auto_prediction(app):
                     await send_ready_alert(app, "Night Session (8:00 PM)", alert_markup)
                     last_alert_date_session = alert_key
 
-            # ২. মূল সিগন্যাল পাঠানোর অংশ (৭:০০-৭:৩৫, ২:০০-২:৩৫, ৮:০০-৮:৩৫)
+            # ২. মূল সিগন্যাল পাঠানোর অংশ (টাইম স্লট অথবা ম্যানুয়াল ওভাররাইড)
             is_morning_session = (hour == 7 and minute <= 35)
             is_afternoon_session = (hour == 14 and minute <= 35)
             is_night_session = (hour == 20 and minute <= 35)
 
-            if is_morning_session or is_afternoon_session or is_night_session:
+            if is_morning_session or is_afternoon_session or is_night_session or prediction_active:
                 period_num = get_current_1min_period()
                 
                 if period_num and period_num != last_sent_period:
@@ -356,4 +356,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-                               
+            
