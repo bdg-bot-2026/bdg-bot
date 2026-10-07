@@ -313,4 +313,39 @@ async def send_auto_prediction(app):
                     last_next_date_session = next_key
 
             elif hour == 14 and minute == 37:
-        
+                next_key = f"{current_date_str}_AFTERNOON_NEXT"
+                if last_next_date_session != next_key:
+                    await send_next_session_info(app, "Night Session", "8:00 PM")
+                    last_next_date_session = next_key
+
+            elif hour == 20 and minute == 37:
+                next_key = f"{current_date_str}_NIGHT_NEXT"
+                if last_next_date_session != next_key:
+                    await send_next_session_info(app, "Morning Session", "7:00 AM (Tomorrow)")
+                    last_next_date_session = next_key
+
+        except Exception as e:
+            print(f"Main Loop Error: {e}")
+
+        await asyncio.sleep(3)
+
+
+# ==========================================
+# ⚙️ Main Application Launcher
+# ==========================================
+if __name__ == "__main__":
+    app = ApplicationBuilder().token(TOKEN).build()
+    
+    app.add_handler(CommandHandler("start", cmd_start_prediction))
+    app.add_handler(CommandHandler("stop", cmd_stop_prediction))
+    
+    threading.Thread(target=run_web, daemon=True).start()
+    
+    print("BDG Win Bot is running successfully with all features and 1-Min period sync...")
+    
+    async def post_init(application):
+        application.create_task(send_auto_prediction(application))
+
+    app.post_init = post_init
+    app.run_polling()
+    
