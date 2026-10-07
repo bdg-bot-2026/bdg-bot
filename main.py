@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Offset-Synced Period Active)"
+    return "Bot status: ONLINE (Exact Reference-Synced Period Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -32,12 +32,11 @@ CHANNEL_ID = "@bdgplayvipwin"
 
 
 # ==========================================
-# ⏰ Exact Offset-Synced Period Logic
+# ⏰ Exact Reference-Synced Period Logic
 # ==========================================
 def get_exact_matched_period():
     """
-    গেমের সাথে নিখوতভাবে পিরিয়ড মেলানোর জন্য সঠিক টাইম জোন এবং 
-    মিনিট কাউন্টের সাথে নির্দিষ্ট অফসেট লজিক ব্যবহার করা হয়েছে।
+    আপনার স্ক্রিনশটের লাইভ রেফারেন্স ধরে নিখুঁত পিরিয়ড হিসাব করার ফাংশন।
     """
     try:
         ist = pytz.timezone('Asia/Kolkata')
@@ -47,14 +46,15 @@ def get_exact_matched_period():
         
     date_prefix = now.strftime('%Y%m%d')
     
-    # আজকের দিন শুরুর পর থেকে মোট কত মিনিট পার হয়েছে
-    total_minutes_today = (now.hour * 60) + now.minute
+    # রেফারেন্স পয়েন্ট: ৭ অক্টোবর ২০২৬, সকাল ৮:১৪ মিনিটে গেমের পিরিয়ড ছিল 20261007100010164[span_3](start_span)[span_3](end_span)
+    ref_time = datetime(2026, 10, 7, 8, 14, 0, tzinfo=pytz.timezone('Asia/Kolkata'))
+    ref_period_suffix = 10164
     
-    # আপনার গেমের স্ক্রিনশট অনুযায়ী লাইভ পিরিয়ডের সাথে মিল রাখার জন্য বেস সংখ্যা
-    # এখানে গেমের রিয়েল-টাইম সিকোয়েন্স ঠিক রাখতে মিনিট কাউন্টের সাথে সঠিক বেস যোগ করা হয়েছে
-    base_period = 1000000 + total_minutes_today
+    # বর্তমান সময়ের সাথে রেফারেন্স সময়ের মিনিটের পার্থক্য বের করা
+    diff_minutes = int((now - ref_time).total_seconds() // 60)
+    current_suffix = ref_period_suffix + diff_minutes
     
-    return f"{date_prefix}{base_period}"
+    return f"{date_prefix}1000{current_suffix}"
 
 
 # ==========================================
@@ -170,10 +170,10 @@ async def main():
     web_thread = threading.Thread(target=run_web, daemon=True)
     web_thread.start()
     
-    print("BDG Win Offset-Synced Bot is running successfully...")
+    print("BDG Win Reference-Synced Bot is running successfully...")
     
     await send_auto_prediction(app)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.main(main())
     
