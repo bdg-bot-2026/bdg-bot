@@ -5,7 +5,7 @@ import pytz
 import asyncio
 import threading
 from flask import Flask
-from telegram.ext import ApplicationBuilder
+from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ParseMode
 
 # ==========================================
@@ -15,7 +15,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Continuous Testing Mode Active)"
+    return "Bot status: ONLINE (Stable Direct Bot Loop Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -128,7 +128,7 @@ def get_smart_trend_color(pred_text):
 # ==========================================
 # 📢 Extra Supporting Message Functions (Kept Intact)
 # ==========================================
-async def send_ready_alert(app, session_name, markup):
+async def send_ready_alert(bot, session_name, markup):
     alert_msg = (
         f"<b>BDG VIP PREDICTION 1 Min:</b>\n"
         f"🚨 🔥 <b>ATTENTION: {session_name} IS ABOUT TO START!</b> 🔥 🚨\n"
@@ -136,44 +136,30 @@ async def send_ready_alert(app, session_name, markup):
         f"🎯 <b>Get ready & prepare your account! / तैयार हो जाइए! / সবাই রেডি থাকুন!</b>"
     )
     try:
-        await app.bot.send_message(chat_id=CHANNEL_ID, text=alert_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
+        await bot.send_message(chat_id=CHANNEL_ID, text=alert_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
     except Exception as e:
         print(f"Alert Error: {e}")
 
-async def send_referral_promo(app, markup):
+async def send_referral_promo(bot, markup):
     promo_msg = (
         f"💎 ✨ <b>MAXIMIZE YOUR EARNINGS WITH BDG WIN!</b> ✨ 💎\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"Build your powerful team and generate passive daily income!"
     )
     try:
-        await app.bot.send_message(chat_id=CHANNEL_ID, text=promo_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
+        await bot.send_message(chat_id=CHANNEL_ID, text=promo_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
     except Exception as e:
         print(f"Promo Error: {e}")
-
-async def send_next_session_info(app, next_session_name, time_str):
-    next_msg = (
-        f"💎 ⏰ <b>NEXT SESSION INFO</b> ⏰ 💎\n"
-        f"Next VIP Session: {next_session_name} at {time_str}."
-    )
-    markup = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
-        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
-    ])
-    try:
-        await app.bot.send_message(chat_id=CHANNEL_ID, text=next_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
-    except Exception as e:
-        print(f"Next Session Error: {e}")
 
 
 # ==========================================
 # 🚀 Telegram Automation Main Loop
 # ==========================================
-async def send_auto_prediction(app):
+async def main_bot_loop():
+    bot = Bot(token=TOKEN)
     last_sent_period = ""
     last_alert_date_session = ""    
     last_promo_date_session = ""    
-    last_next_date_session = ""     
     
     keyboard = [
         [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
@@ -181,7 +167,7 @@ async def send_auto_prediction(app):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    print("BDG Win Continuous Testing Loop started successfully...")
+    print("BDG Win Stable Direct Bot Loop started successfully...")
 
     while True:
         try:
@@ -195,16 +181,14 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("📢 Channel Link", url="https://t.me/bdgplayvipwin")]
             ])
 
-            # ১. সেশন শুরুর ৫ মিনিটের অ্যালার্ট মেসেজ (কোডের ভেতরে রাখা হলো, তবে টেস্টিংয়ের জন্য ওপেন রাখা হয়েছে)
             if hour == 6 and 55 <= minute < 60:
                 alert_key = f"{current_date_str}_MORNING_ALERT"
                 if last_alert_date_session != alert_key:
-                    await send_ready_alert(app, "Morning Session (7:00 AM)", alert_markup)
+                    await send_ready_alert(bot, "Morning Session (7:00 AM)", alert_markup)
                     last_alert_date_session = alert_key
 
-            # ২. মূল সিগন্যাল পাঠানোর অংশ (বর্তমানে কন্টিনিউয়াস মোডের জন্য অলটাইম ট্রু করা আছে)
-            # আপনি যখন তিন টাইমে ফিক্স করতে বলবেন, তখন শুধু নিচের শর্তটি আগের মতো সেশন টাইমে সেট করে দেওয়া হবে।
-            is_active_testing_mode = True  # বর্তমানে সবসময় সিগন্যাল পাঠাবে
+            # কন্টিনিউয়াস টেস্টিং মোড চালু রাখা হয়েছে
+            is_active_testing_mode = True
 
             if is_active_testing_mode:
                 period_num = get_current_1min_period()
@@ -223,7 +207,7 @@ async def send_auto_prediction(app):
                         f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
                     )
                     
-                    await app.bot.send_message(
+                    await bot.send_message(
                         chat_id=CHANNEL_ID,
                         text=msg,
                         parse_mode=ParseMode.HTML,
@@ -238,11 +222,10 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("💎 Contact For Support", url="https://t.me/bdgplayvipwin")]
             ])
 
-            # ৪. প্রমোশন এবং পরবর্তী সেশনের কোড কাঠামো অক্ষত রাখা হয়েছে
             if (hour == 7 and minute == 36) or (hour == 14 and minute == 36) or (hour == 20 and minute == 36):
                 promo_key = f"{current_date_str}_{hour}_PROMO"
                 if last_promo_date_session != promo_key:
-                    await send_referral_promo(app, promo_markup)
+                    await send_referral_promo(bot, promo_markup)
                     last_promo_date_session = promo_key
 
         except Exception as e:
@@ -254,18 +237,7 @@ async def send_auto_prediction(app):
 # ==========================================
 # ⚙️ Main Application Launcher
 # ==========================================
-async def main():
-    app = ApplicationBuilder().token(TOKEN).build()
-    
-    await app.initialize()
-    await app.start()
-    
-    threading.Thread(target=run_web, daemon=True).start()
-    
-    print("BDG Win Ultra AI Bot is fully running in continuous mode...")
-    
-    await send_auto_prediction(app)
-
 if __name__ == "__main__":
-    asyncio.run(main())
-                   
+    threading.Thread(target=run_web, daemon=True).start()
+    asyncio.run(main_bot_loop())
+                
