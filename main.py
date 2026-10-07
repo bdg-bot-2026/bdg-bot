@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (All Features & Perfect Period Match Active)"
+    return "Bot status: ONLINE (Professional Emojis & Active Loop)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -46,13 +46,11 @@ def get_ist_time():
 
 def generate_time_based_period():
     now = get_ist_time()
-    date_str = now.strftime("%Y%m%d") # যেমন: 20261007
+    date_str = now.strftime("%Y%m%d") 
     
-    # আজকের দিন শুরু থেকে মোট কত মিনিট পার হয়েছে তার হিসাব
     midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - midnight).total_seconds() / 60)
     
-    # স্ক্রিনশটের লেটেস্ট পিরিয়ড (10497) এর সাথে নিখুঁতভাবে সিঙ্ক করার বেস কাউন্টার
     current_minutes_today = (now.hour * 60) + now.minute
     base_counter = 10497 + (total_minutes - current_minutes_today)
     
@@ -130,33 +128,33 @@ def get_smart_trend_color(pred_text):
 
 
 # ==========================================
-# 📢 Multi-lingual Message Functions
+# 📢 Professional Multi-lingual Message Functions
 # ==========================================
 async def send_ready_alert(app, session_name, markup):
     alert_msg = (
-        f"<b>BDG VIP PREDICTION 1 Min:</b>\n"
-        f"🚨 🔥 <b>ATTENTION: {session_name} IS ABOUT TO START!</b> 🔥 🚨\n"
+        f"💎 <b>BDG VIP PREDICTION 1 MIN SESSION</b> 💎\n"
+        f"🚨 🔥 <b>ATTENTION TRADERS: {session_name} IS ABOUT TO START!</b> 🔥 🚨\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"🎯 <b>Get ready & prepare your account! / तैयार हो जाइए! / সবাই রেডি থাকুন!</b>\n\n"
-        f"🇬🇧 ENGLISH:\n"
-        f"• Maintain Balance: Follow safe 10-Level Martingale.\n"
-        f"• No Illegal Bets: Do NOT place Big & Small together.\n"
-        f"• No Red/Green Mix: Do not bet on Red & Green simultaneously.\n"
-        f"• Single Device: Do not use 2 accounts on 1 phone.\n"
-        f"• Network: Avoid public Wi-Fi.\n\n"
-        f"🇮🇳 हिंदी (HINDI):\n"
-        f"• बैलेंस बनाए रखें: सुरक्षित 10-लेवल मार्टिंगेल फॉलो करें।\n"
-        f"• कोई अवैध शर्त नहीं: Big और Small एकसाथ न लगाएं।\n"
-        f"• रेड/ग्रीन मिक्स न करें: एकसाथ दोनों पर बेट न लगाएं।\n"
-        f"• एक डिवाइस नियम: एक फोन में दो आईडी लॉगिन न करें।\n"
-        f"• नेटवर्क चेतावनी: पब्लिक वाई-फाई का उपयोग न करें।\n\n"
-        f"🇧🇩 বাংলা (BANGLA):\n"
-        f"• ব্যালেন্স মেইনটেইন করুন: নিরাপদ ১০ লেভেল মার্টিনগেল ফলো করুন।\n"
-        f"• ইল্লিগাল বেট নিষেধ: বিগ এবং স্মল একসঙ্গে কেউ করবেন না।\n"
-        f"• রেড-গ্রীন একসঙ্গে নয়: রেড ও গ্রীনে একসাথে বেট লাগাবেন না।\n"
-        f"• এক ফোনে এক আইডি: একটা ফোনে দুটো আইডি লগইন করবেন না।\n"
-        f"• ওয়াইফাই সতর্কবার্তা: ওয়াইফাই প্লে বা পাবলিক নেটওয়ার্ক এড়িয়ে চলুন।\n\n"
-        f"⚠️ <b>Follow company rules strictly to protect your account! / कंपनी के नियमों का पालन करें! / কোম্পানির রুলস ফলো করুন!</b>\n"
+        f"🎯 <b>Get ready & prepare your trading account! / तैयार हो जाइए! / সবাই রেডি থাকুন!</b> 🚀\n\n"
+        f"🇬🇧 <b>ENGLISH:</b>\n"
+        f"• 🛡️ <b>Maintain Balance:</b> Follow safe 10-Level Martingale.\n"
+        f"• ❌ <b>No Illegal Bets:</b> Do NOT place Big & Small together.\n"
+        f"• 🎨 <b>No Red/Green Mix:</b> Do not bet on Red & Green simultaneously.\n"
+        f"• 📱 <b>Single Device:</b> Do not use 2 accounts on 1 phone.\n"
+        f"• 🌐 <b>Network Security:</b> Avoid public Wi-Fi.\n\n"
+        f"🇮🇳 <b>हिंदी (HINDI):</b>\n"
+        f"• 🛡️ <b>बैलेंस बनाए रखें:</b> सुरक्षित 10-लेवल मार्टिंगेल फॉलो करें।\n"
+        f"• ❌ <b>कोई अवैध शर्त नहीं:</b> Big और Small एकसाथ न लगाएं।\n"
+        f"• 🎨 <b>रेड/ग्रीन मिक्स न करें:</b> एकसाथ दोनों पर बेट न लगाएं।\n"
+        f"• 📱 <b>एक डिवाइस नियम:</b> एक फोन में दो आईडी लॉगिन न करें।\n"
+        f"• 🌐 <b>नेटवर्क चेतावनी:</b> पब्लिक वाई-फाई का उपयोग न करें।\n\n"
+        f"🇧🇩 <b>বাংলা (BANGLA):</b>\n"
+        f"• 🛡️ <b>ব্যালেন্স মেইনটেইন:</b> নিরাপদ ১০ লেভেল মার্টিনগেল ফলো করুন।\n"
+        f"• ❌ <b>ইল্লিগাল বেট নিষেধ:</b> বিগ এবং স্মল একসঙ্গে কেউ করবেন না।\n"
+        f"• 🎨 <b>রেড-গ্রীন নিয়ম:</b> রেড ও গ্রীনে একসাথে বেট লাগাবেন না।\n"
+        f"• 📱 <b>এক ফোনে এক আইডি:</b> একটা ফোনে দুটো আইডি লগইন করবেন না।\n"
+        f"• 🌐 <b>ওয়াইফাই সতর্কবার্তা:</b> পাবলিক নেটওয়ার্ক এড়িয়ে চলুন।\n\n"
+        f"⚠️ <b>Follow company rules strictly to protect your funds! / कंपनी के नियमों का पालन करें! / কোম্পানির রুলস স্ট্রিক্টলি ফলো করুন!</b> ✨\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     )
     try:
@@ -168,12 +166,12 @@ async def send_referral_promo(app, markup):
     promo_msg = (
         f"🌟 🔥 <b>MAXIMIZE YOUR EARNINGS WITH BDG WIN!</b> 🔥 🌟\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"🇬🇧 ENGLISH:\n"
-        f"Build your powerful team and generate passive daily income! Earn lifetime commissions, daily salaries, and referral bonuses. Share your link now!\n\n"
-        f"🇮🇳 हिंदी (HINDI):\n"
-        f"अपनी खुद की मजबूत टीम बनाएं और रोजाना पैसिव इनकम कमाएं! लाइफटाइम कमीशन, डेली सैलरी और रेफरल बोनस पाएं। अभी अपना लिंक शेयर करें!\n\n"
-        f"🇧🇩 বাংলা (BANGLA):\n"
-        f"একটি শক্তিশালী টিম তৈরি করুন এবং প্রতিদিন প্যাসিভ ইনকাম করুন! লাইফটাইম কমিশন, ডেইলি স্যালারি এবং রেফারেল বোনাস উপভোগ করুন। এখনই শেয়ার করুন!\n"
+        f"🇬🇧 <b>ENGLISH:</b>\n"
+        f"📈 Build your powerful team and generate passive daily income! Earn lifetime commissions, daily salaries, and referral bonuses. Share your link now! 🚀\n\n"
+        f"🇮🇳 <b>हिंदी (HINDI):</b>\n"
+        f"💰 अपनी खुद की मजबूत टीम बनाएं और रोजाना पैसिव इनकम कमाएं! लाइफटाइम कमीशन, डेली सैलरी और रेफरल बोनस पाएं। अभी शेयर करें! ✨\n\n"
+        f"🇧🇩 <b>বাংলা (BANGLA):</b>\n"
+        f"🤝 একটি শক্তিশালী টিম তৈরি করুন এবং প্রতিদিন প্যাসিভ ইনকাম করুন! লাইফটাইম কমিশন, ডেইলি স্যালারি এবং রেফারেল বোনাস উপভোগ করুন। এখনই শেয়ার করুন! 💎\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━"
     )
     try:
@@ -183,8 +181,11 @@ async def send_referral_promo(app, markup):
 
 async def send_next_session_info(app, next_session_name, time_str):
     next_msg = (
-        f"💎 ⏰ <b>NEXT SESSION INFO: {next_session_name} at {time_str}</b> ⏰ 💎\n"
-        f"Get ready for the next profit wave! / अगले सेशन के लिए तैयार रहें! / পরবর্তী সেশনের জন্য প্রস্তুত থাকুন!"
+        f"💎 ⏰ <b>NEXT SESSION SCHEDULE INFO</b> ⏰ 💎\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"🚀 <b>Upcoming Session: {next_session_name}</b>\n"
+        f"🕒 <b>Timing: {time_str}</b>\n\n"
+        f"✨ <i>Get ready for the next massive profit wave! / अगले सेशन के लिए तैयार रहें! / পরবর্তী সেশনের জন্য প্রস্তুত থাকুন!</i> 📈"
     )
     markup = InlineKeyboardMarkup([
         [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
@@ -242,7 +243,7 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("📢 Channel Link", url="https://t.me/bdgplayvipwin")]
             ])
 
-            # সেশন অ্যালার্ট মেসেজ
+            # সেশন অ্যালার্ট মেসেজ (৫ মিনিট আগে)
             if hour == 6 and 55 <= minute < 60:
                 alert_key = f"{current_date_str}_MORNING_ALERT"
                 if last_alert_date_session != alert_key:
@@ -261,7 +262,7 @@ async def send_auto_prediction(app):
                     await send_ready_alert(app, "Night Session (8:00 PM)", alert_markup)
                     last_alert_date_session = alert_key
 
-            # সেশনের সময়সীমা
+            # সিগন্যাল সেশনের সময়সীমা
             is_morning_session = (hour == 7 and minute <= 35)
             is_afternoon_session = (hour == 14 and minute <= 35)
             is_night_session = (hour == 20 and minute <= 35)
@@ -298,7 +299,7 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("💎 Contact For Support", url="https://t.me/bdgplayvipwin")]
             ])
 
-            # প্রমোশন মেসেজ
+            # সেশন শেষের প্রমোশন মেসেজ
             if (hour == 7 and minute == 36) or (hour == 14 and minute == 36) or (hour == 20 and minute == 36):
                 promo_key = f"{current_date_str}_{hour}_PROMO"
                 if last_promo_date_session != promo_key:
@@ -327,7 +328,7 @@ async def send_auto_prediction(app):
         except Exception as e:
             print(f"Main Loop Error: {e}")
 
-        await asyncio.sleep(3)
+        await asyncio.sleep(2)
 
 
 # ==========================================
@@ -341,7 +342,7 @@ if __name__ == "__main__":
     
     threading.Thread(target=run_web, daemon=True).start()
     
-    print("BDG Win Bot is running successfully with all features and 1-Min period sync...")
+    print("BDG Win Bot is running successfully with professional emojis...")
     
     async def post_init(application):
         application.create_task(send_auto_prediction(application))
