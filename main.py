@@ -15,7 +15,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Stable Direct Bot Loop Active)"
+    return "Bot status: ONLINE (Period Fixed & Continuous Testing Mode)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -34,7 +34,7 @@ pattern_index = 0
 
 
 # ==========================================
-# ⏰ Time & Live Game Period Synchronization Function
+# ⏰ Time & Live Game Period Synchronization Function (Fixed)
 # ==========================================
 def get_ist_time():
     try:
@@ -50,9 +50,9 @@ def get_current_1min_period():
     midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - midnight).total_seconds() // 60)
     
-    base_period = 10001
-    current_period_count = base_period + total_minutes
-    return f"{date_str}1000{current_period_count}"
+    # সঠিক BDG Win 1-min পিরিয়ড ফরম্যাট (YYYYMMDD1000 + ৪ ডিজিট সিরিয়াল)
+    period_no = 1000 + total_minutes + 1
+    return f"{date_str}1000{period_no}"
 
 
 # ==========================================
@@ -126,7 +126,7 @@ def get_smart_trend_color(pred_text):
 
 
 # ==========================================
-# 📢 Extra Supporting Message Functions (Kept Intact)
+# 📢 Extra Supporting Message Functions
 # ==========================================
 async def send_ready_alert(bot, session_name, markup):
     alert_msg = (
@@ -225,7 +225,7 @@ async def main_bot_loop():
             if (hour == 7 and minute == 36) or (hour == 14 and minute == 36) or (hour == 20 and minute == 36):
                 promo_key = f"{current_date_str}_{hour}_PROMO"
                 if last_promo_date_session != promo_key:
-                    await send_referral_promo(bot, promo_markup)
+                    await send_referral_promo(bot, promo_promo_markup if 'promo_promo_markup' in locals() else promo_markup)
                     last_promo_date_session = promo_key
 
         except Exception as e:
@@ -240,4 +240,3 @@ async def main_bot_loop():
 if __name__ == "__main__":
     threading.Thread(target=run_web, daemon=True).start()
     asyncio.run(main_bot_loop())
-                
