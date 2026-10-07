@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Full Features & Accurate 1-Min Period Active)"
+    return "Bot status: ONLINE (Accurate 1-Min Period Sync Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -35,7 +35,7 @@ prediction_active = True
 
 
 # ==========================================
-# ⏰ Accurate 1-Min Period Generator
+# ⏰ Accurate 1-Min Game Period Generator
 # ==========================================
 def get_ist_time():
     try:
@@ -51,9 +51,10 @@ def generate_time_based_period():
     # আজকের দিন শুরুর পর থেকে মোট কত মিনিট পার হয়েছে তার হিসাব
     total_minutes_today = (now.hour * 60) + now.minute
     
-    # আপনার গেমের হিস্ট্রির সাথে মিল রেখে নিখুঁত পিরিয়ড ফরম্যাট (যেমন: 202610071000...)
-    base_counter = 10000000 + total_minutes_today
-    return f"{date_str}{base_counter}"
+    # আপনার গেমের স্ক্রিনশট অনুযায়ী পিরিয়ড ফরম্যাট: YYYYMMDD + 1000 + সার্ভার কাউন্টার
+    # গেমের রিয়েল সিরিয়ালের সাথে মিল রাখতে সঠিক অফসেট যোগ করা হয়েছে
+    server_counter = 10000 + total_minutes_today
+    return f"{date_str}{server_counter}"
 
 
 # ==========================================
@@ -338,11 +339,11 @@ if __name__ == "__main__":
     
     threading.Thread(target=run_web, daemon=True).start()
     
-    print("BDG Win Bot is running successfully with all features...")
+    print("BDG Win Bot is running successfully with perfectly matched period format...")
     
     async def post_init(application):
         application.create_task(send_auto_prediction(application))
 
     app.post_init = post_init
     app.run_polling()
-                   
+                    
