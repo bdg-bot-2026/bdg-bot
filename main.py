@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Exact Matched Period Active)"
+    return "Bot status: ONLINE (1-Min Exact Synced Period Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -32,12 +32,12 @@ CHANNEL_ID = "@bdgplayvipwin"
 
 
 # ==========================================
-# ⏰ Exact Game Matched Period Logic
+# ⏰ Exact 1-Min Game Matched Period Logic
 # ==========================================
-def get_exact_current_period():
+def get_exact_1min_period():
     """
-    গেমের আসল ফরম্যাট (YYYYMMDD1000XXXX) হুবহু ঠিক রাখার জন্য 
-    সরাসরি বর্তমান সময়ের মিনিট হিসাব করে পیرিয়ড তৈরি করা হয়েছে।
+    গেমের WinGo 1 Min এর সাথে নিখুঁতভাবে সিঙ্ক করার জন্য 
+    প্রতি ১ মিনিটে পিরিয়ড ১ করে বাড়বে।
     """
     try:
         ist = pytz.timezone('Asia/Kolkata')
@@ -47,14 +47,13 @@ def get_exact_current_period():
         
     date_prefix = now.strftime('%Y%m%d')
     
-    # আজকের দিন শুরুর পর থেকে মোট কত মিনিট পার হয়েছে তার নিখুঁত হিসাব
-    total_minutes = (now.hour * 60) + now.minute
+    # আজকের দিন শুরুর পর থেকে মোট কত মিনিট পার হয়েছে তার সঠিক হিসাব
+    total_minutes_today = (now.hour * 60) + now.minute
     
-    # গেমের সাথে মিল রেখে বেস পিরিয়ড নম্বর (যাতে ঠিক ১০১৫১ বা বর্তমান মিনিটের সাথে মিলে যায়)
-    # স্ক্রিনশটের হিসাব অনুযায়ী আজকের দিনের মোট মিনিটের সাথে গেমের সিকোয়েন্স সেট করা হলো
-    base_game_seq = 10000 + total_minutes
+    # আপনার গেমের স্ক্রিনশট অনুযায়ী বেস পিরিয়ড ফরম্যাট (YYYYMMDD1000 + মিনিট কাউন্ট)
+    base_game_period = 1000000 + total_minutes_today
     
-    return f"{date_prefix}1000{base_game_seq}"
+    return f"{date_prefix}{base_game_period}"
 
 
 # ==========================================
@@ -117,7 +116,7 @@ def get_smart_trend_color(pred_text):
 
 
 # ==========================================
-# 🚀 Telegram Automation 24/7 Main Loop
+# 🚀 Telegram Automation 1-Min Main Loop
 # ==========================================
 async def send_auto_prediction(app):
     last_sent_period = ""
@@ -130,14 +129,16 @@ async def send_auto_prediction(app):
 
     while True:
         try:
-            period_num = get_exact_current_period()
+            period_num = get_exact_1min_period()
             
+            # শুধুমাত্র যখন নতুন পিরিয়ড শুরু হবে তখনই সিগন্যাল পাঠাবে
             if period_num != last_sent_period:
                 pred_text = get_high_tech_ai_prediction()
                 color_text = get_smart_trend_color(pred_text)
                 
-                # হেডার এক লাইনে সুন্দরভাবে ফিক্স করা হয়েছে
+                # হেডার ১ মিনিটের গেমের সাথে সামঞ্জস্য রেখে এবং এক লাইনে রাখা হয়েছে
                 msg = (
+                    f"BDG VIP PREDICTION 1 Min\n"
                     f"💎 <b>BDG WIN ULTRA AI VIP</b> 💎\n\n"
                     f"🔹 <b>PERIOD:</b> {period_num}\n"
                     f"🎯 <b>PREDICTION:</b> {pred_text}\n"
@@ -158,7 +159,8 @@ async def send_auto_prediction(app):
         except Exception as e:
             print(f"Error: {e}")
 
-        await asyncio.sleep(5)
+        # প্রতি ১০ সেকেন্ড পর পর চেক করবে যাতে ১ মিনিট পূর্ণ হওয়ার সাথে সাথেই সঠিক পিরিয়ড ধরতে পারে
+        await asyncio.sleep(10)
 
 
 # ==========================================
@@ -170,7 +172,7 @@ async def main():
     web_thread = threading.Thread(target=run_web, daemon=True)
     web_thread.start()
     
-    print("BDG Win Exact Matched Bot is running successfully...")
+    print("BDG Win 1-Min Synced Bot is running successfully...")
     
     await send_auto_prediction(app)
 
