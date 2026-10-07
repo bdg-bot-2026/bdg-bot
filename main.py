@@ -5,8 +5,7 @@ import pytz
 import asyncio
 import threading
 from flask import Flask
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder
+from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ParseMode
 
 # ==========================================
@@ -16,7 +15,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Automatic Continuous Signals)"
+    return "Bot status: ONLINE (Continuous Direct Signal Sender)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -127,9 +126,10 @@ def get_smart_trend_color(pred_text):
 
 
 # ==========================================
-# 🚀 Telegram Automation Main Loop (Continuous)
+# 🚀 Direct Async Message Sender Loop
 # ==========================================
-async def send_auto_prediction(app):
+async def main_bot_loop():
+    bot = Bot(token=TOKEN)
     last_sent_period = ""
     
     keyboard = [
@@ -137,6 +137,8 @@ async def send_auto_prediction(app):
         [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
+
+    print("BDG Win Direct Signal Sender started successfully...")
 
     while True:
         try:
@@ -157,35 +159,29 @@ async def send_auto_prediction(app):
                     f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
                 )
                 
-                await app.bot.send_message(
+                await bot.send_message(
                     chat_id=CHANNEL_ID,
                     text=msg,
                     parse_mode=ParseMode.HTML,
                     reply_markup=reply_markup
                 )
                 
+                print(f"Signal sent successfully for period: {period_num}")
                 last_sent_period = period_num
 
         except Exception as e:
-            print(f"Main Loop Error: {e}")
+            print(f"Error in sending message: {e}")
 
-        await asyncio.sleep(2)
+        await asyncio.sleep(5)
 
 
 # ==========================================
 # ⚙️ Main Application Launcher
 # ==========================================
 if __name__ == "__main__":
-    app = ApplicationBuilder().token(TOKEN).build()
-    
-    # ব্যাকগ্রাউন্ডে ফ্লাস্ক সার্ভার চালু করা
+    # ফ্লাস্ক সার্ভার ব্যাকগ্রাউন্ডে রান করা
     threading.Thread(target=run_web, daemon=True).start()
     
-    print("BDG Win Continuous Bot is running successfully...")
+    # সরাসরি এসিনক্রোনাস লুপ চালু করা
+    asyncio.run(main_bot_loop())
     
-    async def post_init(application):
-        application.create_task(send_auto_prediction(application))
-
-    app.post_init = post_init
-    app.run_polling()
-               
