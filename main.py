@@ -15,7 +15,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Exact UTC Period Match & Continuous Mode)"
+    return "Bot status: ONLINE (Period Exact Match & Continuous Mode)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -34,7 +34,7 @@ pattern_index = 0
 
 
 # ==========================================
-# ⏰ Time & Live Game Period Synchronization Function (Exact UTC Fixed)
+# ⏰ Time & Live Game Period Synchronization Function (Exact Match Fixed)
 # ==========================================
 def get_ist_time():
     try:
@@ -44,12 +44,12 @@ def get_ist_time():
         return datetime.utcnow() + timedelta(hours=5, minutes=30)
 
 def get_current_1min_period():
-    # BDG Win গেমের পিরিয়ড UTC 00:00 থেকে কাউন্ট শুরু হয়
     now_utc = datetime.now(pytz.utc)
     date_str = now_utc.strftime("%Y%m%d")
     
     total_minutes_utc = (now_utc.hour * 60) + now_utc.minute
-    period_count = 10000 + total_minutes_utc
+    # রানিং পিরিয়ডের সাথে নিখুঁতভাবে মেলানোর জন্য এখানে +1 যুক্ত করা হয়েছে
+    period_count = 10000 + total_minutes_utc + 1
     
     return f"{date_str}1000{period_count}"
 
@@ -239,4 +239,4 @@ async def main_bot_loop():
 if __name__ == "__main__":
     threading.Thread(target=run_web, daemon=True).start()
     asyncio.run(main_bot_loop())
-                
+    
