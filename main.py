@@ -10,13 +10,13 @@ from telegram.ext import ApplicationBuilder, CommandHandler
 from telegram.constants import ParseMode
 
 # ==========================================
-# 🌐 Flask Web Server (For Render / Cloud Hosting Keep-Alive)
+# 🌐 Flask Web Server (Render Keep-Alive)
 # ==========================================
 app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Time-Based Period Sync Active with Dynamic Random AI)"
+    return "Bot status: ONLINE (Full Features & Accurate 1-Min Period Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -31,13 +31,11 @@ CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_ID", "-1004492973133")
 
 current_pattern = []
 pattern_index = 0
-
-# ম্যানুয়াল কন্ট্রোল সুইচ (ডিফল্টভাবে True রাখা হয়েছে)
 prediction_active = True
 
 
 # ==========================================
-# ⏰ Time & Time-Based Period Function (API-Free & Accurate)
+# ⏰ Accurate 1-Min Period Generator
 # ==========================================
 def get_ist_time():
     try:
@@ -47,22 +45,19 @@ def get_ist_time():
         return datetime.utcnow() + timedelta(hours=5, minutes=30)
 
 def generate_time_based_period():
-    """
-    সম্পূর্ণ ঘড়ির কাটা এবং তারিখের সাথে মিলিয়ে Wingo 1 Min এর নিখুঁত পিরিয়ড নম্বর জেনারেট করবে।
-    ফরম্যাট: YYYYMMDD + আজকের মোট মিনিটের হিসাব অনুযায়ী সিকোয়েন্স।
-    """
     now = get_ist_time()
     date_str = now.strftime("%Y%m%d")
     
-    # আজকের মোট কত মিনিট পার হয়েছে তা বের করে গেমের ফরম্যাট তৈরি
-    total_minutes_today = now.hour * 60 + now.minute
-    base_issue_number = 10000000 + total_minutes_today
+    # আজকের দিন শুরুর পর থেকে মোট কত মিনিট পার হয়েছে তার হিসাব
+    total_minutes_today = (now.hour * 60) + now.minute
     
-    return f"{date_str}{base_issue_number}"
+    # আপনার গেমের হিস্ট্রির সাথে মিল রেখে নিখুঁত পিরিয়ড ফরম্যাট (যেমন: 202610071000...)
+    base_counter = 10000000 + total_minutes_today
+    return f"{date_str}{base_counter}"
 
 
 # ==========================================
-# 📊 Fully Dynamic & Random AI Trend Evaluator
+# 📊 Fully Dynamic AI Trend Evaluator
 # ==========================================
 def high_tech_ai_trend_evaluator():
     strategies_weights = {
@@ -122,7 +117,7 @@ def get_high_tech_ai_prediction():
 
 
 # ==========================================
-# 🎨 Smart Color Evaluator Logic (Only Green & Red)
+# 🎨 Smart Color Evaluator Logic
 # ==========================================
 def get_smart_trend_color(pred_text):
     if pred_text == "BIG":
@@ -199,7 +194,7 @@ async def send_next_session_info(app, next_session_name, time_str):
 
 
 # ==========================================
-# 🎮 Telegram Command Handlers (/start & /stop)
+# 🎮 Telegram Command Handlers
 # ==========================================
 async def cmd_start_prediction(update, context):
     global prediction_active
@@ -230,7 +225,6 @@ async def send_auto_prediction(app):
 
     while True:
         try:
-            # যদি ম্যানুয়ালি স্টপ করা থাকে, তবে লুপের কাজ বন্ধ থাকবে
             if not prediction_active:
                 await asyncio.sleep(2)
                 continue
@@ -245,7 +239,7 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("📢 Channel Link", url="https://t.me/bdgplayvipwin")]
             ])
 
-            # ১. সেশন শুরুর ৫ মিনিটের অ্যালার্ট মেসেজ (৬:৫৫, ১:৫৫, ৭:৫৫)
+            # সেশন অ্যালার্ট মেসেজ
             if hour == 6 and 55 <= minute < 60:
                 alert_key = f"{current_date_str}_MORNING_ALERT"
                 if last_alert_date_session != alert_key:
@@ -264,7 +258,7 @@ async def send_auto_prediction(app):
                     await send_ready_alert(app, "Night Session (8:00 PM)", alert_markup)
                     last_alert_date_session = alert_key
 
-            # ২. মূল সিগন্যাল পাঠানোর অংশ (টাইম স্লট অথবা ম্যানুয়াল ওভাররাইড)
+            # সিগন্যাল পাঠানোর সময়সীমা
             is_morning_session = (hour == 7 and minute <= 35)
             is_afternoon_session = (hour == 14 and minute <= 35)
             is_night_session = (hour == 20 and minute <= 35)
@@ -301,14 +295,14 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("💎 Contact For Support", url="https://t.me/bdgplayvipwin")]
             ])
 
-            # ৩. সেশন শেষ হওয়ার পরের প্রমোশন মেসেজ (৭:৩৬, ২:৩৬, ৮:৩৬)
+            # প্রমোশন মেসেজ
             if (hour == 7 and minute == 36) or (hour == 14 and minute == 36) or (hour == 20 and minute == 36):
                 promo_key = f"{current_date_str}_{hour}_PROMO"
                 if last_promo_date_session != promo_key:
                     await send_referral_promo(app, promo_markup)
                     last_promo_date_session = promo_key
 
-            # ৪. পরবর্তী সেশনের আপডেট মেসেজ (৭:৩৭, ২:৩৭, ৮:৩৭)
+            # পরবর্তী সেশনের আপডেট মেসেজ
             if hour == 7 and minute == 37:
                 next_key = f"{current_date_str}_MORNING_NEXT"
                 if last_next_date_session != next_key:
@@ -334,26 +328,21 @@ async def send_auto_prediction(app):
 
 
 # ==========================================
-# ⚙️ Main Application Launcher (Polling & Background Task)
+# ⚙️ Main Application Launcher
 # ==========================================
 if __name__ == "__main__":
     app = ApplicationBuilder().token(TOKEN).build()
     
-    # টেলিগ্রাম কমান্ড হ্যান্ডলার যুক্ত করা হলো (/start এবং /stop)
     app.add_handler(CommandHandler("start", cmd_start_prediction))
     app.add_handler(CommandHandler("stop", cmd_stop_prediction))
     
-    # Flask সার্ভার ব্যাকগ্রাউন্ডে চালু রাখা
     threading.Thread(target=run_web, daemon=True).start()
     
-    print("BDG Win Time-Based Period Bot is running successfully with all features...")
+    print("BDG Win Bot is running successfully with all features...")
     
-    # ব্যাকগ্রাউন্ড লুপ শুরু করার জন্য post_init হুক ব্যবহার করা
     async def post_init(application):
         application.create_task(send_auto_prediction(application))
 
     app.post_init = post_init
-    
-    # সঠিকভাবে বট রান করার জন্য polling শুরু করা
     app.run_polling()
-    
+                   
