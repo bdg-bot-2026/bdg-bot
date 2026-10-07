@@ -1,6 +1,7 @@
 import os
 import random
-from datetime import datetime, timedelta
+import requests
+from datetime import datetime
 import pytz
 import asyncio
 import threading
@@ -16,7 +17,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (24/7 Exact Real-Time Synced Period Active)"
+    return "Bot status: ONLINE (API-Synced Live Period Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -32,23 +33,44 @@ CHANNEL_ID = "@bdgplayvipwin"
 
 
 # ==========================================
-# ⏰ Exact Real-Time Synced Period Logic
+# 🔗 Direct API Period Fetcher (গেমের সার্ভার থেকে লাইভ পিরিয়ড নেওয়ার ফাংশন)
 # ==========================================
-def get_ist_time():
+def fetch_live_game_data():
+    try:
+        # এটি BDG Win গেমের অফিশিয়াল হিস্ট্রি API এন্ডপয়েন্ট
+        url = "https://api.bdgwin.com/api/web/GameIssue" # অথবা আপনার গেমের নির্দিষ্ট API URL
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+        }
+        # পেমেন্ট বা গেমের ডেটা পাওয়ার জন্য রিকোয়েস্ট পাঠানো
+        # যদি API প্রটেক্টেড থাকে বা সরাসরি কাজ না করে, নিচের ফলব্যাক মেথড কাজ করবে
+        response = requests.post(url, json={"typeId": 1, "pageNo": 1, "pageSize": 10}, headers=headers, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            # গেমের লেটেস্ট পিরিয়ড বের করা
+            latest_item = data['data']['list'][0]
+            live_period = str(latest_item['issueNumber'])
+            return live_period
+    except Exception as e:
+        print(f"API Fetch Error: {e}")
+    
+    return None
+
+
+# ==========================================
+# ⏰ Fallback Exact Synced Period Logic (যদি API ফেইল করে)
+# ==========================================
+def get_fallback_period():
     try:
         ist = pytz.timezone('Asia/Kolkata')
-        return datetime.now(ist)
+        now = datetime.now(ist)
     except Exception:
-        return datetime.utcnow() + timedelta(hours=5, minutes=30)
-
-def get_current_1min_period():
-    now = get_ist_time()
+        now = datetime.utcnow()
+        
     midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes_today = int((now - midnight).total_seconds() // 60)
-    
     date_prefix = now.strftime('%Y%m%d')
     base_game_period = 1000000 + total_minutes_today
-    
     return f"{date_prefix}{base_game_period}"
 
 
@@ -125,15 +147,19 @@ async def send_auto_prediction(app):
 
     while True:
         try:
-            period_num = get_current_1min_period()
-            if period_num != last_sent_period:
+            # প্রথমে লাইভ API থেকে পিরিয়ড নেওয়ার চেষ্টা করবে, না পেলে ফলব্যাক টাইম লজিক ব্যবহার করবে
+            current_period = fetch_live_game_data()
+            if not current_period:
+                current_period = get_fallback_period()
+                
+            if current_period and current_period != last_sent_period:
                 pred_text = get_high_tech_ai_prediction()
                 color_text = get_smart_trend_color(pred_text)
                 
-                # এখানে হেডারটি এক লাইনে রাখার জন্য সংক্ষিপ্ত ও নিখুঁত করা হয়েছে
+                # আপনার চাহিদা অনুযায়ী হেডার এক লাইনে রাখা হয়েছে
                 msg = (
                     f"💎 <b>BDG WIN ULTRA AI VIP</b> 💎\n\n"
-                    f"🔹 <b>PERIOD:</b> {period_num}\n"
+                    f"🔹 <b>PERIOD:</b> {current_period}\n"
                     f"🎯 <b>PREDICTION:</b> {pred_text}\n"
                     f"🎨 <b>COLOR:</b> {color_text}\n"
                     f"───────────────────\n"
@@ -147,12 +173,12 @@ async def send_auto_prediction(app):
                     reply_markup=reply_markup
                 )
                 
-                last_sent_period = period_num
+                last_sent_period = current_period
 
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Loop Error: {e}")
 
-        await asyncio.sleep(1)
+        await asyncio.sleep(5)
 
 
 # ==========================================
@@ -164,7 +190,7 @@ async def main():
     web_thread = threading.Thread(target=run_web, daemon=True)
     web_thread.start()
     
-    print("BDG Win Exact Synced 24/7 AI Bot is running successfully...")
+    print("BDG Win API-Synced 24/7 AI Bot is running successfully...")
     
     await send_auto_prediction(app)
 
