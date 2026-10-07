@@ -15,7 +15,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Period Fixed & Continuous Testing Mode)"
+    return "Bot status: ONLINE (Exact UTC Period Match & Continuous Mode)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -34,7 +34,7 @@ pattern_index = 0
 
 
 # ==========================================
-# ⏰ Time & Live Game Period Synchronization Function (Fixed)
+# ⏰ Time & Live Game Period Synchronization Function (Exact UTC Fixed)
 # ==========================================
 def get_ist_time():
     try:
@@ -44,15 +44,14 @@ def get_ist_time():
         return datetime.utcnow() + timedelta(hours=5, minutes=30)
 
 def get_current_1min_period():
-    now = get_ist_time()
-    date_str = now.strftime("%Y%m%d")
+    # BDG Win গেমের পিরিয়ড UTC 00:00 থেকে কাউন্ট শুরু হয়
+    now_utc = datetime.now(pytz.utc)
+    date_str = now_utc.strftime("%Y%m%d")
     
-    midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    total_minutes = int((now - midnight).total_seconds() // 60)
+    total_minutes_utc = (now_utc.hour * 60) + now_utc.minute
+    period_count = 10000 + total_minutes_utc
     
-    # সঠিক BDG Win 1-min পিরিয়ড ফরম্যাট (YYYYMMDD1000 + ৪ ডিজিট সিরিয়াল)
-    period_no = 1000 + total_minutes + 1
-    return f"{date_str}1000{period_no}"
+    return f"{date_str}1000{period_count}"
 
 
 # ==========================================
@@ -225,7 +224,7 @@ async def main_bot_loop():
             if (hour == 7 and minute == 36) or (hour == 14 and minute == 36) or (hour == 20 and minute == 36):
                 promo_key = f"{current_date_str}_{hour}_PROMO"
                 if last_promo_date_session != promo_key:
-                    await send_referral_promo(bot, promo_promo_markup if 'promo_promo_markup' in locals() else promo_markup)
+                    await send_referral_promo(bot, promo_markup)
                     last_promo_date_session = promo_key
 
         except Exception as e:
@@ -240,3 +239,4 @@ async def main_bot_loop():
 if __name__ == "__main__":
     threading.Thread(target=run_web, daemon=True).start()
     asyncio.run(main_bot_loop())
+                
