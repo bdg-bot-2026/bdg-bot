@@ -339,21 +339,26 @@ async def send_auto_prediction(app):
 
 
 # ==========================================
-# ⚙️ Main Application Launcher
+# ⚙️ Main Application Launcher (Polling & Background Task)
 # ==========================================
-async def main():
+if __name__ == "__main__":
     app = ApplicationBuilder().token(TOKEN).build()
     
     # টেলিগ্রাম কমান্ড হ্যান্ডলার যুক্ত করা হলো (/start এবং /stop)
     app.add_handler(CommandHandler("start", cmd_start_prediction))
     app.add_handler(CommandHandler("stop", cmd_stop_prediction))
     
+    # Flask সার্ভার ব্যাকগ্রাউন্ডে চালু রাখা
     threading.Thread(target=run_web, daemon=True).start()
     
-    print("BDG Win Direct API Bot is running successfully with dynamic random trends for 1 Min...")
+    print("BDG Win Direct API Bot is running successfully with polling...")
     
-    await send_auto_prediction(app)
+    # ব্যাকগ্রাউন্ড লুপ শুরু করার জন্য post_init হুক ব্যবহার করা
+    async def post_init(application):
+        application.create_task(send_auto_prediction(application))
 
-if __name__ == "__main__":
-    asyncio.run(main())
+    app.post_init = post_init
+    
+    # সঠিকভাবে বট রান করার জন্য polling শুরু করা
+    app.run_polling()
             
