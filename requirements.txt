@@ -2,6 +2,7 @@ python-telegram-bot
 pytz
 flask
 gunicorn
+requests
 
 
 
