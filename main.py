@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (24/7 Advanced AI Dynamic Random Trend & Live Matched Period Active)"
+    return "Bot status: ONLINE (24/7 Exact Real-Time Synced Period Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -32,7 +32,7 @@ CHANNEL_ID = "@bdgplayvipwin"
 
 
 # ==========================================
-# ⏰ Time & Live Game Period Synchronization Function
+# ⏰ Exact Real-Time Synced Period Logic
 # ==========================================
 def get_ist_time():
     try:
@@ -43,12 +43,13 @@ def get_ist_time():
 
 def get_current_1min_period():
     now = get_ist_time()
-    base_time = datetime(2026, 10, 7, 7, 34, 0, tzinfo=pytz.timezone('Asia/Kolkata'))
-    base_period = 10147
-    total_minutes = int((now - base_time).total_seconds() // 60)
-    current_period_count = base_period + total_minutes
+    midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    total_minutes_today = int((now - midnight).total_seconds() // 60)
+    
     date_prefix = now.strftime('%Y%m%d')
-    return f"{date_prefix}1000{current_period_count}"
+    base_game_period = 1000000 + total_minutes_today
+    
+    return f"{date_prefix}{base_game_period}"
 
 
 # ==========================================
@@ -124,15 +125,14 @@ async def send_auto_prediction(app):
 
     while True:
         try:
-            # ২৪ ঘণ্টা নন-স্টপ প্রেডিকশন পাঠানোর জন্য কোনো টাইম রেস্ট্রিকশন রাখা হয়নি
             period_num = get_current_1min_period()
             if period_num != last_sent_period:
                 pred_text = get_high_tech_ai_prediction()
                 color_text = get_smart_trend_color(pred_text)
                 
+                # এখানে হেডারটি এক লাইনে রাখার জন্য সংক্ষিপ্ত ও নিখুঁত করা হয়েছে
                 msg = (
-                    f"💎 <b>BDG ULTRA AI VIP PREDICTION</b> 💎\n"
-                    f"💎 <b>BDG VIP PREDICTION 1 Min</b> 💎\n\n"
+                    f"💎 <b>BDG WIN ULTRA AI VIP</b> 💎\n\n"
                     f"🔹 <b>PERIOD:</b> {period_num}\n"
                     f"🎯 <b>PREDICTION:</b> {pred_text}\n"
                     f"🎨 <b>COLOR:</b> {color_text}\n"
@@ -161,13 +161,11 @@ async def send_auto_prediction(app):
 async def main():
     app = ApplicationBuilder().token(TOKEN).build()
     
-    # ব্যাকগ্রাউন্ডে ফ্লাস্ক সার্ভার চালু রাখা
     web_thread = threading.Thread(target=run_web, daemon=True)
     web_thread.start()
     
-    print("BDG Win 24/7 Non-Stop AI Bot is running successfully...")
+    print("BDG Win Exact Synced 24/7 AI Bot is running successfully...")
     
-    # ২৪ ঘণ্টার অটো সিগন্যাল লুপ স্টার্ট করা
     await send_auto_prediction(app)
 
 if __name__ == "__main__":
