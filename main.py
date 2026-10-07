@@ -7,7 +7,7 @@ import threading
 import requests
 from flask import Flask
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder
+from telegram.ext import ApplicationBuilder, CommandHandler
 from telegram.constants import ParseMode
 
 # ==========================================
@@ -27,12 +27,14 @@ def run_web():
 # ==========================================
 # 🤖 Telegram Bot Configurations
 # ==========================================
-# এনভায়রনমেন্ট ভেরিয়েবল বা সরাসরি টোকেন সেটআপ
 TOKEN = os.getenv("TELEGRAM_TOKEN", "8752459278:AAGbwu4j7JqT3R4Auwhj2PLMidKzhRaSkS0").strip()
 CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_ID", "@bdgplayvipwin")
 
 current_pattern = []
 pattern_index = 0
+
+# ম্যানুয়াল কন্ট্রোল সুইচ (ডিফল্টভাবে চালু বা বন্ধ রাখতে পারেন)
+prediction_active = True
 
 
 # ==========================================
@@ -201,9 +203,24 @@ async def send_next_session_info(app, next_session_name, time_str):
 
 
 # ==========================================
+# 🎮 Telegram Command Handlers (/start & /stop)
+# ==========================================
+async def cmd_start_prediction(update, context):
+    global prediction_active
+    prediction_active = True
+    await update.message.reply_text("✅ VIP Prediction 1 Min ম্যানুয়ালি চালু (ON) করা হয়েছে!")
+
+async def cmd_stop_prediction(update, context):
+    global prediction_active
+    prediction_active = False
+    await update.message.reply_text("🛑 VIP Prediction ম্যানুয়ালি বন্ধ (OFF) করা হয়েছে!")
+
+
+# ==========================================
 # 🚀 Telegram Automation Main Loop
 # ==========================================
 async def send_auto_prediction(app):
+    global prediction_active
     last_sent_period = ""
     last_alert_date_session = ""    
     last_promo_date_session = ""    
@@ -217,6 +234,11 @@ async def send_auto_prediction(app):
 
     while True:
         try:
+            # যদি ম্যানুয়ালি স্টপ করা থাকে, তবে সিগন্যাল পাঠানো স্কিপ করবে কিন্তু লুপ চালু থাকবে
+            if not prediction_active:
+                await asyncio.sleep(2)
+                continue
+
             now = get_ist_time()
             hour = now.hour
             minute = now.minute
@@ -322,6 +344,10 @@ async def send_auto_prediction(app):
 async def main():
     app = ApplicationBuilder().token(TOKEN).build()
     
+    # টেলিগ্রাম কমান্ড হ্যান্ডলার যুক্ত করা হলো (/start এবং /stop)
+    app.add_handler(CommandHandler("start", cmd_start_prediction))
+    app.add_handler(CommandHandler("stop", cmd_stop_prediction))
+    
     threading.Thread(target=run_web, daemon=True).start()
     
     print("BDG Win Direct API Bot is running successfully with dynamic random trends for 1 Min...")
@@ -330,3 +356,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+                               
