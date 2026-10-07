@@ -5,17 +5,17 @@ import pytz
 import asyncio
 import threading
 from flask import Flask
-from telegram import Bot
+from telegram.ext import ApplicationBuilder
 from telegram.constants import ParseMode
 
 # ==========================================
-# 🌐 Flask Web Server (Keep-Alive)
+# 🌐 Flask Web Server
 # ==========================================
 app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Clean & Direct Loop)"
+    return "Bot status: ONLINE (Continuous Testing Mode Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -23,17 +23,18 @@ def run_web():
 
 
 # ==========================================
-# 🤖 Telegram Configurations
+# 🤖 Telegram Bot Configurations
 # ==========================================
-TOKEN = os.getenv("TELEGRAM_TOKEN", "8752459278:AAGbwu4j7JqT3R4Auwhj2PLMidKzhRaSkS0").strip()
-CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_ID", "-1004492973133")
+RAW_TOKEN = "8752459278:AAGbwu4j7JqT3R4Auwhj2PLMidKzhRaSkS0"
+TOKEN = RAW_TOKEN.strip()
+CHANNEL_ID = "@bdgplayvipwin"
 
 current_pattern = []
 pattern_index = 0
 
 
 # ==========================================
-# ⏰ Exact Period Generator Logic
+# ⏰ Time & Live Game Period Synchronization Function
 # ==========================================
 def get_ist_time():
     try:
@@ -42,85 +43,229 @@ def get_ist_time():
     except Exception:
         return datetime.utcnow() + timedelta(hours=5, minutes=30)
 
-def generate_exact_game_period():
+def get_current_1min_period():
     now = get_ist_time()
     date_str = now.strftime("%Y%m%d")
     
     midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    total_minutes = int((now - midnight).total_seconds() / 60)
+    total_minutes = int((now - midnight).total_seconds() // 60)
     
-    current_minutes_today = (now.hour * 60) + now.minute
-    base_counter = 10540 + (total_minutes - current_minutes_today)
-    
-    return f"{date_str}1000{base_counter}"
+    base_period = 10001
+    current_period_count = base_period + total_minutes
+    return f"{date_str}1000{current_period_count}"
 
 
 # ==========================================
-# 📊 AI Prediction Logic
+# 📊 Advanced AI Trend Evaluator (10 Strategies)
 # ==========================================
+def high_tech_ai_trend_evaluator():
+    strategies_weights = {
+        "DRAGON_TREND": 15,       
+        "THREE_BY_THREE": 12,     
+        "CROSS_WAVE": 12,         
+        "TWO_BY_TWO_ZONE": 10,    
+        "STABLE_ZIGZAG": 10,      
+        "SMART_MIXED": 10,
+        "MIRROR_REFLECTION": 8,
+        "FIBONACCI_STEP": 8,
+        "MOMENTUM_WAVE": 8,
+        "ALTERNATE_CLUSTER": 7
+    }
+
+    strategies = list(strategies_weights.keys())
+    weights = list(strategies_weights.values())
+    selected_strategy = random.choices(strategies, weights=weights, k=1)[0]
+
+    start = random.choice(["BIG", "SMALL"])
+    opposite = "SMALL" if start == "BIG" else "BIG"
+    pattern = []
+    
+    if selected_strategy == "DRAGON_TREND":
+        dragon_len = random.randint(5, 7)
+        pattern = [start] * dragon_len
+    elif selected_strategy == "THREE_BY_THREE":
+        pattern = [start, start, start, opposite, opposite, opposite]
+    elif selected_strategy == "CROSS_WAVE":
+        pattern = [start, start, opposite, opposite, opposite, start]
+    elif selected_strategy == "TWO_BY_TWO_ZONE":
+        pattern = [start, start, opposite, opposite, start, start, opposite, opposite]
+    elif selected_strategy == "STABLE_ZIGZAG":
+        pattern = [start, opposite, start, opposite, start, opposite, start]
+    elif selected_strategy == "MIRROR_REFLECTION":
+        pattern = [start, opposite, start, start, opposite, start]
+    elif selected_strategy == "FIBONACCI_STEP":
+        pattern = [start, start, opposite, start, opposite, opposite]
+    elif selected_strategy == "MOMENTUM_WAVE":
+        pattern = [start, opposite, opposite, start, start, opposite]
+    elif selected_strategy == "ALTERNATE_CLUSTER":
+        pattern = [start, start, opposite, opposite, start, opposite]
+    else:
+        pattern = [start, opposite, start, start, opposite, start]
+
+    return pattern
+
 def get_high_tech_ai_prediction():
-    strategies = [["BIG", "SMALL"], ["SMALL", "BIG", "BIG"], ["BIG", "BIG", "SMALL"], ["SMALL", "SMALL"]]
     global current_pattern, pattern_index
     if not current_pattern or pattern_index >= len(current_pattern):
-        current_pattern = random.choice(strategies)
+        current_pattern = high_tech_ai_trend_evaluator()
         pattern_index = 0
     
-    pred = current_pattern[pattern_index]
+    raw_prediction = current_pattern[pattern_index]
     pattern_index += 1
-    return pred
+    return raw_prediction
 
+
+# ==========================================
+# 🎨 Smart Color Evaluator Logic (Only Green & Red)
+# ==========================================
 def get_smart_trend_color(pred_text):
     if pred_text == "BIG":
-        return "GREEN 🟢"
+        return random.choice(["GREEN 🟢", "GREEN 🟢", "RED 🔴"])
     else:
-        return "RED 🔴"
+        return random.choice(["RED 🔴", "RED 🔴", "GREEN 🟢"])
 
 
 # ==========================================
-# 🚀 Direct Async Message Loop
+# 📢 Extra Supporting Message Functions (Kept Intact)
 # ==========================================
-async def main_bot_loop():
-    bot = Bot(token=TOKEN)
+async def send_ready_alert(app, session_name, markup):
+    alert_msg = (
+        f"<b>BDG VIP PREDICTION 1 Min:</b>\n"
+        f"🚨 🔥 <b>ATTENTION: {session_name} IS ABOUT TO START!</b> 🔥 🚨\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"🎯 <b>Get ready & prepare your account! / तैयार हो जाइए! / সবাই রেডি থাকুন!</b>"
+    )
+    try:
+        await app.bot.send_message(chat_id=CHANNEL_ID, text=alert_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
+    except Exception as e:
+        print(f"Alert Error: {e}")
+
+async def send_referral_promo(app, markup):
+    promo_msg = (
+        f"💎 ✨ <b>MAXIMIZE YOUR EARNINGS WITH BDG WIN!</b> ✨ 💎\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"Build your powerful team and generate passive daily income!"
+    )
+    try:
+        await app.bot.send_message(chat_id=CHANNEL_ID, text=promo_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
+    except Exception as e:
+        print(f"Promo Error: {e}")
+
+async def send_next_session_info(app, next_session_name, time_str):
+    next_msg = (
+        f"💎 ⏰ <b>NEXT SESSION INFO</b> ⏰ 💎\n"
+        f"Next VIP Session: {next_session_name} at {time_str}."
+    )
+    markup = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
+        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
+    ])
+    try:
+        await app.bot.send_message(chat_id=CHANNEL_ID, text=next_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
+    except Exception as e:
+        print(f"Next Session Error: {e}")
+
+
+# ==========================================
+# 🚀 Telegram Automation Main Loop
+# ==========================================
+async def send_auto_prediction(app):
     last_sent_period = ""
+    last_alert_date_session = ""    
+    last_promo_date_session = ""    
+    last_next_date_session = ""     
     
-    print("Bot loop started successfully. Waiting for exact period match...")
+    keyboard = [
+        [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
+        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    print("BDG Win Continuous Testing Loop started successfully...")
 
     while True:
         try:
-            period_num = generate_exact_game_period()
-            
-            if period_num != last_sent_period:
-                pred_text = get_high_tech_ai_prediction()
-                color_text = get_smart_trend_color(pred_text)
-                
-                msg = (
-                    f"💎 <b>BDG VIP PREDICTION 1 Min</b> 💎\n\n"
-                    f"🔹 <b>PERIOD:</b> {period_num}\n"
-                    f"🎯 <b>PREDICTION:</b> {pred_text}\n"
-                    f"🎨 <b>COLOR:</b> {color_text}\n"
-                    f"───────────────────\n"
-                    f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
-                )
-                
-                await bot.send_message(
-                    chat_id=CHANNEL_ID,
-                    text=msg,
-                    parse_mode=ParseMode.HTML
-                )
-                
-                print(f"Successfully sent signal for period: {period_num}")
-                last_sent_period = period_num
+            now = get_ist_time()
+            hour = now.hour
+            minute = now.minute
+            current_date_str = now.strftime('%Y-%m-%d')
+
+            alert_markup = InlineKeyboardMarkup([
+                [InlineKeyboardButton("🚀 Ready & Deposit", url="https://bdgwin.com")],
+                [InlineKeyboardButton("📢 Channel Link", url="https://t.me/bdgplayvipwin")]
+            ])
+
+            # ১. সেশন শুরুর ৫ মিনিটের অ্যালার্ট মেসেজ (কোডের ভেতরে রাখা হলো, তবে টেস্টিংয়ের জন্য ওপেন রাখা হয়েছে)
+            if hour == 6 and 55 <= minute < 60:
+                alert_key = f"{current_date_str}_MORNING_ALERT"
+                if last_alert_date_session != alert_key:
+                    await send_ready_alert(app, "Morning Session (7:00 AM)", alert_markup)
+                    last_alert_date_session = alert_key
+
+            # ২. মূল সিগন্যাল পাঠানোর অংশ (বর্তমানে কন্টিনিউয়াস মোডের জন্য অলটাইম ট্রু করা আছে)
+            # আপনি যখন তিন টাইমে ফিক্স করতে বলবেন, তখন শুধু নিচের শর্তটি আগের মতো সেশন টাইমে সেট করে দেওয়া হবে।
+            is_active_testing_mode = True  # বর্তমানে সবসময় সিগন্যাল পাঠাবে
+
+            if is_active_testing_mode:
+                period_num = get_current_1min_period()
+                if period_num != last_sent_period:
+                    pred = get_high_tech_ai_prediction()
+                    pred_text = "SMALL" if pred == "SMALL" else "BIG"
+                    color_text = get_smart_trend_color(pred_text)
+                    
+                    msg = (
+                        f"💎 <b>BDG WIN ULTRA AI VIP PREDICTION</b> 💎\n"
+                        f"💎 <b>BDG VIP PREDICTION 1 Min</b> 💎\n\n"
+                        f"🔹 <b>PERIOD:</b> {period_num}\n"
+                        f"🎯 <b>PREDICTION:</b> {pred_text}\n"
+                        f"🎨 <b>COLOR:</b> {color_text}\n"
+                        f"───────────────────\n"
+                        f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
+                    )
+                    
+                    await app.bot.send_message(
+                        chat_id=CHANNEL_ID,
+                        text=msg,
+                        parse_mode=ParseMode.HTML,
+                        reply_markup=reply_markup
+                    )
+                    
+                    print(f"Signal sent successfully for period: {period_num}")
+                    last_sent_period = period_num
+
+            promo_markup = InlineKeyboardMarkup([
+                [InlineKeyboardButton("🚀 Join & Start Refer", url="https://bdgwin.com")],
+                [InlineKeyboardButton("💎 Contact For Support", url="https://t.me/bdgplayvipwin")]
+            ])
+
+            # ৪. প্রমোশন এবং পরবর্তী সেশনের কোড কাঠামো অক্ষত রাখা হয়েছে
+            if (hour == 7 and minute == 36) or (hour == 14 and minute == 36) or (hour == 20 and minute == 36):
+                promo_key = f"{current_date_str}_{hour}_PROMO"
+                if last_promo_date_session != promo_key:
+                    await send_referral_promo(app, promo_markup)
+                    last_promo_date_session = promo_key
 
         except Exception as e:
-            print(f"Error occurred in loop: {e}")
+            print(f"Loop Error: {e}")
 
-        await asyncio.sleep(1)
+        await asyncio.sleep(2)
 
 
 # ==========================================
-# ⚙️ Main Launcher
+# ⚙️ Main Application Launcher
 # ==========================================
-if __name__ == "__main__":
-    threading.Thread(target=run_web, daemon=True).start()
-    asyncio.run(main_bot_loop())
+async def main():
+    app = ApplicationBuilder().token(TOKEN).build()
     
+    await app.initialize()
+    await app.start()
+    
+    threading.Thread(target=run_web, daemon=True).start()
+    
+    print("BDG Win Ultra AI Bot is fully running in continuous mode...")
+    
+    await send_auto_prediction(app)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+                   
