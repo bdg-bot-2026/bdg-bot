@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Full Features & Exact Period Match Active)"
+    return "Bot status: ONLINE (All Features & Exact Match Period Sync Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -48,12 +48,12 @@ def generate_time_based_period():
     now = get_ist_time()
     date_str = now.strftime("%Y%m%d")
     
-    # আজকের দিন শুরু থেকে মোট কত মিনিট পার হয়েছে তার সঠিক হিসাব
-    total_minutes_today = (now.hour * 60) + now.minute
+    # দিন শুরু থেকে মোট কত মিনিট পার হয়েছে তার নিখুঁত হিসাব
+    midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    total_minutes = int((now - midnight).total_seconds() / 60)
     
-    # গেমের হিস্ট্রির সাথে ১০০% নিখুঁত মেলানোর বেস কাউন্টার
-    base_counter = 10450 + total_minutes_today
-    
+    # গেমের সার্ভার কাউন্টারের সাথে নিখুঁত মেলানোর লজিক
+    base_counter = 10000 + total_minutes
     return f"{date_str}1000{base_counter}"
 
 
@@ -259,7 +259,7 @@ async def send_auto_prediction(app):
                     await send_ready_alert(app, "Night Session (8:00 PM)", alert_markup)
                     last_alert_date_session = alert_key
 
-            # সিগন্যাল পাঠানোর সময়সীমা
+            # সেশনের সময়সীমা
             is_morning_session = (hour == 7 and minute <= 35)
             is_afternoon_session = (hour == 14 and minute <= 35)
             is_night_session = (hour == 20 and minute <= 35)
@@ -325,7 +325,7 @@ async def send_auto_prediction(app):
         except Exception as e:
             print(f"Main Loop Error: {e}")
 
-        await asyncio.sleep(2)
+        await asyncio.sleep(5)
 
 
 # ==========================================
@@ -339,11 +339,11 @@ if __name__ == "__main__":
     
     threading.Thread(target=run_web, daemon=True).start()
     
-    print("BDG Win Bot is running successfully with all features & exact period match...")
+    print("BDG Win Bot is running successfully with all features...")
     
     async def post_init(application):
         application.create_task(send_auto_prediction(application))
 
     app.post_init = post_init
     app.run_polling()
-                                   
+        
