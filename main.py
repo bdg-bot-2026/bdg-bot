@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Professional Emojis & Active Loop)"
+    return "Bot status: ONLINE (Always Active Signals)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -152,7 +152,7 @@ async def send_ready_alert(app, session_name, markup):
         f"• 🛡️ <b>ব্যালেন্স মেইনটেইন:</b> নিরাপদ ১০ লেভেল মার্টিনগেল ফলো করুন।\n"
         f"• ❌ <b>ইল্লিগাল বেট নিষেধ:</b> বিগ এবং স্মল একসঙ্গে কেউ করবেন না।\n"
         f"• 🎨 <b>রেড-গ্রীন নিয়ম:</b> রেড ও গ্রীনে একসাথে বেট লাগাবেন না।\n"
-        f"• 📱 <b>এক ফোনে এক আইডি:</b> একটা ফোনে দুটো আইডি লগইন করবেন না।\n"
+        f"•  এক ফোনে এক আইডি: একটা ফোনে দুটো আইডি লগইন করবেন না।\n"
         f"• 🌐 <b>ওয়াইফাই সতর্কবার্তা:</b> পাবলিক নেটওয়ার্ক এড়িয়ে চলুন।\n\n"
         f"⚠️ <b>Follow company rules strictly to protect your funds! / कंपनी के नियमों का पालन करें! / কোম্পানির রুলস স্ট্রিক্টলি ফলো করুন!</b> ✨\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -203,7 +203,7 @@ async def send_next_session_info(app, next_session_name, time_str):
 async def cmd_start_prediction(update, context):
     global prediction_active
     prediction_active = True
-    await update.message.reply_text("✅ VIP Prediction 1 Min ম্যানুয়ালি চালু (ON) করা হয়েছে!")
+    await update.message.reply_text("✅ VIP Prediction ম্যানুয়ালি চালু (ON) করা হয়েছে! এখন সিগন্যাল আসবে।")
 
 async def cmd_stop_prediction(update, context):
     global prediction_active
@@ -244,30 +244,15 @@ async def send_auto_prediction(app):
             ])
 
             # সেশন অ্যালার্ট মেসেজ (৫ মিনিট আগে)
-            if hour == 6 and 55 <= minute < 60:
-                alert_key = f"{current_date_str}_MORNING_ALERT"
+            if (hour == 6 and minute == 55) or (hour == 13 and minute == 55) or (hour == 19 and minute == 55):
+                alert_key = f"{current_date_str}_{hour}_ALERT"
                 if last_alert_date_session != alert_key:
-                    await send_ready_alert(app, "Morning Session (7:00 AM)", alert_markup)
+                    session_name = "Morning Session (7:00 AM)" if hour == 6 else ("Afternoon Session (2:00 PM)" if hour == 13 else "Night Session (8:00 PM)")
+                    await send_ready_alert(app, session_name, alert_markup)
                     last_alert_date_session = alert_key
 
-            elif hour == 13 and 55 <= minute < 60:
-                alert_key = f"{current_date_str}_AFTERNOON_ALERT"
-                if last_alert_date_session != alert_key:
-                    await send_ready_alert(app, "Afternoon Session (2:00 PM)", alert_markup)
-                    last_alert_date_session = alert_key
-
-            elif hour == 19 and 55 <= minute < 60:
-                alert_key = f"{current_date_str}_NIGHT_ALERT"
-                if last_alert_date_session != alert_key:
-                    await send_ready_alert(app, "Night Session (8:00 PM)", alert_markup)
-                    last_alert_date_session = alert_key
-
-            # সিগন্যাল সেশনের সময়সীমা
-            is_morning_session = (hour == 7 and minute <= 35)
-            is_afternoon_session = (hour == 14 and minute <= 35)
-            is_night_session = (hour == 20 and minute <= 35)
-
-            if is_morning_session or is_afternoon_session or is_night_session or prediction_active:
+            # এখন prediction_active ট্রু থাকলেই যেকোনো সময় নির্বিঘ্নে সিগন্যাল পাঠাবে
+            if prediction_active:
                 period_num = generate_time_based_period()
                 
                 if period_num and period_num != last_sent_period:
@@ -342,11 +327,10 @@ if __name__ == "__main__":
     
     threading.Thread(target=run_web, daemon=True).start()
     
-    print("BDG Win Bot is running successfully with professional emojis...")
+    print("BDG Win Bot is running successfully with active signals...")
     
     async def post_init(application):
         application.create_task(send_auto_prediction(application))
 
     app.post_init = post_init
     app.run_polling()
-    
