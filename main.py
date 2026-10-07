@@ -15,7 +15,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Continuous Direct Signal Sender)"
+    return "Bot status: ONLINE (Fixed Period Loop)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -33,7 +33,7 @@ pattern_index = 0
 
 
 # ==========================================
-# ⏰ 100% Exact Match Period Generator
+# ⏰ Perfect Period Generator Logic
 # ==========================================
 def get_ist_time():
     try:
@@ -46,61 +46,34 @@ def generate_time_based_period():
     now = get_ist_time()
     date_str = now.strftime("%Y%m%d") 
     
+    # আজকের শুরু থেকে মোট কত মিনিট পার হয়েছে তা নিখুঁতভাবে বের করা
     midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - midnight).total_seconds() / 60)
     
-    current_minutes_today = (now.hour * 60) + now.minute
-    base_counter = 10497 + (total_minutes - current_minutes_today)
+    # গেমের সাথে পিরিয়ড নম্বর ম্যাচ করার জন্য বেস কাউন্টার
+    base_counter = 10000 + total_minutes
     
     return f"{date_str}1000{base_counter}"
 
 
 # ==========================================
-# 📊 Fully Dynamic AI Trend Evaluator
+# 📊 AI Trend Evaluator
 # ==========================================
 def high_tech_ai_trend_evaluator():
-    strategies_weights = {
-        "DRAGON_TREND": 15,       
-        "THREE_BY_THREE": 12,     
-        "CROSS_WAVE": 12,         
-        "TWO_BY_TWO_ZONE": 10,    
-        "STABLE_ZIGZAG": 10,      
-        "SMART_MIXED": 10,
-        "MIRROR_REFLECTION": 8,
-        "FIBONACCI_STEP": 8,
-        "MOMENTUM_WAVE": 8,
-        "ALTERNATE_CLUSTER": 7
-    }
-
-    strategies = list(strategies_weights.keys())
-    weights = list(strategies_weights.values())
-    selected_strategy = random.choices(strategies, weights=weights, k=1)[0]
+    strategies = ["DRAGON_TREND", "THREE_BY_THREE", "CROSS_WAVE", "STABLE_ZIGZAG"]
+    selected_strategy = random.choice(strategies)
 
     start = random.choice(["BIG", "SMALL"])
     opposite = "SMALL" if start == "BIG" else "BIG"
-    pattern = []
     
     if selected_strategy == "DRAGON_TREND":
-        dragon_len = random.randint(3, 6)
-        pattern = [start] * dragon_len
+        pattern = [start] * 4
     elif selected_strategy == "THREE_BY_THREE":
-        pattern = [start, start, start, opposite, opposite, opposite]
+        pattern = [start, start, opposite, opposite]
     elif selected_strategy == "CROSS_WAVE":
-        pattern = [start, start, opposite, opposite, opposite, start]
-    elif selected_strategy == "TWO_BY_TWO_ZONE":
-        pattern = [start, start, opposite, opposite, start, start]
-    elif selected_strategy == "STABLE_ZIGZAG":
-        pattern = [start, opposite, start, opposite, start]
-    elif selected_strategy == "MIRROR_REFLECTION":
-        pattern = [start, opposite, start, start, opposite]
-    elif selected_strategy == "FIBONACCI_STEP":
-        pattern = [start, start, opposite, start, opposite]
-    elif selected_strategy == "MOMENTUM_WAVE":
-        pattern = [start, opposite, opposite, start, start]
-    elif selected_strategy == "ALTERNATE_CLUSTER":
-        pattern = [start, start, opposite, opposite, start]
+        pattern = [start, opposite, start, opposite]
     else:
-        pattern = [start, opposite, start, start, opposite]
+        pattern = [start, start, opposite, start]
 
     return pattern
 
@@ -120,9 +93,9 @@ def get_high_tech_ai_prediction():
 # ==========================================
 def get_smart_trend_color(pred_text):
     if pred_text == "BIG":
-        return random.choice(["GREEN 🟢", "GREEN 🟢", "RED 🔴"])
+        return random.choice(["GREEN 🟢", "RED 🔴"])
     else:
-        return random.choice(["RED 🔴", "RED 🔴", "GREEN 🟢"])
+        return random.choice(["RED 🔴", "GREEN 🟢"])
 
 
 # ==========================================
@@ -138,13 +111,14 @@ async def main_bot_loop():
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    print("BDG Win Direct Signal Sender started successfully...")
+    print("BDG Win Signal Sender is active and running...")
 
     while True:
         try:
             period_num = generate_time_based_period()
             
-            if period_num and period_num != last_sent_period:
+            # প্রতি মিনিটে নতুন পিরিয়ড আসলে মেসেজ পাঠাবে
+            if period_num != last_sent_period:
                 pred = get_high_tech_ai_prediction()
                 pred_text = "SMALL" if pred == "SMALL" else "BIG"
                 color_text = get_smart_trend_color(pred_text)
@@ -166,7 +140,7 @@ async def main_bot_loop():
                     reply_markup=reply_markup
                 )
                 
-                print(f"Signal sent successfully for period: {period_num}")
+                print(f"Signal successfully sent for period: {period_num}")
                 last_sent_period = period_num
 
         except Exception as e:
@@ -179,9 +153,6 @@ async def main_bot_loop():
 # ⚙️ Main Application Launcher
 # ==========================================
 if __name__ == "__main__":
-    # ফ্লাস্ক সার্ভার ব্যাকগ্রাউন্ডে রান করা
     threading.Thread(target=run_web, daemon=True).start()
-    
-    # সরাসরি এসিনক্রোনাস লুপ চালু করা
     asyncio.run(main_bot_loop())
     
