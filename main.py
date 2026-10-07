@@ -48,13 +48,13 @@ def generate_time_based_period():
     now = get_ist_time()
     date_str = now.strftime("%Y%m%d") # যেমন: 20261007
     
-    # আজকের দিন শুরু থেকে মোট কত মিনিট পার হয়েছে তার হিসাব
+    # দিন শুরু থেকে মোট কত মিনিট পার হয়েছে তার নিখুঁত হিসাব
     midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - midnight).total_seconds() / 60)
     
-    # স্ক্রিনশট অনুযায়ী সঠিক বেস কাউন্টার এবং ফিক্সড মিডল ডিজিট '1000' সিঙ্ক করা হলো
+    # লেটেস্ট স্ক্রিনশটের কাউন্টার (50987) এবং বর্তমান সময়ের মিনিট সমন্বয় করে নিখুঁত বেস সেট করা হলো
     current_minutes_today = (now.hour * 60) + now.minute
-    base_counter = 10488 + (total_minutes - current_minutes_today)
+    base_counter = 50987 + (total_minutes - current_minutes_today)
     
     return f"{date_str}1000{base_counter}"
 
@@ -348,4 +348,4 @@ if __name__ == "__main__":
 
     app.post_init = post_init
     app.run_polling()
-                    
+                   
