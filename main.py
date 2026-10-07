@@ -5,17 +5,17 @@ import pytz
 import asyncio
 import threading
 from flask import Flask
-from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Bot
 from telegram.constants import ParseMode
 
 # ==========================================
-# 🌐 Flask Web Server (Render Keep-Alive)
+# 🌐 Flask Web Server (Keep-Alive)
 # ==========================================
 app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Exact Screen Match Period Loop)"
+    return "Bot status: ONLINE (Clean & Direct Loop)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -23,7 +23,7 @@ def run_web():
 
 
 # ==========================================
-# 🤖 Telegram Bot Configurations
+# 🤖 Telegram Configurations
 # ==========================================
 TOKEN = os.getenv("TELEGRAM_TOKEN", "8752459278:AAGbwu4j7JqT3R4Auwhj2PLMidKzhRaSkS0").strip()
 CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_ID", "-1004492973133")
@@ -33,7 +33,7 @@ pattern_index = 0
 
 
 # ==========================================
-# ⏰ 100% Exact Screen Match Period Generator
+# ⏰ Exact Period Generator Logic
 # ==========================================
 def get_ist_time():
     try:
@@ -46,11 +46,9 @@ def generate_exact_game_period():
     now = get_ist_time()
     date_str = now.strftime("%Y%m%d")
     
-    # আজকের দিন শুরুর পর থেকে মোট কত মিনিট পার হয়েছে তা নিখুঁতভাবে বের করা
     midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
     total_minutes = int((now - midnight).total_seconds() / 60)
     
-    # আপনার স্ক্রিনশটের লেটেস্ট পিরিয়ড (10540) অনুযায়ী বেস কাউন্টার সেট করা হয়েছে
     current_minutes_today = (now.hour * 60) + now.minute
     base_counter = 10540 + (total_minutes - current_minutes_today)
     
@@ -58,75 +56,45 @@ def generate_exact_game_period():
 
 
 # ==========================================
-# 📊 AI Trend Evaluator
+# 📊 AI Prediction Logic
 # ==========================================
-def high_tech_ai_trend_evaluator():
-    strategies = ["DRAGON_TREND", "THREE_BY_THREE", "CROSS_WAVE", "STABLE_ZIGZAG"]
-    selected_strategy = random.choice(strategies)
-
-    start = random.choice(["BIG", "SMALL"])
-    opposite = "SMALL" if start == "BIG" else "BIG"
-    
-    if selected_strategy == "DRAGON_TREND":
-        pattern = [start] * 4
-    elif selected_strategy == "THREE_BY_THREE":
-        pattern = [start, start, opposite, opposite]
-    elif selected_strategy == "CROSS_WAVE":
-        pattern = [start, opposite, start, opposite]
-    else:
-        pattern = [start, start, opposite, start]
-
-    return pattern
-
 def get_high_tech_ai_prediction():
+    strategies = [["BIG", "SMALL"], ["SMALL", "BIG", "BIG"], ["BIG", "BIG", "SMALL"], ["SMALL", "SMALL"]]
     global current_pattern, pattern_index
     if not current_pattern or pattern_index >= len(current_pattern):
-        current_pattern = high_tech_ai_trend_evaluator()
+        current_pattern = random.choice(strategies)
         pattern_index = 0
     
-    raw_prediction = current_pattern[pattern_index]
+    pred = current_pattern[pattern_index]
     pattern_index += 1
-    return raw_prediction
+    return pred
 
-
-# ==========================================
-# 🎨 Smart Color Evaluator Logic
-# ==========================================
 def get_smart_trend_color(pred_text):
     if pred_text == "BIG":
-        return random.choice(["GREEN 🟢", "RED 🔴"])
+        return "GREEN 🟢"
     else:
-        return random.choice(["RED 🔴", "GREEN 🟢"])
+        return "RED 🔴"
 
 
 # ==========================================
-# 🚀 Direct Async Message Sender Loop
+# 🚀 Direct Async Message Loop
 # ==========================================
 async def main_bot_loop():
     bot = Bot(token=TOKEN)
     last_sent_period = ""
     
-    keyboard = [
-        [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
-        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    print("BDG Win Signal Sender is active with exact screen match...")
+    print("Bot loop started successfully. Waiting for exact period match...")
 
     while True:
         try:
             period_num = generate_exact_game_period()
             
-            # প্রতি মিনিটে নতুন পিরিয়ড শুরু হওয়া মাত্র সিগন্যাল পাঠাবে
             if period_num != last_sent_period:
-                pred = get_high_tech_ai_prediction()
-                pred_text = "SMALL" if pred == "SMALL" else "BIG"
+                pred_text = get_high_tech_ai_prediction()
                 color_text = get_smart_trend_color(pred_text)
                 
                 msg = (
-                    f"💎 <b>BDG VIP PREDICTION 1 Min</b> 💎\n"
-                    f"💎 <b>BDG WIN ULTRA AI VIP PREDICTION</b> 💎\n\n"
+                    f"💎 <b>BDG VIP PREDICTION 1 Min</b> 💎\n\n"
                     f"🔹 <b>PERIOD:</b> {period_num}\n"
                     f"🎯 <b>PREDICTION:</b> {pred_text}\n"
                     f"🎨 <b>COLOR:</b> {color_text}\n"
@@ -137,22 +105,20 @@ async def main_bot_loop():
                 await bot.send_message(
                     chat_id=CHANNEL_ID,
                     text=msg,
-                    parse_mode=ParseMode.HTML,
-                    reply_markup=reply_markup
+                    parse_mode=ParseMode.HTML
                 )
                 
-                print(f"Signal successfully sent for period: {period_num}")
+                print(f"Successfully sent signal for period: {period_num}")
                 last_sent_period = period_num
 
         except Exception as e:
-            print(f"Error in sending message: {e}")
+            print(f"Error occurred in loop: {e}")
 
-        # প্রতি ২ সেকেন্ড পর পর লুপ চেক করবে যাতে কোনো মিনিট মিস না হয়
-        await asyncio.sleep(2)
+        await asyncio.sleep(1)
 
 
 # ==========================================
-# ⚙️ Main Application Launcher
+# ⚙️ Main Launcher
 # ==========================================
 if __name__ == "__main__":
     threading.Thread(target=run_web, daemon=True).start()
