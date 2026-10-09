@@ -45,7 +45,6 @@ def get_bd_time():
         return datetime.utcnow() + timedelta(hours=6)
 
 def get_current_1min_period():
-    # গেমের সার্ভার পিরিয়ডের সাথে নিখুঁতভাবে মেলানোর জন্য ইউটিসি সময় ব্যবহার করা হয়েছে
     now_utc = datetime.now(pytz.utc)
     date_str = now_utc.strftime("%Y%m%d")
     
@@ -262,8 +261,8 @@ async def send_auto_prediction(app):
                     color_text = get_smart_trend_color(pred_text)
                     
                     msg = (
-                        f"💎 <b>RAXI WIN ULTRA AI VIP PREDICTION</b> 💎\n"
-                        f"💎 <b>RAXI VIP PREDICTION 1 Min</b> 💎\n\n"
+                        f"💎 <b>RAXI WIN ULTRA AI PREDICTION</b> 💎\n"
+                        f"💎 <b>RAXI VIP PREDICTION</b> 💎\n\n"
                         f"🔹 <b>PERIOD:</b> {period_num}\n"
                         f"🎯 <b>PREDICTION:</b> {pred_text}\n"
                         f"🎨 <b>COLOR:</b> {color_text}\n"
@@ -335,3 +334,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+        
