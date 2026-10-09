@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Bangladesh Time & Perfect Period Sync Active)"
+    return "Bot status: ONLINE (Raxi Win Time & Perfect Period Sync Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -130,7 +130,7 @@ def get_smart_trend_color(pred_text):
 # ==========================================
 async def send_ready_alert(app, session_name, markup):
     alert_msg = (
-        f"<b>BDG VIP PREDICTION 1 Min:</b>\n"
+        f"<b>RAXI WIN VIP PREDICTION 1 Min:</b>\n"
         f"🚨 🔥 <b>ATTENTION: {session_name} IS ABOUT TO START!</b> 🔥 🚨\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🎯 <b>Get ready & prepare your account! / तैयार हो जाइए! / সবাই রেডি থাকুন!</b>\n\n"
@@ -163,7 +163,7 @@ async def send_ready_alert(app, session_name, markup):
 
 async def send_referral_promo(app, markup):
     promo_msg = (
-        f"💎 ✨ <b>MAXIMIZE YOUR EARNINGS WITH BDG WIN!</b> ✨ 💎\n"
+        f"💎 ✨ <b>MAXIMIZE YOUR EARNINGS WITH RAXI WIN!</b> ✨ 💎\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
         f"🇬🇧 <b>ENGLISH:</b>\n"
         f"Build your powerful team and generate passive daily income! Earn lifetime commissions, daily salaries, and referral bonuses. Share your link now!\n\n"
@@ -191,7 +191,7 @@ async def send_next_session_info(app, next_session_name, time_str):
         f"━━━━━━━━━━━━━━━━━━━━━━━━━"
     )
     markup = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
+        [InlineKeyboardButton("🎮 Play Raxi Win 🏆", url="https://raxiwin.com")],
         [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
     ])
     try:
@@ -210,12 +210,12 @@ async def send_auto_prediction(app):
     last_next_date_session = ""     
     
     keyboard = [
-        [InlineKeyboardButton("🎮 Play BDG Win 🏆", url="https://bdgwin.com")],
+        [InlineKeyboardButton("🎮 Play Raxi Win 🏆", url="https://raxiwin.com")],
         [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    print("BDG Win Automation Loop started successfully with BD Time & Exact Period Sync...")
+    print("Raxi Win Automation Loop started successfully with Adjusted Time & Exact Period Sync...")
 
     while True:
         try:
@@ -225,34 +225,34 @@ async def send_auto_prediction(app):
             current_date_str = now.strftime('%Y-%m-%d')
 
             alert_markup = InlineKeyboardMarkup([
-                [InlineKeyboardButton("🚀 Ready & Deposit", url="https://bdgwin.com")],
+                [InlineKeyboardButton("🚀 Ready & Deposit", url="https://raxiwin.com")],
                 [InlineKeyboardButton("📢 Channel Link", url="https://t.me/bdgplayvipwin")]
             ])
 
-            # ১. সেশন শুরুর ৫ মিনিটের অ্যালার্ট মেসেজ (বাংলাদেশ সময়)
-            if hour == 6 and 55 <= minute < 60:
+            # ১. সেশন শুরুর ৫ মিনিটের অ্যালার্ট মেসেজ
+            if hour == 7 and 25 <= minute < 30:
                 alert_key = f"{current_date_str}_MORNING_ALERT"
                 if last_alert_date_session != alert_key:
-                    await send_ready_alert(app, "Morning Session (7:00 AM)", alert_markup)
+                    await send_ready_alert(app, "Morning Session (7:30 AM)", alert_markup)
                     last_alert_date_session = alert_key
 
-            elif hour == 13 and 55 <= minute < 60:
+            elif hour == 14 and 25 <= minute < 30:
                 alert_key = f"{current_date_str}_AFTERNOON_ALERT"
                 if last_alert_date_session != alert_key:
-                    await send_ready_alert(app, "Afternoon Session (2:00 PM)", alert_markup)
+                    await send_ready_alert(app, "Afternoon Session (2:30 PM)", alert_markup)
                     last_alert_date_session = alert_key
 
-            elif hour == 19 and 55 <= minute < 60:
+            elif hour == 20 and 25 <= minute < 30:
                 alert_key = f"{current_date_str}_NIGHT_ALERT"
                 if last_alert_date_session != alert_key:
-                    await send_ready_alert(app, "Night Session (8:00 PM)", alert_markup)
+                    await send_ready_alert(app, "Night Session (8:30 PM)", alert_markup)
                     last_alert_date_session = alert_key
 
 
-            # ২. মূল সিগন্যাল পাঠানোর নির্দিষ্ট সময় (সকাল ৭:০০-৭:৩৫, দুপুর ২:০০-২:৩৫, রাত ৮:০০-৮:৩৫)
-            is_morning_session = (hour == 7 and minute <= 35)
-            is_afternoon_session = (hour == 14 and minute <= 35)
-            is_night_session = (hour == 20 and minute <= 35)
+            # ২. মূল সিগন্যাল পাঠানোর নির্দিষ্ট সময়
+            is_morning_session = (hour == 7 and minute >= 30) or (hour == 8 and minute <= 5)
+            is_afternoon_session = (hour == 14 and minute >= 30) or (hour == 15 and minute <= 5)
+            is_night_session = (hour == 20 and minute >= 30) or (hour == 21 and minute <= 5)
 
             if is_morning_session or is_afternoon_session or is_night_session:
                 period_num = get_current_1min_period()
@@ -262,8 +262,8 @@ async def send_auto_prediction(app):
                     color_text = get_smart_trend_color(pred_text)
                     
                     msg = (
-                        f"💎 <b>BDG WIN ULTRA AI VIP PREDICTION</b> 💎\n"
-                        f"💎 <b>BDG VIP PREDICTION 1 Min</b> 💎\n\n"
+                        f"💎 <b>RAXI WIN ULTRA AI VIP PREDICTION</b> 💎\n"
+                        f"💎 <b>RAXI VIP PREDICTION 1 Min</b> 💎\n\n"
                         f"🔹 <b>PERIOD:</b> {period_num}\n"
                         f"🎯 <b>PREDICTION:</b> {pred_text}\n"
                         f"🎨 <b>COLOR:</b> {color_text}\n"
@@ -282,34 +282,34 @@ async def send_auto_prediction(app):
                     last_sent_period = period_num
 
             promo_markup = InlineKeyboardMarkup([
-                [InlineKeyboardButton("🚀 Join & Start Refer", url="https://bdgwin.com")],
+                [InlineKeyboardButton("🚀 Join & Start Refer", url="https://raxiwin.com")],
                 [InlineKeyboardButton("💎 Contact For Support", url="https://t.me/bdgplayvipwin")]
             ])
 
             # ৪. সেশন শেষ হওয়ার পরের প্রমোশন মেসেজ
-            if (hour == 7 and minute == 36) or (hour == 14 and minute == 36) or (hour == 20 and minute == 36):
+            if (hour == 8 and minute == 6) or (hour == 15 and minute == 6) or (hour == 21 and minute == 6):
                 promo_key = f"{current_date_str}_{hour}_PROMO"
                 if last_promo_date_session != promo_key:
                     await send_referral_promo(app, promo_markup)
                     last_promo_date_session = promo_key
 
             # ৫. পরবর্তী সেশনের আপডেট মেসেজ
-            if hour == 7 and minute == 37:
+            if hour == 8 and minute == 7:
                 next_key = f"{current_date_str}_MORNING_NEXT"
                 if last_next_date_session != next_key:
-                    await send_next_session_info(app, "Afternoon Session", "2:00 PM")
+                    await send_next_session_info(app, "Afternoon Session", "2:30 PM")
                     last_next_date_session = next_key
 
-            elif hour == 14 and minute == 37:
+            elif hour == 15 and minute == 7:
                 next_key = f"{current_date_str}_AFTERNOON_NEXT"
                 if last_next_date_session != next_key:
-                    await send_next_session_info(app, "Night Session", "8:00 PM")
+                    await send_next_session_info(app, "Night Session", "8:30 PM")
                     last_next_date_session = next_key
 
-            elif hour == 20 and minute == 37:
+            elif hour == 21 and minute == 7:
                 next_key = f"{current_date_str}_NIGHT_NEXT"
                 if last_next_date_session != next_key:
-                    await send_next_session_info(app, "Morning Session", "7:00 AM (Tomorrow)")
+                    await send_next_session_info(app, "Morning Session", "7:30 AM (Tomorrow)")
                     last_next_date_session = next_key
 
         except Exception as e:
@@ -329,10 +329,9 @@ async def main():
     
     threading.Thread(target=run_web, daemon=True).start()
     
-    print("BDG Win Ultra AI Bot is fully running and active...")
+    print("Raxi Win Ultra AI Bot is fully running and active...")
     
     await send_auto_prediction(app)
 
 if __name__ == "__main__":
     asyncio.run(main())
-    
