@@ -162,10 +162,10 @@ async def send_ready_alert(app, session_name, markup):
 
 async def send_level_chart_alert(app, markup):
     chart_msg = (
-        f"💎 <b>RAXI WIN VIP 10-LEVEL FUND MANAGEMENT</b> 💎\n"
+        f"💎 <b>RAXI WIN VIP 10-LEVEL MARTINGALE</b> 💎\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🛡️ <b>OFFICIAL MONEY MANAGEMENT CHART</b>\n\n"
-        f"🎯 <i>Strictly follow this 10-Level Martingale plan to protect your capital & maximize daily profits!</i>\n\n"
+        f"🎯 <i>Strictly follow this Martingale plan to protect your capital & maximize daily profits!</i>\n\n"
         f"📊 <b>LEVEL BREAKDOWN:</b>\n"
         f"▫️ <b>Level 1  ➜</b>  ₹1\n"
         f"▫️ <b>Level 2  ➜</b>  ₹3\n"
@@ -179,11 +179,9 @@ async def send_level_chart_alert(app, markup):
         f"▫️ <b>Level 10 ➜</b>  ₹2000\n"
         f"▫️ <b>Level 11 ➜</b>  ₹4500\n"
         f"▫️ <b>Level 12 ➜</b>  ₹10000\n\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"⚙️ <b>GOLDEN RULES FOR TRADING:</b>\n"
-        f"✅ Maintain sufficient balance for up to 10-12 levels.\n"
-        f"✅ Always restart from <b>Level 1</b> after every WIN!\n"
-        f"❌ Never skip any level or get emotional during trading."
+        f"💰 <b>TOTAL REQUIRED BALANCE:</b>\n"
+        f"📌 <b>Up to Level 10 Total: ₹3,672</b>\n"
+        f"📌 <b>Up to Level 12 Total: ₹18,172</b>"
     )
     try:
         await app.bot.send_message(chat_id=CHANNEL_ID, text=chart_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
@@ -414,4 +412,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-            
+    
