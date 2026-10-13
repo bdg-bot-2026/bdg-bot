@@ -135,21 +135,21 @@ async def send_ready_alert(app, session_name, markup):
         f"🎯 <b>Get ready & prepare your account! / तैयार हो जाइए! / সবাই রেডি থাকুন!</b>\n\n"
         f"🇬🇧 <b>ENGLISH:</b>\n"
         f"💎 <b>Maintain Balance:</b> Follow safe 10-Level Martingale.\n"
-        f"🛡️ <b>3x Turnover Rule:</b> Complete 3x betting of your deposit amount before withdrawal.\n"
+        f"🛡️ <b>2x Turnover Rule:</b> Complete 2x betting of your deposit amount before withdrawal.\n"
         f"🚫 <b>No Illegal Bets:</b> Do NOT place Big & Small together.\n"
         f"⚠️ <b>No Red/Green Mix:</b> Do not bet on Red & Green simultaneously.\n"
         f"📱 <b>Single Device:</b> Do not use 2 accounts on 1 phone.\n"
         f"📶 <b>Network:</b> Avoid public Wi-Fi.\n\n"
         f"🇮🇳 <b>हिंदी (HINDI):</b>\n"
         f"💎 <b>बैलेंस बनाए रखें:</b> सुरक्षित 10-लेवल मार्टिंगेल फॉलो करें।\n"
-        f"🛡️ <b>3x टर्नओवर नियम:</b> विथड्रॉल से पहले 3x बेटिंग पूरी करें।\n"
+        f"🛡️ <b>2x टर्नओवर नियम:</b> विथड्रॉल से पहले 2x बेटिंग पूरी करें।\n"
         f"🚫 <b>कोई अवैध शर्त नहीं:</b> Big और Small एकसाथ न लगाएं।\n"
         f"⚠️ <b>रेड/ग्रीन मिक्स न करें:</b> एकसाथ दोनों पर बेट न लगाएं।\n"
         f"📱 <b>एक डिवाइस नियम:</b> एक फोन में दो आईडी लॉगिन न करें।\n"
         f"📶 <b>नेटवर्क चेतावनी:</b> पब्लिक वाई-फाई का उपयोग न करें।\n\n"
         f"🇮🇳 <b>বাংলা (BANGLA):</b>\n"
         f"💎 <b>ব্যালেন্স মেইনটেইন করুন:</b> নিরাপদ ১০ লেভেল মার্টিনগেল ফলো করুন।\n"
-        f"🛡️ <b>৩x টার্নওভার রুল:</b> ডিপোজিটের পর ৩x বেটিং কমপ্লিট করুন।\n"
+        f"🛡️ <b>২x টার্নওভার রুল:</b> ডিপোজিটের পর ২x বেটিং কমপ্লিট করুন।\n"
         f"🚫 <b>ইল্লিগাল বেট নিষেধ:</b> বিগ এবং স্মল একসঙ্গে কেউ করবেন না।\n"
         f"⚠️ <b>রেড-গ্রীন একসঙ্গে নয়: রেড ও গ্রীনে একসাথে বেট লাগাবেন না।</b>\n"
         f"📱 <b>এক ফোনে এক আইডি:</b> একটা ফোনে দুটো আইডি লগইন করবেন না।\n"
@@ -228,7 +228,8 @@ async def send_auto_prediction(app):
     last_alert_date_session = ""    
     last_promo_date_session = ""    
     last_next_date_session = ""     
-    
+    last_mid_date_session = ""
+
     keyboard = [
         [InlineKeyboardButton("🎮 Play Raxi Win 🏆", url="https://raxiwin.com")],
         [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
@@ -249,20 +250,20 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("📢 Channel Link", url="https://t.me/bdgplayvipwin")]
             ])
 
-            # ১. সেশন শুরুর ৫ মিনিটের অ্যালার্ট মেসেজ (সকাল ৭:০০, দুপুর ২:০০, রাত ৮:০০)
-            if hour == 6 and 55 <= minute < 60:
+            # ১. সেশন শুরুর ৫ মিনিটের অ্যালার্ট মেসেজ (সকাল ৬:৫৫, দুপুর ১:৫৫, রাত ৭:৫৫)
+            if hour == 6 and minute == 55:
                 alert_key = f"{current_date_str}_MORNING_ALERT"
                 if last_alert_date_session != alert_key:
                     await send_ready_alert(app, "Morning Session (7:00 AM)", alert_markup)
                     last_alert_date_session = alert_key
 
-            elif hour == 13 and 55 <= minute < 60:
+            elif hour == 13 and minute == 55:
                 alert_key = f"{current_date_str}_AFTERNOON_ALERT"
                 if last_alert_date_session != alert_key:
                     await send_ready_alert(app, "Afternoon Session (2:00 PM)", alert_markup)
                     last_alert_date_session = alert_key
 
-            elif hour == 19 and 55 <= minute < 60:
+            elif hour == 19 and minute == 55:
                 alert_key = f"{current_date_str}_NIGHT_ALERT"
                 if last_alert_date_session != alert_key:
                     await send_ready_alert(app, "Night Session (8:00 PM)", alert_markup)
@@ -304,9 +305,9 @@ async def send_auto_prediction(app):
             # ৩. সেশনের মাঝামাঝি প্রফিট সতর্কতার মেসেজ (সকাল ৭:৩০, দুপুর ২:৩০, রাত ৮:৩০)
             if (hour == 7 and minute == 30) or (hour == 14 and minute == 30) or (hour == 20 and minute == 30):
                 profit_key = f"{current_date_str}_{hour}_PROFIT_ALERT"
-                if last_alert_date_session != profit_key:
+                if last_mid_date_session != profit_key:
                     await send_mid_session_alert(app, alert_markup)
-                    last_alert_date_session = profit_key
+                    last_mid_date_session = profit_key
 
             promo_markup = InlineKeyboardMarkup([
                 [InlineKeyboardButton("🚀 Join & Start Refer", url="https://raxiwin.com")],
@@ -362,4 +363,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-        
+    
