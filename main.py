@@ -160,6 +160,36 @@ async def send_ready_alert(app, session_name, markup):
     except Exception as e:
         print(f"Alert Error: {e}")
 
+async def send_level_chart_alert(app, markup):
+    chart_msg = (
+        f"💎 <b>RAXI WIN VIP 10-LEVEL FUND MANAGEMENT</b> 💎\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"🛡️ <b>OFFICIAL MONEY MANAGEMENT CHART</b>\n\n"
+        f"🎯 <i>Strictly follow this 10-Level Martingale plan to protect your capital & maximize daily profits!</i>\n\n"
+        f"📊 <b>LEVEL BREAKDOWN:</b>\n"
+        f"▫️ <b>Level 1  ➜</b>  ₹1\n"
+        f"▫️ <b>Level 2  ➜</b>  ₹3\n"
+        f"▫️ <b>Level 3  ➜</b>  ₹7\n"
+        f"▫️ <b>Level 4  ➜</b>  ₹16\n"
+        f"▫️ <b>Level 5  ➜</b>  ₹40\n"
+        f"▫️ <b>Level 6  ➜</b>  ₹85\n"
+        f"▫️ <b>Level 7  ➜</b>  ₹200\n"
+        f"▫️ <b>Level 8  ➜</b>  ₹420\n"
+        f"▫️ <b>Level 9  ➜</b>  ₹900\n"
+        f"▫️ <b>Level 10 ➜</b>  ₹2000\n"
+        f"▫️ <b>Level 11 ➜</b>  ₹4500\n"
+        f"▫️ <b>Level 12 ➜</b>  ₹10000\n\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"⚙️ <b>GOLDEN RULES FOR TRADING:</b>\n"
+        f"✅ Maintain sufficient balance for up to 10-12 levels.\n"
+        f"✅ Always restart from <b>Level 1</b> after every WIN!\n"
+        f"❌ Never skip any level or get emotional during trading."
+    )
+    try:
+        await app.bot.send_message(chat_id=CHANNEL_ID, text=chart_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
+    except Exception as e:
+        print(f"Level Chart Error: {e}")
+
 async def send_mid_session_alert(app, markup):
     profit_alert_msg = (
         f"💎 🔔 <b>MID-SESSION PROFIT ALERT / हाफ-टाइम प्रॉफिट नोटिस / সেশনের মাঝামাঝি প্রফিট নোটিশ</b> 🔔 💎\n"
@@ -226,6 +256,7 @@ async def send_next_session_info(app, next_session_name, time_str):
 async def send_auto_prediction(app):
     last_sent_period = ""
     last_alert_date_session = ""    
+    last_chart_date_session = ""
     last_promo_date_session = ""    
     last_next_date_session = ""     
     last_mid_date_session = ""
@@ -250,7 +281,7 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("📢 Channel Link", url="https://t.me/bdgplayvipwin")]
             ])
 
-            # ১. সেশন শুরুর ৫ মিনিটের অ্যালার্ট মেসেজ (৩০ মিনিট এগিয়ে দেওয়া হয়েছে)
+            # ১. সেশন শুরুর ৫ মিনিটের অ্যালার্ট মেসেজ (IST: ৬:৫৫, ১:৫৫, ৭:৫৫)
             if hour == 7 and minute == 25:
                 alert_key = f"{current_date_str}_MORNING_ALERT"
                 if last_alert_date_session != alert_key:
@@ -270,7 +301,27 @@ async def send_auto_prediction(app):
                     last_alert_date_session = alert_key
 
 
-            # ২. মূল সিগন্যাল পাঠানোর নির্দিষ্ট সময় (৩০ মিনিট এগিয়ে দেওয়া হয়েছে)
+            # ১.১. সেশন শুরুর ৩ মিনিট আগে লেভেল চার্ট মেসেজ (IST: ৬:৫৭, ১:৫৭, ৭:৫৭)
+            if hour == 7 and minute == 27:
+                chart_key = f"{current_date_str}_MORNING_CHART"
+                if last_chart_date_session != chart_key:
+                    await send_level_chart_alert(app, alert_markup)
+                    last_chart_date_session = chart_key
+
+            elif hour == 14 and minute == 27:
+                chart_key = f"{current_date_str}_AFTERNOON_CHART"
+                if last_chart_date_session != chart_key:
+                    await send_level_chart_alert(app, alert_markup)
+                    last_chart_date_session = chart_key
+
+            elif hour == 20 and minute == 27:
+                chart_key = f"{current_date_str}_NIGHT_CHART"
+                if last_chart_date_session != chart_key:
+                    await send_level_chart_alert(app, alert_markup)
+                    last_chart_date_session = chart_key
+
+
+            # ২. মূল সিগন্যাল পাঠানোর সময় (IST: ৭:০০-৭:৩৫, ২:০০-২:৩৫, ৮:০০-৮:৩৫)
             is_morning_session = (hour == 7 and minute >= 30) or (hour == 8 and minute <= 5)
             is_afternoon_session = (hour == 14 and minute >= 30) or (hour == 15 and minute <= 5)
             is_night_session = (hour == 20 and minute >= 30) or (hour == 21 and minute <= 5)
@@ -302,7 +353,7 @@ async def send_auto_prediction(app):
                     print(f"Signal sent successfully for period: {period_num}")
                     last_sent_period = period_num
 
-            # ৩. সেশনের মাঝামাঝি প্রফিট সতর্কতার মেসেজ
+            # ৩. সেশনের মাঝামাঝি প্রফিট সতর্কতার মেসেজ (IST: ৭:৩০, ২:৩০, ৮:৩০)
             if (hour == 8 and minute == 0) or (hour == 15 and minute == 0) or (hour == 21 and minute == 0):
                 profit_key = f"{current_date_str}_{hour}_PROFIT_ALERT"
                 if last_mid_date_session != profit_key:
@@ -314,14 +365,14 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("💎 Contact For Support", url="https://t.me/bdgplayvipwin")]
             ])
 
-            # ৪. সেশন শেষ হওয়ার পরের প্রমোশন মেসেজ
+            # ৪. সেশন শেষ হওয়ার পরের প্রমোশন মেসেজ (IST: ৭:৩৬, ২:৩৬, ৮:৩৬)
             if (hour == 8 and minute == 6) or (hour == 15 and minute == 6) or (hour == 21 and minute == 6):
                 promo_key = f"{current_date_str}_{hour}_PROMO"
                 if last_promo_date_session != promo_key:
-                    await send_referral_promo(app, promo_promo_markup if 'promo_promo_markup' in locals() else promo_markup)
+                    await send_referral_promo(app, promo_markup)
                     last_promo_date_session = promo_key
 
-            # ৫. পরবর্তী সেশনের আপডেট মেসেজ
+            # ৫. পরবর্তী সেশনের আপডেট মেসেজ (IST: ৭:৩৭, ২:৩৭, ৮:৩৭)
             if hour == 8 and minute == 7:
                 next_key = f"{current_date_str}_MORNING_NEXT"
                 if last_next_date_session != next_key:
@@ -363,3 +414,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+            
