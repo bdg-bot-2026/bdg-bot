@@ -147,13 +147,13 @@ async def send_ready_alert(app, session_name, markup):
         f"⚠️ <b>रेड/ग्रीन मिक्स न करें:</b> एकसाथ दोनों पर बेट न लगाएं।\n"
         f"📱 <b>एक डिवाइस नियम:</b> एक फोन में दो आईडी लॉगिन न करें।\n"
         f"📶 <b>नेटवर्क चेतावनी:</b> पब्लिक वाई-फाई का उपयोग न करें।\n\n"
-        f"🇧🇩 <b>বাংলা (BANGLA):</b>\n"
+        f"🇮🇳 <b>বাংলা (BANGLA):</b>\n"
         f"💎 <b>ব্যালেন্স মেইনটেইন করুন:</b> নিরাপদ ১০ লেভেল মার্টিনগেল ফলো করুন।\n"
         f"🛡️ <b>৩x টার্নওভার রুল:</b> ডিপোজিটের পর ৩x বেটিং কমপ্লিট করুন।\n"
         f"🚫 <b>ইল্লিগাল বেট নিষেধ:</b> বিগ এবং স্মল একসঙ্গে কেউ করবেন না।\n"
         f"⚠️ <b>রেড-গ্রীন একসঙ্গে নয়: রেড ও গ্রীনে একসাথে বেট লাগাবেন না।</b>\n"
         f"📱 <b>এক ফোনে এক আইডি:</b> একটা ফোনে দুটো আইডি লগইন করবেন না।\n"
-        f"📶 <b>ওয়াইফাই সতর্কবার্তা:</b> ওয়াইফাই প্লে বা পাবলিক নেটওয়ার্ক এড়িয়ে চলুন।"
+        f"📶 <b>ওয়াইফাই সতর্কবার্তা:</b> ওয়াইফাই প্লে বা পাবলিক নেটওয়ার্ক এড়িয়ে চলুন."
     )
     try:
         await app.bot.send_message(chat_id=CHANNEL_ID, text=alert_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
@@ -168,7 +168,7 @@ async def send_referral_promo(app, markup):
         f"Build your powerful team and generate passive daily income! Earn lifetime commissions, daily salaries, and referral bonuses. Share your link now!\n\n"
         f"🇮🇳 <b>हिंदी (HINDI):</b>\n"
         f"अपनी खुद की मजबूत टीम बनाएं और रोजाना पैसिव इनकम कमाएं! लाइफटाइम कमीशन, डेली सैलरी और रेफरल बोनस पाएं। अभी अपना लिंक शेयर करें!\n\n"
-        f"🇧🇩 <b>বাংলা (BANGLA):</b>\n"
+        f"🇮🇳 <b>বাংলা (BANGLA):</b>\n"
         f"একটি শক্তিশালী টিম তৈরি করুন এবং প্রতিদিন প্যাসিভ ইনকাম করুন! লাইফটাইম কমিশন, ডেইলি স্যালারি এবং রেফারেল বোনাস উপভোগ করুন। এখনই শেয়ার করুন!\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━"
     )
@@ -185,7 +185,7 @@ async def send_next_session_info(app, next_session_name, time_str):
         f"Next VIP Session: {next_session_name} at {time_str}. Get ready for the next profit wave!\n\n"
         f"🇮🇳 🔸 <b>हिंदी (HINDI):</b>\n"
         f"अगला वीआईपी सेशन: {time_str} पर {next_session_name} शुरू होगा। अगले प्रॉफिट वेव के लिए तैयार रहें!\n\n"
-        f"🇧🇩 🔹 <b>বাংলা (BANGLA):</b>\n"
+        f"🇮🇳 🔹 <b>বাংলা (BANGLA):</b>\n"
         f"পরবর্তী ভিআইপি সেশন: {time_str} এ {next_session_name} শুরু হবে। পরবর্তী প্রফিটের জন্য প্রস্তুত থাকুন!\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━"
     )
@@ -292,23 +292,23 @@ async def send_auto_prediction(app):
                     await send_referral_promo(app, promo_markup)
                     last_promo_date_session = promo_key
 
-            # ৫. পরবর্তী সেশনের আপডেট মেসেজ
+            # ৫. পরবর্তী সেশনের আপডেট মেসেজ (সঠিক টাইম: দুপুর ২:০০, রাত ৮:০০, সকাল ৭:০০)
             if hour == 8 and minute == 7:
                 next_key = f"{current_date_str}_MORNING_NEXT"
                 if last_next_date_session != next_key:
-                    await send_next_session_info(app, "Afternoon Session", "2:30 PM")
+                    await send_next_session_info(app, "Afternoon Session", "2:00 PM")
                     last_next_date_session = next_key
 
             elif hour == 15 and minute == 7:
                 next_key = f"{current_date_str}_AFTERNOON_NEXT"
                 if last_next_date_session != next_key:
-                    await send_next_session_info(app, "Night Session", "8:30 PM")
+                    await send_next_session_info(app, "Night Session", "8:00 PM")
                     last_next_date_session = next_key
 
             elif hour == 21 and minute == 7:
                 next_key = f"{current_date_str}_NIGHT_NEXT"
                 if last_next_date_session != next_key:
-                    await send_next_session_info(app, "Morning Session", "7:30 AM (Tomorrow)")
+                    await send_next_session_info(app, "Morning Session", "7:00 AM (Tomorrow)")
                     last_next_date_session = next_key
 
         except Exception as e:
@@ -334,4 +334,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-        
+    
