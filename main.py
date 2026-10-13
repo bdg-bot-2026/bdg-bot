@@ -250,30 +250,30 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("📢 Channel Link", url="https://t.me/bdgplayvipwin")]
             ])
 
-            # ১. সেশন শুরুর ৫ মিনিটের অ্যালার্ট মেসেজ (সকাল ৬:৫৫, দুপুর ১:৫৫, রাত ৭:৫৫)
-            if hour == 6 and minute == 55:
+            # ১. সেশন শুরুর ৫ মিনিটের অ্যালার্ট মেসেজ (৩০ মিনিট এগিয়ে দেওয়া হয়েছে)
+            if hour == 7 and minute == 25:
                 alert_key = f"{current_date_str}_MORNING_ALERT"
                 if last_alert_date_session != alert_key:
                     await send_ready_alert(app, "Morning Session (7:00 AM)", alert_markup)
                     last_alert_date_session = alert_key
 
-            elif hour == 13 and minute == 55:
+            elif hour == 14 and minute == 25:
                 alert_key = f"{current_date_str}_AFTERNOON_ALERT"
                 if last_alert_date_session != alert_key:
                     await send_ready_alert(app, "Afternoon Session (2:00 PM)", alert_markup)
                     last_alert_date_session = alert_key
 
-            elif hour == 19 and minute == 55:
+            elif hour == 20 and minute == 25:
                 alert_key = f"{current_date_str}_NIGHT_ALERT"
                 if last_alert_date_session != alert_key:
                     await send_ready_alert(app, "Night Session (8:00 PM)", alert_markup)
                     last_alert_date_session = alert_key
 
 
-            # ২. মূল সিগন্যাল পাঠানোর নির্দিষ্ট সময় (সকাল ৭:০০ - ৭:৩৫, দুপুর ২:০০ - ২:৩৫, রাত ৮:০০ - ৮:৩৫)
-            is_morning_session = (hour == 7 and minute <= 35)
-            is_afternoon_session = (hour == 14 and minute <= 35)
-            is_night_session = (hour == 20 and minute <= 35)
+            # ২. মূল সিগন্যাল পাঠানোর নির্দিষ্ট সময় (৩০ মিনিট এগিয়ে দেওয়া হয়েছে)
+            is_morning_session = (hour == 7 and minute >= 30) or (hour == 8 and minute <= 5)
+            is_afternoon_session = (hour == 14 and minute >= 30) or (hour == 15 and minute <= 5)
+            is_night_session = (hour == 20 and minute >= 30) or (hour == 21 and minute <= 5)
 
             if is_morning_session or is_afternoon_session or is_night_session:
                 period_num = get_current_1min_period()
@@ -302,8 +302,8 @@ async def send_auto_prediction(app):
                     print(f"Signal sent successfully for period: {period_num}")
                     last_sent_period = period_num
 
-            # ৩. সেশনের মাঝামাঝি প্রফিট সতর্কতার মেসেজ (সকাল ৭:৩০, দুপুর ২:৩০, রাত ৮:৩০)
-            if (hour == 7 and minute == 30) or (hour == 14 and minute == 30) or (hour == 20 and minute == 30):
+            # ৩. সেশনের মাঝামাঝি প্রফিট সতর্কতার মেসেজ
+            if (hour == 8 and minute == 0) or (hour == 15 and minute == 0) or (hour == 21 and minute == 0):
                 profit_key = f"{current_date_str}_{hour}_PROFIT_ALERT"
                 if last_mid_date_session != profit_key:
                     await send_mid_session_alert(app, alert_markup)
@@ -314,27 +314,27 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("💎 Contact For Support", url="https://t.me/bdgplayvipwin")]
             ])
 
-            # ৪. সেশন শেষ হওয়ার পরের প্রমোশন মেসেজ (সকাল ৭:৩৬, দুপুর ২:৩৬, রাত ৮:৩৬)
-            if (hour == 7 and minute == 36) or (hour == 14 and minute == 36) or (hour == 20 and minute == 36):
+            # ৪. সেশন শেষ হওয়ার পরের প্রমোশন মেসেজ
+            if (hour == 8 and minute == 6) or (hour == 15 and minute == 6) or (hour == 21 and minute == 6):
                 promo_key = f"{current_date_str}_{hour}_PROMO"
                 if last_promo_date_session != promo_key:
-                    await send_referral_promo(app, promo_markup)
+                    await send_referral_promo(app, promo_promo_markup if 'promo_promo_markup' in locals() else promo_markup)
                     last_promo_date_session = promo_key
 
-            # ৫. পরবর্তী সেশনের আপডেট মেসেজ (সকাল ৭:৩৭, দুপুর ২:৩৭, রাত ৮:৩৭)
-            if hour == 7 and minute == 37:
+            # ৫. পরবর্তী সেশনের আপডেট মেসেজ
+            if hour == 8 and minute == 7:
                 next_key = f"{current_date_str}_MORNING_NEXT"
                 if last_next_date_session != next_key:
                     await send_next_session_info(app, "Afternoon Session", "2:00 PM")
                     last_next_date_session = next_key
 
-            elif hour == 14 and minute == 37:
+            elif hour == 15 and minute == 7:
                 next_key = f"{current_date_str}_AFTERNOON_NEXT"
                 if last_next_date_session != next_key:
                     await send_next_session_info(app, "Night Session", "8:00 PM")
                     last_next_date_session = next_key
 
-            elif hour == 20 and minute == 37:
+            elif hour == 21 and minute == 7:
                 next_key = f"{current_date_str}_NIGHT_NEXT"
                 if last_next_date_session != next_key:
                     await send_next_session_info(app, "Morning Session", "7:00 AM (Tomorrow)")
@@ -363,4 +363,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-    
