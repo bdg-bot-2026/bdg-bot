@@ -26,7 +26,7 @@ def run_web():
 # ==========================================
 # 🤖 Telegram Bot Configurations
 # ==========================================
-RAW_TOKEN = "8937609482:AAHbGUyL0rXUkMHa1TkHrUcSUr8veIiVApE"
+RAW_TOKEN = "8937609482:AAFP8rGqbwy153dwuAqKpy17wyBjbUzZYXA"
 TOKEN = RAW_TOKEN.strip()
 CHANNEL_ID = "@RexiWinAIPrediction"
 
