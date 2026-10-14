@@ -26,7 +26,8 @@ def run_web():
 # ==========================================
 # 🤖 Telegram Bot Configurations
 # ==========================================
-RAW_TOKEN = "8937609482:AAHQJG7NrVd2H2L11kW4GiihVCgXj37kZEQ"
+# Render Environment Variable থেকে টোকেন নেবে, না পেলে আপনার নতুন টোকেনটি সরাসরি ব্যবহার করবে
+RAW_TOKEN = os.environ.get("BOT_TOKEN", "8937609482:AAEncEd0IY787haa0Pg1Azp2DHVT3Ulz14A")
 TOKEN = RAW_TOKEN.strip()
 CHANNEL_ID = "@RexiWinAIPrediction"
 
