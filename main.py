@@ -10,7 +10,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ParseMode
 
 # ==========================================
-# 🌐 Flask Web Server
+# 🌐 Flask Web Server for Render Keep-Alive
 # ==========================================
 app_web = Flask(__name__)
 
@@ -19,7 +19,7 @@ def home():
     return "Bot status: ONLINE (Rexi Win Time & Perfect Period Sync Active)"
 
 def run_web():
-    port = int(os.environ.get("PORT", 8080))
+    port = int(os.environ.get("PORT", 10000))
     app_web.run(host='0.0.0.0', port=port)
 
 
@@ -35,14 +35,14 @@ pattern_index = 0
 
 
 # ==========================================
-# ⏰ Time & Live Game Period Synchronization Function
+# ⏰ Time & Live Game Period Synchronization
 # ==========================================
 def get_bd_time():
     try:
-        bd_tz = pytz.timezone('Asia/Dhaka')
+        bd_tz = pytz.timezone('Asia/Kolkata')
         return datetime.now(bd_tz)
     except Exception:
-        return datetime.utcnow() + timedelta(hours=6)
+        return datetime.utcnow() + timedelta(hours=5.5)
 
 def get_current_1min_period():
     now_utc = datetime.now(pytz.utc)
@@ -115,7 +115,7 @@ def get_high_tech_ai_prediction():
 
 
 # ==========================================
-# 🎨 Smart Color Evaluator Logic (Only Green & Red)
+# 🎨 Smart Color Evaluator Logic
 # ==========================================
 def get_smart_trend_color(pred_text):
     if pred_text == "BIG":
@@ -238,18 +238,14 @@ async def send_next_session_info(app, next_session_name, time_str):
         f"পরবর্তী ভিআইপি সেশন: {time_str} এ {next_session_name} শুরু হবে। পরবর্তী প্রফিটের জন্য প্রস্তুত থাকুন!\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━"
     )
-    markup = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🎮 Play Rexi Win 🏆", url="https://raxiwin.com")],
-        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/RexiWinAIPrediction")]
-    ])
     try:
-        await app.bot.send_message(chat_id=CHANNEL_ID, text=next_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
+        await app.bot.send_message(chat_id=CHANNEL_ID, text=next_msg, parse_mode=ParseMode.HTML)
     except Exception as e:
         print(f"Next Session Error: {e}")
 
 
 # ==========================================
-# 🚀 Telegram Automation Main Loop
+# 🚀 Automation Loop
 # ==========================================
 async def send_auto_prediction(app):
     last_sent_period = ""
@@ -259,13 +255,7 @@ async def send_auto_prediction(app):
     last_next_date_session = ""     
     last_mid_date_session = ""
 
-    keyboard = [
-        [InlineKeyboardButton("🎮 Play Rexi Win 🏆", url="https://raxiwin.com")],
-        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/RexiWinAIPrediction")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    print("Rexi Win Automation Loop started successfully with Adjusted Time & Exact Period Sync...")
+    print("Rexi Win Automation Loop started successfully...")
 
     while True:
         try:
@@ -279,7 +269,7 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("📢 Channel Link", url="https://t.me/RexiWinAIPrediction")]
             ])
 
-            # ১. সেশন শুরুর ৫ মিনিটের অ্যালার্ট মেসেজ (IST: ৬:৫৫, ১:৫৫, ৭:৫৫)
+            # ১. সেশন শুরুর ৫ মিনিটের অ্যালার্ট
             if hour == 7 and minute == 25:
                 alert_key = f"{current_date_str}_MORNING_ALERT"
                 if last_alert_date_session != alert_key:
@@ -298,8 +288,7 @@ async def send_auto_prediction(app):
                     await send_ready_alert(app, "Night Session (8:00 PM)", alert_markup)
                     last_alert_date_session = alert_key
 
-
-            # ১.১. সেশন শুরুর ৩ মিনিট আগে লেভেল চার্ট মেসেজ (IST: ৬:৫৭, ১:৫৭, ৭:৫৭)
+            # ১.১. ৩ মিনিট আগে লেভেল চার্ট
             if hour == 7 and minute == 27:
                 chart_key = f"{current_date_str}_MORNING_CHART"
                 if last_chart_date_session != chart_key:
@@ -318,8 +307,7 @@ async def send_auto_prediction(app):
                     await send_level_chart_alert(app, alert_markup)
                     last_chart_date_session = chart_key
 
-
-            # ২. মূল সিগন্যাল পাঠানোর সময় (IST: ৭:০০-৭:৩৫, ২:০০-২:৩৫, ৮:০০-৮:৩৫)
+            # ২. সিগন্যাল
             is_morning_session = (hour == 7 and minute >= 30) or (hour == 8 and minute <= 5)
             is_afternoon_session = (hour == 14 and minute >= 30) or (hour == 15 and minute <= 5)
             is_night_session = (hour == 20 and minute >= 30) or (hour == 21 and minute <= 5)
@@ -341,6 +329,11 @@ async def send_auto_prediction(app):
                         f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
                     )
                     
+                    reply_markup = InlineKeyboardMarkup([
+                        [InlineKeyboardButton("🎮 Play Rexi Win 🏆", url="https://raxiwin.com")],
+                        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/RexiWinAIPrediction")]
+                    ])
+
                     await app.bot.send_message(
                         chat_id=CHANNEL_ID,
                         text=msg,
@@ -348,10 +341,10 @@ async def send_auto_prediction(app):
                         reply_markup=reply_markup
                     )
                     
-                    print(f"Signal sent successfully for period: {period_num}")
+                    print(f"Signal sent: {period_num}")
                     last_sent_period = period_num
 
-            # ৩. সেশনের মাঝামাঝি প্রফিট সতর্কতার মেসেজ (IST: ৭:৩০, ২:৩০, ৮:৩০)
+            # ৩. মিড সেশন প্রফিট অ্যালার্ট
             if (hour == 8 and minute == 0) or (hour == 15 and minute == 0) or (hour == 21 and minute == 0):
                 profit_key = f"{current_date_str}_{hour}_PROFIT_ALERT"
                 if last_mid_date_session != profit_key:
@@ -363,14 +356,14 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("💎 Contact For Support", url="https://t.me/RexiWinAIPrediction")]
             ])
 
-            # ৪. সেশন শেষ হওয়ার পরের প্রমোশন মেসেজ (IST: ৭:৩৬, ২:৩৬, ৮:৩৬)
+            # ৪. প্রমোশন মেসেজ
             if (hour == 8 and minute == 6) or (hour == 15 and minute == 6) or (hour == 21 and minute == 6):
                 promo_key = f"{current_date_str}_{hour}_PROMO"
                 if last_promo_date_session != promo_key:
                     await send_referral_promo(app, promo_markup)
                     last_promo_date_session = promo_key
 
-            # ৫. পরবর্তী সেশনের আপডেট মেসেজ (IST: ৭:৩৭, ২:৩৭, ৮:৩৭)
+            # ৫. নেক্সট সেশন ইনফো
             if hour == 8 and minute == 7:
                 next_key = f"{current_date_str}_MORNING_NEXT"
                 if last_next_date_session != next_key:
@@ -396,20 +389,24 @@ async def send_auto_prediction(app):
 
 
 # ==========================================
-# ⚙️ Main Application Launcher
+# ⚙️ Main Application Entrypoint
 # ==========================================
-async def main():
-    app = ApplicationBuilder().token(TOKEN).build()
-    
-    await app.initialize()
-    await app.start()
-    
+def main():
+    # Flask Background Thread
     threading.Thread(target=run_web, daemon=True).start()
+
+    # Telegram Application Setup
+    app = ApplicationBuilder().token(TOKEN).build()
+
+    # asyncio setup for Render
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     
-    print("Rexi Win Ultra AI Bot is fully running and active...")
-    
-    await send_auto_prediction(app)
+    # Run the background prediction loop using the same loop
+    loop.create_task(send_auto_prediction(app))
+
+    # Standard Application Polling
+    app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
-    asyncio.run(main())
-    
+    main()
