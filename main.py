@@ -245,7 +245,7 @@ async def send_next_session_info(app, next_session_name, time_str):
 
 
 # ==========================================
-# 🚀 Automation Loop
+# 🚀 Automation Loop (Final Schedule & Timings)
 # ==========================================
 async def send_auto_prediction(app):
     last_sent_period = ""
@@ -269,48 +269,48 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("📢 Channel Link", url="https://t.me/RexiWinAIPrediction")]
             ])
 
-            # ১. সেশন শুরুর ৫ মিনিটের অ্যালার্ট
-            if hour == 7 and minute == 25:
+            # ১. ৫ মিনিট আগে এটেনশন অ্যালার্ট (সকাল ৬:৫৫, দুপুর ১:৫৫, রাত ৭:৫৫ IST)
+            if hour == 6 and minute == 55:
                 alert_key = f"{current_date_str}_MORNING_ALERT"
                 if last_alert_date_session != alert_key:
                     await send_ready_alert(app, "Morning Session (7:00 AM)", alert_markup)
                     last_alert_date_session = alert_key
 
-            elif hour == 14 and minute == 25:
+            elif hour == 13 and minute == 55:
                 alert_key = f"{current_date_str}_AFTERNOON_ALERT"
                 if last_alert_date_session != alert_key:
                     await send_ready_alert(app, "Afternoon Session (2:00 PM)", alert_markup)
                     last_alert_date_session = alert_key
 
-            elif hour == 20 and minute == 25:
+            elif hour == 19 and minute == 55:
                 alert_key = f"{current_date_str}_NIGHT_ALERT"
                 if last_alert_date_session != alert_key:
                     await send_ready_alert(app, "Night Session (8:00 PM)", alert_markup)
                     last_alert_date_session = alert_key
 
-            # ১.১. ৩ মিনিট আগে লেভেল চার্ট
-            if hour == 7 and minute == 27:
+            # ১.১. ৩ মিনিট আগে লেভেল চার্ট (সকাল ৬:৫৭, দুপুর ১:৫৭, রাত ৭:৫৭ IST)
+            if hour == 6 and minute == 57:
                 chart_key = f"{current_date_str}_MORNING_CHART"
                 if last_chart_date_session != chart_key:
                     await send_level_chart_alert(app, alert_markup)
                     last_chart_date_session = chart_key
 
-            elif hour == 14 and minute == 27:
+            elif hour == 13 and minute == 57:
                 chart_key = f"{current_date_str}_AFTERNOON_CHART"
                 if last_chart_date_session != chart_key:
                     await send_level_chart_alert(app, alert_markup)
                     last_chart_date_session = chart_key
 
-            elif hour == 20 and minute == 27:
+            elif hour == 19 and minute == 57:
                 chart_key = f"{current_date_str}_NIGHT_CHART"
                 if last_chart_date_session != chart_key:
                     await send_level_chart_alert(app, alert_markup)
                     last_chart_date_session = chart_key
 
-            # ২. সিগন্যাল
-            is_morning_session = (hour == 7 and minute >= 30) or (hour == 8 and minute <= 5)
-            is_afternoon_session = (hour == 14 and minute >= 30) or (hour == 15 and minute <= 5)
-            is_night_session = (hour == 20 and minute >= 30) or (hour == 21 and minute <= 5)
+            # ২. মূল সিগন্যাল সেশন (সকাল ৭:০০-৭:৩৫, দুপুর ২:০০-২:৩৫, রাত ৮:০০-৮:৩৫ IST)
+            is_morning_session = (hour == 7 and minute <= 35)
+            is_afternoon_session = (hour == 14 and minute <= 35)
+            is_night_session = (hour == 20 and minute <= 35)
 
             if is_morning_session or is_afternoon_session or is_night_session:
                 period_num = get_current_1min_period()
@@ -319,13 +319,14 @@ async def send_auto_prediction(app):
                     pred_text = "SMALL" if pred == "SMALL" else "BIG"
                     color_text = get_smart_trend_color(pred_text)
                     
+                    # 🎯 নিখুঁত ফরম্যাট (ডায়মন্ড নিচে ও কম গ্যাপ সহ)
                     msg = (
-                        f"💎 <b>REXI WIN ULTRA AI PREDICTION</b> 💎\n"
-                        f"💎 <b>REXI VIP PREDICTION</b> 💎\n\n"
+                        f"💎 <b>REXI WIN ULTRA AI VIP PREDICTION</b>\n"
+                        f"💎 <b>REXI VIP PREDICTION 1 Min</b> 💎\n\n"
                         f"🔹 <b>PERIOD:</b> {period_num}\n"
                         f"🎯 <b>PREDICTION:</b> {pred_text}\n"
                         f"🎨 <b>COLOR:</b> {color_text}\n"
-                        f"───────────────────\n"
+                        f"___________________\n"
                         f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
                     )
                     
@@ -344,10 +345,11 @@ async def send_auto_prediction(app):
                     print(f"Signal sent: {period_num}")
                     last_sent_period = period_num
 
-            # ৩. মিড সেশন প্রফিট অ্যালার্ট
-            if (hour == 8 and minute == 0) or (hour == 15 and minute == 0) or (hour == 21 and minute == 0):
+            # ৩. মিড সেশন প্রফিট অ্যালার্ট (সকাল ৭:৩০, দুপুর ২:৩০, রাত ৮:৩০ IST - ১৫ সেকেন্ড ডিলে সহ)
+            if (hour == 7 and minute == 30) or (hour == 14 and minute == 30) or (hour == 20 and minute == 30):
                 profit_key = f"{current_date_str}_{hour}_PROFIT_ALERT"
                 if last_mid_date_session != profit_key:
+                    await asyncio.sleep(15)  # ১৫ সেকেন্ড বিরতি
                     await send_mid_session_alert(app, alert_markup)
                     last_mid_date_session = profit_key
 
@@ -356,27 +358,27 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("💎 Contact For Support", url="https://t.me/RexiWinAIPrediction")]
             ])
 
-            # ৪. প্রমোশন মেসেজ
-            if (hour == 8 and minute == 6) or (hour == 15 and minute == 6) or (hour == 21 and minute == 6):
+            # ৪. প্রমোশন মেসেজ (সকাল ৭:৩৬, দুপুর ২:৩৬, রাত ৮:৩৬ IST)
+            if (hour == 7 and minute == 36) or (hour == 14 and minute == 36) or (hour == 20 and minute == 36):
                 promo_key = f"{current_date_str}_{hour}_PROMO"
                 if last_promo_date_session != promo_key:
                     await send_referral_promo(app, promo_markup)
                     last_promo_date_session = promo_key
 
-            # ৫. নেক্সট সেশন ইনফো
-            if hour == 8 and minute == 7:
+            # ৫. নেক্সট সেশন ইনফো (সকাল ৭:৩৭, দুপুর ২:৩৭, রাত ৮:৩৭ IST)
+            if hour == 7 and minute == 37:
                 next_key = f"{current_date_str}_MORNING_NEXT"
                 if last_next_date_session != next_key:
                     await send_next_session_info(app, "Afternoon Session", "2:00 PM")
                     last_next_date_session = next_key
 
-            elif hour == 15 and minute == 7:
+            elif hour == 14 and minute == 37:
                 next_key = f"{current_date_str}_AFTERNOON_NEXT"
                 if last_next_date_session != next_key:
                     await send_next_session_info(app, "Night Session", "8:00 PM")
                     last_next_date_session = next_key
 
-            elif hour == 21 and minute == 7:
+            elif hour == 20 and minute == 37:
                 next_key = f"{current_date_str}_NIGHT_NEXT"
                 if last_next_date_session != next_key:
                     await send_next_session_info(app, "Morning Session", "7:00 AM (Tomorrow)")
@@ -392,21 +394,17 @@ async def send_auto_prediction(app):
 # ⚙️ Main Application Entrypoint
 # ==========================================
 def main():
-    # Flask Background Thread
     threading.Thread(target=run_web, daemon=True).start()
 
-    # Telegram Application Setup
     app = ApplicationBuilder().token(TOKEN).build()
 
-    # asyncio setup for Render
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     
-    # Run the background prediction loop using the same loop
     loop.create_task(send_auto_prediction(app))
 
-    # Standard Application Polling
     app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
     main()
+                   
