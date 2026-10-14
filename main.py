@@ -16,7 +16,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Raxi Win Time & Perfect Period Sync Active)"
+    return "Bot status: ONLINE (Rexi Win Time & Perfect Period Sync Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -26,9 +26,9 @@ def run_web():
 # ==========================================
 # 🤖 Telegram Bot Configurations
 # ==========================================
-RAW_TOKEN = "8752459278:AAGbwu4j7JqT3R4Auwhj2PLMidKzhRaSkS0"
+RAW_TOKEN = "8937609482:AAESbMoAXTgE4ZiKJ3ut1N2dwmERTOJ1P6Y"
 TOKEN = RAW_TOKEN.strip()
-CHANNEL_ID = "@bdgplayvipwin"
+CHANNEL_ID = "@RexiWinAIPrediction"
 
 current_pattern = []
 pattern_index = 0
@@ -129,7 +129,7 @@ def get_smart_trend_color(pred_text):
 # ==========================================
 async def send_ready_alert(app, session_name, markup):
     alert_msg = (
-        f"<b>RAXI WIN VIP PREDICTION 1 Min:</b>\n"
+        f"<b>REXI WIN VIP PREDICTION 1 Min:</b>\n"
         f"🚨 🔥 <b>ATTENTION: {session_name} IS ABOUT TO START!</b> 🔥 🚨\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🎯 <b>Get ready & prepare your account! / तैयार हो जाइए! / সবাই রেডি থাকুন!</b>\n\n"
@@ -153,7 +153,7 @@ async def send_ready_alert(app, session_name, markup):
         f"🚫 <b>ইল্লিগাল বেট নিষেধ:</b> বিগ এবং স্মল একসঙ্গে কেউ করবেন না।\n"
         f"⚠️ <b>রেড-গ্রীন একসঙ্গে নয়: রেড ও গ্রীনে একসাথে বেট লাগাবেন না।</b>\n"
         f"📱 <b>এক ফোনে এক আইডি:</b> একটা ফোনে দুটো আইডি লগইন করবেন না।\n"
-        f"📶 <b>ওয়াইফাই সতর্কবার্তা:</b> ওয়াইফাই প্লে বা পাবলিক নেটওয়ার্ক এড়িয়ে চলুন."
+        f"📶 <b>ওয়াইফাই সতর্কবার্তা:</b> ওয়াইফাই প্লে বা পাবলিক নেটওয়ার্ক এড়িয়ে চলুন."
     )
     try:
         await app.bot.send_message(chat_id=CHANNEL_ID, text=alert_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
@@ -162,7 +162,7 @@ async def send_ready_alert(app, session_name, markup):
 
 async def send_level_chart_alert(app, markup):
     chart_msg = (
-        f"💎 <b>RAXI WIN VIP 10-LEVEL MARTINGALE</b> 💎\n"
+        f"💎 <b>REXI WIN VIP 10-LEVEL MARTINGALE</b> 💎\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🛡️ <b>OFFICIAL MONEY MANAGEMENT CHART</b>\n\n"
         f"🎯 <i>Strictly follow this Martingale plan to protect your capital & maximize daily profits!</i>\n\n"
@@ -211,7 +211,7 @@ async def send_mid_session_alert(app, markup):
 
 async def send_referral_promo(app, markup):
     promo_msg = (
-        f"💎 ✨ <b>MAXIMIZE YOUR EARNINGS WITH RAXI WIN!</b> ✨ 💎\n"
+        f"💎 ✨ <b>MAXIMIZE YOUR EARNINGS WITH REXI WIN!</b> ✨ 💎\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
         f"🇬🇧 <b>ENGLISH:</b>\n"
         f"Build your powerful team and generate passive daily income! Earn lifetime commissions, daily salaries, and referral bonuses. Share your link now!\n\n"
@@ -239,8 +239,8 @@ async def send_next_session_info(app, next_session_name, time_str):
         f"━━━━━━━━━━━━━━━━━━━━━━━━━"
     )
     markup = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🎮 Play Raxi Win 🏆", url="https://raxiwin.com")],
-        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
+        [InlineKeyboardButton("🎮 Play Rexi Win 🏆", url="https://raxiwin.com")],
+        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/RexiWinAIPrediction")]
     ])
     try:
         await app.bot.send_message(chat_id=CHANNEL_ID, text=next_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
@@ -260,12 +260,12 @@ async def send_auto_prediction(app):
     last_mid_date_session = ""
 
     keyboard = [
-        [InlineKeyboardButton("🎮 Play Raxi Win 🏆", url="https://raxiwin.com")],
-        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/bdgplayvipwin")]
+        [InlineKeyboardButton("🎮 Play Rexi Win 🏆", url="https://raxiwin.com")],
+        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/RexiWinAIPrediction")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    print("Raxi Win Automation Loop started successfully with Adjusted Time & Exact Period Sync...")
+    print("Rexi Win Automation Loop started successfully with Adjusted Time & Exact Period Sync...")
 
     while True:
         try:
@@ -276,7 +276,7 @@ async def send_auto_prediction(app):
 
             alert_markup = InlineKeyboardMarkup([
                 [InlineKeyboardButton("🚀 Ready & Deposit", url="https://raxiwin.com")],
-                [InlineKeyboardButton("📢 Channel Link", url="https://t.me/bdgplayvipwin")]
+                [InlineKeyboardButton("📢 Channel Link", url="https://t.me/RexiWinAIPrediction")]
             ])
 
             # ১. সেশন শুরুর ৫ মিনিটের অ্যালার্ট মেসেজ (IST: ৬:৫৫, ১:৫৫, ৭:৫৫)
@@ -332,8 +332,8 @@ async def send_auto_prediction(app):
                     color_text = get_smart_trend_color(pred_text)
                     
                     msg = (
-                        f"💎 <b>RAXI WIN ULTRA AI PREDICTION</b> 💎\n"
-                        f"💎 <b>RAXI VIP PREDICTION</b> 💎\n\n"
+                        f"💎 <b>REXI WIN ULTRA AI PREDICTION</b> 💎\n"
+                        f"💎 <b>REXI VIP PREDICTION</b> 💎\n\n"
                         f"🔹 <b>PERIOD:</b> {period_num}\n"
                         f"🎯 <b>PREDICTION:</b> {pred_text}\n"
                         f"🎨 <b>COLOR:</b> {color_text}\n"
@@ -360,7 +360,7 @@ async def send_auto_prediction(app):
 
             promo_markup = InlineKeyboardMarkup([
                 [InlineKeyboardButton("🚀 Join & Start Refer", url="https://raxiwin.com")],
-                [InlineKeyboardButton("💎 Contact For Support", url="https://t.me/bdgplayvipwin")]
+                [InlineKeyboardButton("💎 Contact For Support", url="https://t.me/RexiWinAIPrediction")]
             ])
 
             # ৪. সেশন শেষ হওয়ার পরের প্রমোশন মেসেজ (IST: ৭:৩৬, ২:৩৬, ৮:৩৬)
@@ -406,7 +406,7 @@ async def main():
     
     threading.Thread(target=run_web, daemon=True).start()
     
-    print("Raxi Win Ultra AI Bot is fully running and active...")
+    print("Rexi Win Ultra AI Bot is fully running and active...")
     
     await send_auto_prediction(app)
 
