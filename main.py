@@ -331,12 +331,10 @@ async def send_auto_prediction(app):
                     pred_text = "SMALL" if pred == "SMALL" else "BIG"
                     color_text = get_smart_trend_color(pred_text)
                     
-                    # 🔹 আপনার হুবহু ছোট কমপ্যাক্ট ফরম্যাট
+                    # 🔹 আপনার কাঙ্ক্ষিত বড় চওড়া বক্সের ফরম্যাট (ওপরের অতিরিক্ত লাইন বাদ দিয়ে)
                     msg = (
-                        f"💎 <b>RAXI WIN ULTRA AI VIP</b>\n"
-                        f"<b>PREDICTION</b> 💎\n"
-                        f"💎 <b>RAXI VIP PREDICTION 1 Min</b>\n"
-                        f"💎\n\n"
+                        f"💎 <b>RAXI WIN ULTRA AI PREDICTION</b> 💎\n"
+                        f"💎 <b>RAXI WIN VIP PREDICTION 1 Min</b> 💎\n\n"
                         f"🔹 <b>PERIOD:</b> {period_num}\n"
                         f"🎯 <b>PREDICTION:</b> {pred_text}\n"
                         f"🎨 <b>COLOR:</b> {color_text}\n"
@@ -415,4 +413,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-    
+        
