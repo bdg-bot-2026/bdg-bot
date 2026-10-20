@@ -422,4 +422,30 @@ async def send_auto_prediction(app):
                     print(f"50-Period Signal Sent: {period_num} -> {pred_text}")
                     last_sent_period = period_num
                     
-                 
+                         except Exception as e:
+            print(f"Loop Error: {e}")
+
+        await asyncio.sleep(2)
+
+
+# ==========================================
+# ⚙️ Main Application Launcher
+# ==========================================
+async def main():
+    app = ApplicationBuilder().token(TOKEN).build()
+    
+    await app.initialize()
+    await app.start()
+    
+    threading.Thread(target=run_web, daemon=True).start()
+    
+    print("Raxi Win Ultra AI Bot is running with Simple Win/Loss Tracker...")
+    
+    await send_auto_prediction(app)
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        print("Bot Stopped.")
+    
