@@ -422,10 +422,11 @@ async def send_auto_prediction(app):
                     print(f"50-Period Signal Sent: {period_num} -> {pred_text}")
                     last_sent_period = period_num
                     
-                         except Exception as e:
+                                 except Exception as e:
             print(f"Loop Error: {e}")
 
         await asyncio.sleep(2)
+
 
 
 # ==========================================
