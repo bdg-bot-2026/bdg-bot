@@ -10,9 +10,6 @@ from telegram.ext import ApplicationBuilder
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ParseMode
 
-# ==========================================
-# 🌐 Flask Web Server
-# ==========================================
 app_web = Flask(__name__)
 
 @app_web.route('/')
@@ -23,18 +20,10 @@ def run_web():
     port = int(os.environ.get("PORT", 8080))
     app_web.run(host='0.0.0.0', port=port)
 
-
-# ==========================================
-# 🤖 Telegram Bot Configurations
-# ==========================================
 RAW_TOKEN = os.environ.get("BOT_TOKEN", "8937609482:AAEncEd0IY787haa0Pg1Azp2DHVT3Ulz1z14A")
 TOKEN = RAW_TOKEN.strip()
 CHANNEL_ID = "@RexiWinAIPrediction"
 
-
-# ==========================================
-# ⏰ Time & Live Game Period Synchronization Function
-# ==========================================
 def get_bd_time():
     try:
         bd_tz = pytz.timezone('Asia/Dhaka')
@@ -45,16 +34,10 @@ def get_bd_time():
 def get_current_1min_period():
     now_utc = datetime.now(pytz.utc)
     date_str = now_utc.strftime("%Y%m%d")
-    
     total_minutes_utc = (now_utc.hour * 60) + now_utc.minute
     period_count = 10000 + total_minutes_utc + 1
-    
     return f"{date_str}1000{period_count}"
 
-
-# ==========================================
-# 📊 Real API 50-Period Trend & Win/Loss Checker
-# ==========================================
 def get_api_history():
     url = "https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json"
     headers = {
@@ -73,20 +56,14 @@ def get_high_tech_ai_prediction():
     games_list = get_api_history()
     if not games_list:
         return "BIG"
-    
     count = min(50, len(games_list))
     recent_results = []
-    
     for i in range(count):
         num = int(games_list[i]['number'])
         bs = "BIG" if num >= 5 else "SMALL"
         recent_results.append(bs)
-    
     big_count = recent_results.count("BIG")
     small_count = recent_results.count("SMALL")
-    
-    print(f"Trend Analysis -> Last {count} Periods | BIG: {big_count}, SMALL: {small_count}")
-    
     if big_count > small_count:
         if len(recent_results) >= 3 and recent_results[0] == recent_results[1] == recent_results[2]:
             return "SMALL" if recent_results[0] == "BIG" else "BIG"
@@ -108,20 +85,12 @@ def check_period_result(target_period):
             return actual_bs
     return None
 
-
-# ==========================================
-# 🎨 Smart Color Evaluator Logic (Only Green & Red)
-# ==========================================
 def get_smart_trend_color(pred_text):
     if pred_text == "BIG":
         return random.choice(["GREEN 🟢", "GREEN 🟢", "RED 🔴"])
     else:
         return random.choice(["RED 🔴", "RED 🔴", "GREEN 🟢"])
 
-
-# ==========================================
-# 📢 Supporting Notice & Message Functions
-# ==========================================
 async def send_ready_alert(app, session_name, markup):
     alert_msg = (
         f"<b>RAXI WIN VIP PREDICTION 1 Min:</b>\n"
@@ -241,12 +210,7 @@ async def send_next_session_info(app, next_session_name, time_str):
         await app.bot.send_message(chat_id=CHANNEL_ID, text=next_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
     except Exception as e:
         print(f"Next Session Error: {e}")
-
-
-# ==========================================
-# 🚀 Telegram Automation Main Loop
-# ==========================================
-async def send_auto_prediction(app):
+        async def send_auto_prediction(app):
     last_sent_period = ""
     pending_check_msg_id = None
     pending_period = ""
@@ -278,9 +242,6 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("📢 Channel Link", url="https://t.me/RexiWinAIPrediction")]
             ])
 
-            # -------------------------------------------------------------
-            # 🔍 ব্যাকগ্রাউন্ড অটো WIN/LOSS ট্র্যাকিং (শুধু WIN অথবা LOSS)
-            # -------------------------------------------------------------
             if pending_check_msg_id and pending_period:
                 actual_result = check_period_result(pending_period)
                 if actual_result:
@@ -314,9 +275,6 @@ async def send_auto_prediction(app):
                     pending_period = ""
                     pending_prediction = ""
 
-            # -------------------------------------------------------------
-            # 📢 নোটিশ ও অ্যালার্ট মেসেজসমূহ
-            # -------------------------------------------------------------
             if hour == 7 and minute == 25:
                 alert_key = f"{current_date_str}_MORNING_ALERT"
                 if last_alert_date_session != alert_key:
@@ -388,9 +346,6 @@ async def send_auto_prediction(app):
                     await send_next_session_info(app, "Morning Session", "7:30 AM (Tomorrow)")
                     last_next_date_session = next_key
 
-            # -------------------------------------------------------------
-            # 🎯 মূল লাইভ সিগন্যাল পাঠানোর লজিক
-            # -------------------------------------------------------------
             is_morning_session = (hour == 7 and minute >= 30) or (hour == 8 and minute <= 5)
             is_afternoon_session = (hour == 14 and minute >= 30) or (hour == 15 and minute <= 5)
             is_night_session = (hour == 20 and minute >= 30) or (hour == 21 and minute <= 5)
@@ -422,7 +377,8 @@ async def send_auto_prediction(app):
                     pending_check_msg_id = sent_msg.message_id
                     pending_period = period_num
                     pending_prediction = pred_text
-                         print(f"50-Period Signal Sent: {period_num} -> {pred_text}")
+                    
+                    print(f"50-Period Signal Sent: {period_num} -> {pred_text}")
                     last_sent_period = period_num
 
         except Exception as e:
@@ -430,20 +386,57 @@ async def send_auto_prediction(app):
 
         await asyncio.sleep(2)
 
-
-# ==========================================
-# ⚙️ Main Application Launcher
-# ==========================================
 async def main():
     app = ApplicationBuilder().token(TOKEN).build()
-    
     await app.initialize()
     await app.start()
-    
     threading.Thread(target=run_web, daemon=True).start()
-    
     print("Raxi Win Ultra AI Bot is running with Simple Win/Loss Tracker...")
-    
+    await send_auto_prediction(app)
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        print("Bot Stopped.")
+                        color_text = get_smart_trend_color(pred_text)
+                    
+                    msg = (
+                        f"💎 <b>RAXI WIN ULTRA AI PREDICTION</b> 💎\n"
+                        f"💎 <b>RAXI WIN VIP PREDICTION 1 Min</b> 💎\n\n"
+                        f"🔹 <b>PERIOD:</b> {period_num}\n"
+                        f"🎯 <b>PREDICTION:</b> {pred_text}\n"
+                        f"🎨 <b>COLOR:</b> {color_text}\n"
+                        f"📊 <b>STATUS:</b> ⏳ Waiting for result...\n"
+                        f"───────────────────\n"
+                        f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
+                    )
+                    
+                    sent_msg = await app.bot.send_message(
+                        chat_id=CHANNEL_ID,
+                        text=msg,
+                        parse_mode=ParseMode.HTML,
+                        reply_markup=reply_markup
+                    )
+                    
+                    pending_check_msg_id = sent_msg.message_id
+                    pending_period = period_num
+                    pending_prediction = pred_text
+                    
+                    print(f"50-Period Signal Sent: {period_num} -> {pred_text}")
+                    last_sent_period = period_num
+
+        except Exception as e:
+            print(f"Loop Error: {e}")
+
+        await asyncio.sleep(2)
+
+async def main():
+    app = ApplicationBuilder().token(TOKEN).build()
+    await app.initialize()
+    await app.start()
+    threading.Thread(target=run_web, daemon=True).start()
+    print("Raxi Win Ultra AI Bot is running with Simple Win/Loss Tracker...")
     await send_auto_prediction(app)
 
 if __name__ == "__main__":
