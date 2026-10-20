@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import pytz
 import asyncio
 import threading
+import requests
 from flask import Flask
 from telegram.ext import ApplicationBuilder
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
@@ -16,7 +17,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Raxi Win Time & Perfect Period Sync Active)"
+    return "Bot status: ONLINE (Raxi Win Real API 50-Period Trend & Clean Auto-Win/Loss Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -29,9 +30,6 @@ def run_web():
 RAW_TOKEN = os.environ.get("BOT_TOKEN", "8937609482:AAEncEd0IY787haa0Pg1Azp2DHVT3Ulz14A")
 TOKEN = RAW_TOKEN.strip()
 CHANNEL_ID = "@RexiWinAIPrediction"
-
-current_pattern = []
-pattern_index = 0
 
 
 # ==========================================
@@ -55,63 +53,60 @@ def get_current_1min_period():
 
 
 # ==========================================
-# 📊 Advanced AI Trend Evaluator (10 Strategies)
+# 📊 Real API 50-Period Trend & Win/Loss Checker
 # ==========================================
-def high_tech_ai_trend_evaluator():
-    strategies_weights = {
-        "DRAGON_TREND": 15,       
-        "THREE_BY_THREE": 12,     
-        "CROSS_WAVE": 12,         
-        "TWO_BY_TWO_ZONE": 10,    
-        "STABLE_ZIGZAG": 10,      
-        "SMART_MIXED": 10,
-        "MIRROR_REFLECTION": 8,
-        "FIBONACCI_STEP": 8,
-        "MOMENTUM_WAVE": 8,
-        "ALTERNATE_CLUSTER": 7
+def get_api_history():
+    url = "https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
-
-    strategies = list(strategies_weights.keys())
-    weights = list(strategies_weights.values())
-    selected_strategy = random.choices(strategies, weights=weights, k=1)[0]
-
-    start = random.choice(["BIG", "SMALL"])
-    opposite = "SMALL" if start == "BIG" else "BIG"
-    pattern = []
-    
-    if selected_strategy == "DRAGON_TREND":
-        dragon_len = random.randint(5, 7)
-        pattern = [start] * dragon_len
-    elif selected_strategy == "THREE_BY_THREE":
-        pattern = [start, start, start, opposite, opposite, opposite]
-    elif selected_strategy == "CROSS_WAVE":
-        pattern = [start, start, opposite, opposite, opposite, start]
-    elif selected_strategy == "TWO_BY_TWO_ZONE":
-        pattern = [start, start, opposite, opposite, start, start, opposite, opposite]
-    elif selected_strategy == "STABLE_ZIGZAG":
-        pattern = [start, opposite, start, opposite, start, opposite, start]
-    elif selected_strategy == "MIRROR_REFLECTION":
-        pattern = [start, opposite, start, start, opposite, start]
-    elif selected_strategy == "FIBONACCI_STEP":
-        pattern = [start, start, opposite, start, opposite, opposite]
-    elif selected_strategy == "MOMENTUM_WAVE":
-        pattern = [start, opposite, opposite, start, start, opposite]
-    elif selected_strategy == "ALTERNATE_CLUSTER":
-        pattern = [start, start, opposite, opposite, start, opposite]
-    else:
-        pattern = [start, opposite, start, start, opposite, start]
-
-    return pattern
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        if response.status_code == 200:
+            res_json = response.json()
+            return res_json['data']['list']
+    except Exception as e:
+        print(f"API Fetch Error: {e}")
+    return []
 
 def get_high_tech_ai_prediction():
-    global current_pattern, pattern_index
-    if not current_pattern or pattern_index >= len(current_pattern):
-        current_pattern = high_tech_ai_trend_evaluator()
-        pattern_index = 0
+    games_list = get_api_history()
+    if not games_list:
+        return "BIG"
     
-    raw_prediction = current_pattern[pattern_index]
-    pattern_index += 1
-    return raw_prediction
+    count = min(50, len(games_list))
+    recent_results = []
+    
+    for i in range(count):
+        num = int(games_list[i]['number'])
+        bs = "BIG" if num >= 5 else "SMALL"
+        recent_results.append(bs)
+    
+    big_count = recent_results.count("BIG")
+    small_count = recent_results.count("SMALL")
+    
+    print(f"Trend Analysis -> Last {count} Periods | BIG: {big_count}, SMALL: {small_count}")
+    
+    if big_count > small_count:
+        if len(recent_results) >= 3 and recent_results[0] == recent_results[1] == recent_results[2]:
+            return "SMALL" if recent_results[0] == "BIG" else "BIG"
+        return "BIG"
+    elif small_count > big_count:
+        if len(recent_results) >= 3 and recent_results[0] == recent_results[1] == recent_results[2]:
+            return "BIG" if recent_results[0] == "SMALL" else "SMALL"
+        return "SMALL"
+    else:
+        return "SMALL" if recent_results[0] == "BIG" else "BIG"
+
+def check_period_result(target_period):
+    games_list = get_api_history()
+    for game in games_list:
+        issue_number = str(game['issueNumber'])
+        if issue_number == str(target_period):
+            num = int(game['number'])
+            actual_bs = "BIG" if num >= 5 else "SMALL"
+            return actual_bs
+    return None
 
 
 # ==========================================
@@ -125,7 +120,7 @@ def get_smart_trend_color(pred_text):
 
 
 # ==========================================
-# 📢 Extra Supporting Message Functions
+# 📢 Supporting Notice & Message Functions
 # ==========================================
 async def send_ready_alert(app, session_name, markup):
     alert_msg = (
@@ -253,6 +248,10 @@ async def send_next_session_info(app, next_session_name, time_str):
 # ==========================================
 async def send_auto_prediction(app):
     last_sent_period = ""
+    pending_check_msg_id = None
+    pending_period = ""
+    pending_prediction = ""
+    
     last_alert_date_session = ""    
     last_chart_date_session = ""
     last_promo_date_session = ""    
@@ -265,7 +264,7 @@ async def send_auto_prediction(app):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    print("Raxi Win Automation Loop started successfully with Adjusted Time & Exact Period Sync...")
+    print("Raxi Win Automation Loop started successfully with 50-Period API & Simple Win/Loss Tracker...")
 
     while True:
         try:
@@ -279,27 +278,63 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("📢 Channel Link", url="https://t.me/RexiWinAIPrediction")]
             ])
 
-            # ১. সেশন শুরুর ৫ মিনিটের অ্যালার্ট মেসেজ
+            # -------------------------------------------------------------
+            # 🔍 ব্যাকগ্রাউন্ড অটো WIN/LOSS ট্র্যাকিং (শুধু WIN অথবা LOSS)
+            # -------------------------------------------------------------
+            if pending_check_msg_id and pending_period:
+                actual_result = check_period_result(pending_period)
+                if actual_result:
+                    is_win = (actual_result == pending_prediction)
+                    result_text = "✅ <b>WIN</b>" if is_win else "❌ <b>LOSS</b>"
+                    color_text = get_smart_trend_color(pending_prediction)
+                    
+                    updated_msg = (
+                        f"💎 <b>RAXI WIN ULTRA AI PREDICTION</b> 💎\n"
+                        f"💎 <b>RAXI WIN VIP PREDICTION 1 Min</b> 💎\n\n"
+                        f"🔹 <b>PERIOD:</b> {pending_period}\n"
+                        f"🎯 <b>PREDICTION:</b> {pending_prediction}\n"
+                        f"🎨 <b>COLOR:</b> {color_text}\n"
+                        f"📊 <b>STATUS:</b> {result_text}\n"
+                        f"───────────────────\n"
+                        f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
+                    )
+                    try:
+                        await app.bot.edit_message_text(
+                            chat_id=CHANNEL_ID,
+                            message_id=pending_check_msg_id,
+                            text=updated_msg,
+                            parse_mode=ParseMode.HTML,
+                            reply_markup=reply_markup
+                        )
+                        print(f"Updated Period {pending_period} Result: {result_text}")
+                    except Exception as edit_err:
+                        print(f"Edit Message Error: {edit_err}")
+                    
+                    pending_check_msg_id = None
+                    pending_period = ""
+                    pending_prediction = ""
+
+            # -------------------------------------------------------------
+            # 📢 নোটিশ ও অ্যালার্ট মেসেজসমূহ
+            # -------------------------------------------------------------
             if hour == 7 and minute == 25:
                 alert_key = f"{current_date_str}_MORNING_ALERT"
                 if last_alert_date_session != alert_key:
-                    await send_ready_alert(app, "Morning Session (7:00 AM)", alert_markup)
+                    await send_ready_alert(app, "Morning Session (7:30 AM)", alert_markup)
                     last_alert_date_session = alert_key
 
             elif hour == 14 and minute == 25:
                 alert_key = f"{current_date_str}_AFTERNOON_ALERT"
                 if last_alert_date_session != alert_key:
-                    await send_ready_alert(app, "Afternoon Session (2:00 PM)", alert_markup)
+                    await send_ready_alert(app, "Afternoon Session (2:30 PM)", alert_markup)
                     last_alert_date_session = alert_key
 
             elif hour == 20 and minute == 25:
                 alert_key = f"{current_date_str}_NIGHT_ALERT"
                 if last_alert_date_session != alert_key:
-                    await send_ready_alert(app, "Night Session (8:00 PM)", alert_markup)
+                    await send_ready_alert(app, "Night Session (8:30 PM)", alert_markup)
                     last_alert_date_session = alert_key
 
-
-            # ১.১. সেশন শুরুর ৩ মিনিট আগে লেভেল চার্ট মেসেজ
             if hour == 7 and minute == 27:
                 chart_key = f"{current_date_str}_MORNING_CHART"
                 if last_chart_date_session != chart_key:
@@ -318,41 +353,6 @@ async def send_auto_prediction(app):
                     await send_level_chart_alert(app, alert_markup)
                     last_chart_date_session = chart_key
 
-
-            # ২. মূল সিগন্যাল পাঠানোর সময়
-            is_morning_session = (hour == 7 and minute >= 30) or (hour == 8 and minute <= 5)
-            is_afternoon_session = (hour == 14 and minute >= 30) or (hour == 15 and minute <= 5)
-            is_night_session = (hour == 20 and minute >= 30) or (hour == 21 and minute <= 5)
-
-            if is_morning_session or is_afternoon_session or is_night_session:
-                period_num = get_current_1min_period()
-                if period_num != last_sent_period:
-                    pred = get_high_tech_ai_prediction()
-                    pred_text = "SMALL" if pred == "SMALL" else "BIG"
-                    color_text = get_smart_trend_color(pred_text)
-                    
-                    # 🔹 আপনার কাঙ্ক্ষিত বড় চওড়া বক্সের ফরম্যাট (ওপরের অতিরিক্ত লাইন বাদ দিয়ে)
-                    msg = (
-                        f"💎 <b>RAXI WIN ULTRA AI PREDICTION</b> 💎\n"
-                        f"💎 <b>RAXI WIN VIP PREDICTION 1 Min</b> 💎\n\n"
-                        f"🔹 <b>PERIOD:</b> {period_num}\n"
-                        f"🎯 <b>PREDICTION:</b> {pred_text}\n"
-                        f"🎨 <b>COLOR:</b> {color_text}\n"
-                        f"───────────────────\n"
-                        f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
-                    )
-                    
-                    await app.bot.send_message(
-                        chat_id=CHANNEL_ID,
-                        text=msg,
-                        parse_mode=ParseMode.HTML,
-                        reply_markup=reply_markup
-                    )
-                    
-                    print(f"Signal sent successfully for period: {period_num}")
-                    last_sent_period = period_num
-
-            # ৩. সেশনের মাঝামাঝি প্রফিট সতর্কতার মেসেজ
             if (hour == 8 and minute == 0) or (hour == 15 and minute == 0) or (hour == 21 and minute == 0):
                 profit_key = f"{current_date_str}_{hour}_PROFIT_ALERT"
                 if last_mid_date_session != profit_key:
@@ -364,53 +364,62 @@ async def send_auto_prediction(app):
                 [InlineKeyboardButton("💎 Contact For Support", url="https://t.me/RexiWinAIPrediction")]
             ])
 
-            # ৪. সেশন শেষ হওয়ার পরের প্রমোশন মেসেজ
             if (hour == 8 and minute == 6) or (hour == 15 and minute == 6) or (hour == 21 and minute == 6):
                 promo_key = f"{current_date_str}_{hour}_PROMO"
                 if last_promo_date_session != promo_key:
                     await send_referral_promo(app, promo_markup)
                     last_promo_date_session = promo_key
 
-            # ৫. পরবর্তী সেশনের আপডেট মেসেজ
             if hour == 8 and minute == 7:
                 next_key = f"{current_date_str}_MORNING_NEXT"
                 if last_next_date_session != next_key:
-                    await send_next_session_info(app, "Afternoon Session", "2:00 PM")
+                    await send_next_session_info(app, "Afternoon Session", "2:30 PM")
                     last_next_date_session = next_key
 
             elif hour == 15 and minute == 7:
                 next_key = f"{current_date_str}_AFTERNOON_NEXT"
                 if last_next_date_session != next_key:
-                    await send_next_session_info(app, "Night Session", "8:00 PM")
+                    await send_next_session_info(app, "Night Session", "8:30 PM")
                     last_next_date_session = next_key
 
             elif hour == 21 and minute == 7:
                 next_key = f"{current_date_str}_NIGHT_NEXT"
                 if last_next_date_session != next_key:
-                    await send_next_session_info(app, "Morning Session", "7:00 AM (Tomorrow)")
+                    await send_next_session_info(app, "Morning Session", "7:30 AM (Tomorrow)")
                     last_next_date_session = next_key
 
-        except Exception as e:
-            print(f"Loop Error: {e}")
+            # -------------------------------------------------------------
+            # 🎯 মূল লাইভ সিগন্যাল পাঠানোর লজিক
+            # -------------------------------------------------------------
+            is_morning_session = (hour == 7 and minute >= 30) or (hour == 8 and minute <= 5)
+            is_afternoon_session = (hour == 14 and minute >= 30) or (hour == 15 and minute <= 5)
+            is_night_session = (hour == 20 and minute >= 30) or (hour == 21 and minute <= 5)
 
-        await asyncio.sleep(2)
-
-
-# ==========================================
-# ⚙️ Main Application Launcher
-# ==========================================
-async def main():
-    app = ApplicationBuilder().token(TOKEN).build()
-    
-    await app.initialize()
-    await app.start()
-    
-    threading.Thread(target=run_web, daemon=True).start()
-    
-    print("Raxi Win Ultra AI Bot is fully running and active...")
-    
-    await send_auto_prediction(app)
-
-if __name__ == "__main__":
-    asyncio.run(main())
-        
+            if is_morning_session or is_afternoon_session or is_night_session:
+                period_num = get_current_1min_period()
+                if period_num != last_sent_period:
+                    pred_text = get_high_tech_ai_prediction()
+                    color_text = get_smart_trend_color(pred_text)
+                    
+                    msg = (
+                        f"💎 <b>RAXI WIN ULTRA AI PREDICTION</b> 💎\n"
+                        f"💎 <b>RAXI WIN VIP PREDICTION 1 Min</b> 💎\n\n"
+                        f"🔹 <b>PERIOD:</b> {period_num}\n"
+                        f"🎯 <b>PREDICTION:</b> {pred_text}\n"
+                        f"🎨 <b>COLOR:</b> {color_text}\n"
+                        f"📊 <b>STATUS:</b> ⏳ Waiting for result...\n"
+                        f"───────────────────\n"
+                        f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
+                    )
+                    
+                    sent_msg = await app.bot.send_message(
+                        chat_id=CHANNEL_ID,
+                        text=msg,
+                        parse_mode=ParseMode.HTML,
+                        reply_markup=reply_markup
+                    )
+                    
+                    print(f"50-Period Signal Sent: {period_num} -> {pred_text}")
+                    last_sent_period = period_num
+                    
+                 
