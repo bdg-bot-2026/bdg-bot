@@ -210,7 +210,8 @@ async def send_next_session_info(app, next_session_name, time_str):
         await app.bot.send_message(chat_id=CHANNEL_ID, text=next_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
     except Exception as e:
         print(f"Next Session Error: {e}")
-        async def send_auto_prediction(app):
+
+async def send_auto_prediction(app):
     last_sent_period = ""
     pending_check_msg_id = None
     pending_period = ""
@@ -278,8 +279,10 @@ async def send_next_session_info(app, next_session_name, time_str):
             if hour == 7 and minute == 25:
                 alert_key = f"{current_date_str}_MORNING_ALERT"
                 if last_alert_date_session != alert_key:
-                    await send_ready_alert(app, "Morning Session (7:30 AM)", alert_markup)
-                    last_alert_date_session = alert_key
+                                await send_ready_alert(app, "Morning Session (7:30 AM)", alert_markup)
+                    
+                            
+                    
 
             elif hour == 14 and minute == 25:
                 alert_key = f"{current_date_str}_AFTERNOON_ALERT"
@@ -399,48 +402,4 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         print("Bot Stopped.")
-                        color_text = get_smart_trend_color(pred_text)
-                    
-                    msg = (
-                        f"💎 <b>RAXI WIN ULTRA AI PREDICTION</b> 💎\n"
-                        f"💎 <b>RAXI WIN VIP PREDICTION 1 Min</b> 💎\n\n"
-                        f"🔹 <b>PERIOD:</b> {period_num}\n"
-                        f"🎯 <b>PREDICTION:</b> {pred_text}\n"
-                        f"🎨 <b>COLOR:</b> {color_text}\n"
-                        f"📊 <b>STATUS:</b> ⏳ Waiting for result...\n"
-                        f"───────────────────\n"
-                        f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
-                    )
-                    
-                    sent_msg = await app.bot.send_message(
-                        chat_id=CHANNEL_ID,
-                        text=msg,
-                        parse_mode=ParseMode.HTML,
-                        reply_markup=reply_markup
-                    )
-                    
-                    pending_check_msg_id = sent_msg.message_id
-                    pending_period = period_num
-                    pending_prediction = pred_text
-                    
-                    print(f"50-Period Signal Sent: {period_num} -> {pred_text}")
-                    last_sent_period = period_num
-
-        except Exception as e:
-            print(f"Loop Error: {e}")
-
-        await asyncio.sleep(2)
-
-async def main():
-    app = ApplicationBuilder().token(TOKEN).build()
-    await app.initialize()
-    await app.start()
-    threading.Thread(target=run_web, daemon=True).start()
-    print("Raxi Win Ultra AI Bot is running with Simple Win/Loss Tracker...")
-    await send_auto_prediction(app)
-
-if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except (KeyboardInterrupt, SystemExit):
-        print("Bot Stopped.")
+    
