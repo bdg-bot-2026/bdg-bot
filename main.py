@@ -27,7 +27,7 @@ def run_web():
 # ==========================================
 # 🤖 Telegram Bot Configurations
 # ==========================================
-RAW_TOKEN = os.environ.get("BOT_TOKEN", "8937609482:AAEncEd0IY787haa0Pg1Azp2DHVT3Ulz14A")
+RAW_TOKEN = os.environ.get("BOT_TOKEN", "8937609482:AAEncEd0IY787haa0Pg1Azp2DHVT3Ulz1z14A")
 TOKEN = RAW_TOKEN.strip()
 CHANNEL_ID = "@RexiWinAIPrediction"
 
@@ -419,14 +419,16 @@ async def send_auto_prediction(app):
                         reply_markup=reply_markup
                     )
                     
-                    print(f"50-Period Signal Sent: {period_num} -> {pred_text}")
+                    pending_check_msg_id = sent_msg.message_id
+                    pending_period = period_num
+                    pending_prediction = pred_text
+                         print(f"50-Period Signal Sent: {period_num} -> {pred_text}")
                     last_sent_period = period_num
-                    
-                                 except Exception as e:
+
+        except Exception as e:
             print(f"Loop Error: {e}")
 
         await asyncio.sleep(2)
-
 
 
 # ==========================================
@@ -449,4 +451,3 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         print("Bot Stopped.")
-    
