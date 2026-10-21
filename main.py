@@ -48,13 +48,11 @@ def get_api_history():
         response = requests.get(url, headers=headers, timeout=10)
         if response.status_code == 200:
             res_json = response.json()
-            # নতুন এপিআই রেসপন্স স্ট্রাকচার অনুযায়ী ডেটা ফেচ করা
             if 'data' in res_json:
                 data = res_json['data']
                 if isinstance(data, list):
                     return data
                 elif isinstance(data, dict):
-                    # যদি লিস্ট ভেতরে অন্য কোনো কি-তে থাকে
                     for key in ['list', 'history', 'games', 'items']:
                         if key in data and isinstance(data[key], list):
                             return data[key]
@@ -70,7 +68,6 @@ def get_high_tech_ai_prediction():
     recent_results = []
     for i in range(count):
         try:
-            # গেমে নাম্বারের ফিল্ড নাম চেক করা
             item = games_list[i]
             num_val = item.get('number') or item.get('winningNumber') or item.get('num')
             if num_val is not None:
@@ -217,4 +214,3 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         print("Bot Stopped.")
-                           
