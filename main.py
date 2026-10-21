@@ -14,7 +14,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Raxi Win Real API 50-Period Trend & 24/7 Testing Active)"
+    return "Bot status: ONLINE (Raxi Win Updated Real API & 24/7 Testing Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -39,7 +39,8 @@ def get_current_1min_period():
     return f"{date_str}1000{period_count}"
 
 def get_api_history():
-    url = "https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json"
+    # নতুন রিয়েল-টাইম এপিআই এন্ডপয়েন্ট
+    url = "https://api.ar-lottery01.com/api/Energy/GetPanel?gameCode=WinGo_1M&language=en&random=570194382441&signature=6D5C808CBA871457902B30B7EAF1AF62&timestamp=1792571628"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
@@ -47,8 +48,16 @@ def get_api_history():
         response = requests.get(url, headers=headers, timeout=10)
         if response.status_code == 200:
             res_json = response.json()
-            if 'data' in res_json and 'list' in res_json['data']:
-                return res_json['data']['list']
+            # নতুন এপিআই রেসপন্স স্ট্রাকচার অনুযায়ী ডেটা ফেচ করা
+            if 'data' in res_json:
+                data = res_json['data']
+                if isinstance(data, list):
+                    return data
+                elif isinstance(data, dict):
+                    # যদি লিস্ট ভেতরে অন্য কোনো কি-তে থাকে
+                    for key in ['list', 'history', 'games', 'items']:
+                        if key in data and isinstance(data[key], list):
+                            return data[key]
     except Exception as e:
         print(f"API Fetch Error: {e}")
     return []
@@ -61,9 +70,13 @@ def get_high_tech_ai_prediction():
     recent_results = []
     for i in range(count):
         try:
-            num = int(games_list[i]['number'])
-            bs = "BIG" if num >= 5 else "SMALL"
-            recent_results.append(bs)
+            # গেমে নাম্বারের ফিল্ড নাম চেক করা
+            item = games_list[i]
+            num_val = item.get('number') or item.get('winningNumber') or item.get('num')
+            if num_val is not None:
+                num = int(num_val)
+                bs = "BIG" if num >= 5 else "SMALL"
+                recent_results.append(bs)
         except Exception:
             continue
     
@@ -87,12 +100,14 @@ def get_high_tech_ai_prediction():
 def check_period_result(target_period):
     games_list = get_api_history()
     for game in games_list:
-        issue_number = str(game.get('issueNumber', ''))
+        issue_number = str(game.get('issueNumber') or game.get('period') or game.get('issue') or '')
         if issue_number == str(target_period):
             try:
-                num = int(game['number'])
-                actual_bs = "BIG" if num >= 5 else "SMALL"
-                return actual_bs
+                num_val = game.get('number') or game.get('winningNumber') or game.get('num')
+                if num_val is not None:
+                    num = int(num_val)
+                    actual_bs = "BIG" if num >= 5 else "SMALL"
+                    return actual_bs
             except Exception:
                 pass
     return None
@@ -115,11 +130,11 @@ async def send_auto_prediction(app):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    print("Raxi Win 24/7 Testing Mode Automation Loop started successfully...")
+    print("Raxi Win Updated API Automation Loop started successfully...")
 
     while True:
         try:
-            # পেন্ডিং রেজাল্ট চেক করার লজিক
+            # পেন্ডিং রেজাল্ট চেক এবং আপডেট করার লজিক
             if pending_check_msg_id and pending_period:
                 actual_result = check_period_result(pending_period)
                 if actual_result:
@@ -153,7 +168,7 @@ async def send_auto_prediction(app):
                     pending_period = ""
                     pending_prediction = ""
 
-            # ২৪ ঘণ্টা ২৪/৭ কন্টিনিউয়াস প্রেডিকশন পাঠানোর লজিক
+            # নতুন পিরিয়ডের সিগন্যাল পাঠানোর লজিক
             period_num = get_current_1min_period()
             if period_num != last_sent_period:
                 pred_text = get_high_tech_ai_prediction()
@@ -181,7 +196,7 @@ async def send_auto_prediction(app):
                 pending_period = period_num
                 pending_prediction = pred_text
                 
-                print(f"24/7 Testing Signal Sent: {period_num} -> {pred_text}")
+                print(f"Signal Sent: {period_num} -> {pred_text}")
                 last_sent_period = period_num
 
         except Exception as e:
@@ -194,7 +209,7 @@ async def main():
     await app.initialize()
     await app.start()
     threading.Thread(target=run_web, daemon=True).start()
-    print("Raxi Win Ultra AI Bot is running in 24/7 Testing Mode...")
+    print("Raxi Win Ultra AI Bot is running with Updated API...")
     await send_auto_prediction(app)
 
 if __name__ == "__main__":
@@ -202,4 +217,4 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         print("Bot Stopped.")
-    
+                           
