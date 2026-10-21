@@ -1,9 +1,10 @@
 import os
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 import pytz
 import asyncio
 import threading
+import time
 import requests
 from flask import Flask
 from telegram.ext import ApplicationBuilder
@@ -14,7 +15,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Raxi Win Live API Parser Active)"
+    return "Bot status: ONLINE (Raxi Win Dynamic API Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -32,7 +33,12 @@ def get_current_1min_period():
     return f"{date_str}1000{period_count}"
 
 def get_api_history():
-    url = "https://api.ar-lottery01.com/api/Energy/GetPanel?gameCode=WinGo_1M&language=en&random=502569916682&signature=049C9345B6688083A6A25F71250CA2AD&timestamp=1792574428"
+    # ডাইনামিক টাইমস্ট্যাম্প জেনারেট করা হচ্ছে যাতে লিংক এক্সপায়ার্ড না হয়
+    current_time = int(time.time())
+    random_num = random.randint(100000000000, 999999999999)
+    
+    url = f"https://api.ar-lottery01.com/api/Energy/GetPanel?gameCode=WinGo_1M&language=en&random={random_num}&signature=049C9345B6688083A6A25F71250CA2AD&timestamp={current_time}"
+    
     headers = {
         "Host": "api.ar-lottery01.com",
         "Accept": "application/json, text/plain, */*",
@@ -47,7 +53,7 @@ def get_api_history():
             res_json = response.json()
             if 'data' in res_json:
                 data = res_json['data']
-                # আপনার স্ক্রিনশট অনুযায়ী snapshot এবং list থেকে ডাটা রিড করার ব্যবস্থা
+                # স্ক্রিনশটের গঠন অনুযায়ী snapshot -> list থেকে ডাটা রিড করা
                 if isinstance(data, dict):
                     if 'snapshot' in data and isinstance(data['snapshot'], dict):
                         snap = data['snapshot']
@@ -121,7 +127,7 @@ async def send_auto_prediction(app):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    print("Raxi Win Live API Automation Loop started successfully...")
+    print("Raxi Win Dynamic API Automation Loop started successfully...")
 
     while True:
         try:
@@ -198,7 +204,7 @@ async def main():
     await app.initialize()
     await app.start()
     threading.Thread(target=run_web, daemon=True).start()
-    print("Raxi Win Live API Bot is running...")
+    print("Raxi Win Dynamic API Bot is running...")
     await send_auto_prediction(app)
 
 if __name__ == "__main__":
@@ -206,4 +212,4 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         print("Bot Stopped.")
-                    
+    
