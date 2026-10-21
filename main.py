@@ -14,7 +14,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Raxi Win Updated Real API & 24/7 Testing Active)"
+    return "Bot status: ONLINE (Raxi Win Advanced Bypass API Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -24,13 +24,6 @@ RAW_TOKEN = os.environ.get("BOT_TOKEN", "8937609482:AAEncEd0IY787haa0Pg1Azp2DHVT
 TOKEN = RAW_TOKEN.strip()
 CHANNEL_ID = "@RexiWinAIPrediction"
 
-def get_bd_time():
-    try:
-        bd_tz = pytz.timezone('Asia/Dhaka')
-        return datetime.now(bd_tz)
-    except Exception:
-        return datetime.utcnow() + timedelta(hours=6)
-
 def get_current_1min_period():
     now_utc = datetime.now(pytz.utc)
     date_str = now_utc.strftime("%Y%m%d")
@@ -39,9 +32,14 @@ def get_current_1min_period():
     return f"{date_str}1000{period_count}"
 
 def get_api_history():
-    # নতুন রিয়েল-টাইম এপিআই এন্ডপয়েন্ট
+    # ব্রাউজার সিম্যুলেশন এবং ফুল হেডার সহ অ্যাডভান্সড রিকোয়েস্ট
     url = "https://api.ar-lottery01.com/api/Energy/GetPanel?gameCode=WinGo_1M&language=en&random=570194382441&signature=6D5C808CBA871457902B30B7EAF1AF62&timestamp=1792571628"
     headers = {
+        "Host": "api.ar-lottery01.com",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Origin": "https://raxiwin.com",
+        "Referer": "https://raxiwin.com/",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
     try:
@@ -127,11 +125,10 @@ async def send_auto_prediction(app):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    print("Raxi Win Updated API Automation Loop started successfully...")
+    print("Raxi Win Advanced Bypass Automation Loop started successfully...")
 
     while True:
         try:
-            # পেন্ডিং রেজাল্ট চেক এবং আপডেট করার লজিক
             if pending_check_msg_id and pending_period:
                 actual_result = check_period_result(pending_period)
                 if actual_result:
@@ -165,7 +162,6 @@ async def send_auto_prediction(app):
                     pending_period = ""
                     pending_prediction = ""
 
-            # নতুন পিরিয়ডের সিগন্যাল পাঠানোর লজিক
             period_num = get_current_1min_period()
             if period_num != last_sent_period:
                 pred_text = get_high_tech_ai_prediction()
@@ -206,7 +202,7 @@ async def main():
     await app.initialize()
     await app.start()
     threading.Thread(target=run_web, daemon=True).start()
-    print("Raxi Win Ultra AI Bot is running with Updated API...")
+    print("Raxi Win Advanced Bypass Bot is running...")
     await send_auto_prediction(app)
 
 if __name__ == "__main__":
@@ -214,3 +210,4 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         print("Bot Stopped.")
+            
