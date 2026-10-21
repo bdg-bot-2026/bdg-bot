@@ -14,7 +14,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Raxi Win Advanced Bypass API Active)"
+    return "Bot status: ONLINE (Raxi Win Live API Parser Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -32,8 +32,7 @@ def get_current_1min_period():
     return f"{date_str}1000{period_count}"
 
 def get_api_history():
-    # ব্রাউজার সিম্যুলেশন এবং ফুল হেডার সহ অ্যাডভান্সড রিকোয়েস্ট
-    url = "https://api.ar-lottery01.com/api/Energy/GetPanel?gameCode=WinGo_1M&language=en&random=570194382441&signature=6D5C808CBA871457902B30B7EAF1AF62&timestamp=1792571628"
+    url = "https://api.ar-lottery01.com/api/Energy/GetPanel?gameCode=WinGo_1M&language=en&random=502569916682&signature=049C9345B6688083A6A25F71250CA2AD&timestamp=1792574428"
     headers = {
         "Host": "api.ar-lottery01.com",
         "Accept": "application/json, text/plain, */*",
@@ -48,12 +47,17 @@ def get_api_history():
             res_json = response.json()
             if 'data' in res_json:
                 data = res_json['data']
-                if isinstance(data, list):
-                    return data
-                elif isinstance(data, dict):
+                # আপনার স্ক্রিনশট অনুযায়ী snapshot এবং list থেকে ডাটা রিড করার ব্যবস্থা
+                if isinstance(data, dict):
+                    if 'snapshot' in data and isinstance(data['snapshot'], dict):
+                        snap = data['snapshot']
+                        if 'list' in snap and isinstance(snap['list'], list):
+                            return snap['list']
                     for key in ['list', 'history', 'games', 'items']:
                         if key in data and isinstance(data[key], list):
                             return data[key]
+                elif isinstance(data, list):
+                    return data
     except Exception as e:
         print(f"API Fetch Error: {e}")
     return []
@@ -62,12 +66,10 @@ def get_high_tech_ai_prediction():
     games_list = get_api_history()
     if not games_list:
         return "BIG"
-    count = min(50, len(games_list))
     recent_results = []
-    for i in range(count):
+    for item in games_list:
         try:
-            item = games_list[i]
-            num_val = item.get('number') or item.get('winningNumber') or item.get('num')
+            num_val = item.get('number') or item.get('num')
             if num_val is not None:
                 num = int(num_val)
                 bs = "BIG" if num >= 5 else "SMALL"
@@ -81,16 +83,10 @@ def get_high_tech_ai_prediction():
     big_count = recent_results.count("BIG")
     small_count = recent_results.count("SMALL")
     
-    if big_count > small_count:
-        if len(recent_results) >= 3 and recent_results[0] == recent_results[1] == recent_results[2]:
-            return "SMALL" if recent_results[0] == "BIG" else "BIG"
-        return "BIG"
-    elif small_count > big_count:
-        if len(recent_results) >= 3 and recent_results[0] == recent_results[1] == recent_results[2]:
-            return "BIG" if recent_results[0] == "SMALL" else "SMALL"
+    if big_count >= small_count:
         return "SMALL"
     else:
-        return "SMALL" if recent_results[0] == "BIG" else "BIG"
+        return "BIG"
 
 def check_period_result(target_period):
     games_list = get_api_history()
@@ -98,7 +94,7 @@ def check_period_result(target_period):
         issue_number = str(game.get('issueNumber') or game.get('period') or game.get('issue') or '')
         if issue_number == str(target_period):
             try:
-                num_val = game.get('number') or game.get('winningNumber') or game.get('num')
+                num_val = game.get('number') or game.get('num')
                 if num_val is not None:
                     num = int(num_val)
                     actual_bs = "BIG" if num >= 5 else "SMALL"
@@ -109,9 +105,9 @@ def check_period_result(target_period):
 
 def get_smart_trend_color(pred_text):
     if pred_text == "BIG":
-        return random.choice(["GREEN 🟢", "GREEN 🟢", "RED 🔴"])
+        return "GREEN 🟢"
     else:
-        return random.choice(["RED 🔴", "RED 🔴", "GREEN 🟢"])
+        return "RED 🔴"
 
 async def send_auto_prediction(app):
     last_sent_period = ""
@@ -125,7 +121,7 @@ async def send_auto_prediction(app):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    print("Raxi Win Advanced Bypass Automation Loop started successfully...")
+    print("Raxi Win Live API Automation Loop started successfully...")
 
     while True:
         try:
@@ -195,14 +191,14 @@ async def send_auto_prediction(app):
         except Exception as e:
             print(f"Loop Error: {e}")
 
-        await asyncio.sleep(2)
+        await asyncio.sleep(3)
 
 async def main():
     app = ApplicationBuilder().token(TOKEN).build()
     await app.initialize()
     await app.start()
     threading.Thread(target=run_web, daemon=True).start()
-    print("Raxi Win Advanced Bypass Bot is running...")
+    print("Raxi Win Live API Bot is running...")
     await send_auto_prediction(app)
 
 if __name__ == "__main__":
@@ -210,4 +206,4 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         print("Bot Stopped.")
-            
+                    
