@@ -14,7 +14,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Raxi Win Smart Live API & Auto-Win/Loss Active)"
+    return "Bot status: ONLINE (Raxi Win Ultra AI Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -23,8 +23,6 @@ def run_web():
 RAW_TOKEN = os.environ.get("BOT_TOKEN", "8937609482:AAEncEd0IY787haa0Pg1Azp2DHVT3Ulz1z14A")
 TOKEN = RAW_TOKEN.strip()
 CHANNEL_ID = "@RexiWinAIPrediction"
-
-historical_db = []
 
 def get_bd_time():
     try:
@@ -41,7 +39,6 @@ def get_current_1min_period():
     return f"{date_str}1000{period_count}"
 
 def get_api_history():
-    global historical_db
     url = "https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -51,50 +48,42 @@ def get_api_history():
         if response.status_code == 200:
             res_json = response.json()
             if 'data' in res_json and 'list' in res_json['data']:
-                fetched_list = res_json['data']['list']
-                for game in fetched_list:
-                    issue = str(game['issueNumber'])
-                    if not any(str(item['issueNumber']) == issue for item in historical_db):
-                        historical_db.insert(0, game)
-                if len(historical_db) > 200:
-                    historical_db = historical_db[:200]
-                return historical_db
+                return res_json['data']['list']
     except Exception as e:
         print(f"API Fetch Error: {e}")
-    return historical_db
+    return []
 
-# স্মার্ট ও ডাইনামিক প্রেডিকশন লজিক (একটানা একই সিগন্যাল আসা রোধ করতে রিভার্সাল ফিক্স)
 def get_smart_ai_prediction():
     games_list = get_api_history()
-    if not games_list or len(games_list) < 5:
+    if not games_list:
         return random.choice(["BIG", "SMALL"])
     
     recent_results = []
-    for i in range(min(20, len(games_list))):
+    for i in range(min(30, len(games_list))):
         num = int(games_list[i]['number'])
         bs = "BIG" if num >= 5 else "SMALL"
         recent_results.append(bs)
     
-    # যদি শেষ ৩টি একই ফলাফল হয়, তবে ট্রেন্ড ভেঙে বিপরীত সিগন্যাল দেবে
     if len(recent_results) >= 3 and recent_results[0] == recent_results[1] == recent_results[2]:
         return "SMALL" if recent_results[0] == "BIG" else "BIG"
     
     big_count = recent_results.count("BIG")
     small_count = recent_results.count("SMALL")
     
-    if big_count >= small_count:
+    if big_count > small_count:
+        return "BIG"
+    elif small_count > big_count:
         return "SMALL"
     else:
-        return "BIG"
+        return random.choice(["BIG", "SMALL"])
 
 def check_period_result(target_period):
     games_list = get_api_history()
     for game in games_list:
-        issue_number = str(game['issueNumber'])
+        issue_number = str(game.get('issueNumber', ''))
         if issue_number == str(target_period):
-            num = int(game['number'])
-            actual_bs = "BIG" if num >= 5 else "SMALL"
-            return actual_bs
+            num = int(game.get('number', 0))
+            return "BIG" if num >= 5 else "SMALL"
     return None
 
 def get_smart_trend_color(pred_text):
@@ -115,13 +104,10 @@ async def send_auto_prediction(app):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    print("Raxi Win Live Smart Tracker Started Successfully...")
+    print("Raxi Win Ultra AI Bot Tracker Started...")
 
     while True:
         try:
-            get_api_history()
-
-            # আগের পিরিয়ডের রেজাল্ট চেক করে Win/Loss আপডেট করার লজিক
             if pending_check_msg_id and pending_period:
                 actual_result = check_period_result(pending_period)
                 if actual_result:
@@ -130,6 +116,7 @@ async def send_auto_prediction(app):
                     color_text = get_smart_trend_color(pending_prediction)
                     
                     updated_msg = (
+                        f"💎 <b>RAXI WIN ULTRA AI PREDICTION</b> 💎\n"
                         f"💎 <b>RAXI WIN VIP PREDICTION 1 Min</b> 💎\n\n"
                         f"🔹 <b>PERIOD:</b> {pending_period}\n"
                         f"🎯 <b>PREDICTION:</b> {pending_prediction}\n"
@@ -146,7 +133,7 @@ async def send_auto_prediction(app):
                             parse_mode=ParseMode.HTML,
                             reply_markup=reply_markup
                         )
-                        print(f"Updated Period {pending_period} Result: {result_text}")
+                        print(f"Updated Period {pending_period} -> {result_text}")
                     except Exception as edit_err:
                         print(f"Edit Message Error: {edit_err}")
                     
@@ -160,6 +147,7 @@ async def send_auto_prediction(app):
                 color_text = get_smart_trend_color(pred_text)
                 
                 msg = (
+                    f"💎 <b>RAXI WIN ULTRA AI PREDICTION</b> 💎\n"
                     f"💎 <b>RAXI WIN VIP PREDICTION 1 Min</b> 💎\n\n"
                     f"🔹 <b>PERIOD:</b> {period_num}\n"
                     f"🎯 <b>PREDICTION:</b> {pred_text}\n"
@@ -193,7 +181,7 @@ async def main():
     await app.initialize()
     await app.start()
     threading.Thread(target=run_web, daemon=True).start()
-    print("Raxi Win Bot Live Tracker is Running...")
+    print("Raxi Win Ultra AI Bot is running...")
     await send_auto_prediction(app)
 
 if __name__ == "__main__":
@@ -201,4 +189,4 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         print("Bot Stopped.")
-                
+            
