@@ -15,7 +15,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Raxi Win Dynamic API Active)"
+    return "Bot status: ONLINE (Raxi Win Cookie Session Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -33,19 +33,20 @@ def get_current_1min_period():
     return f"{date_str}1000{period_count}"
 
 def get_api_history():
-    # ডাইনামিক টাইমস্ট্যাম্প জেনারেট করা হচ্ছে যাতে লিংক এক্সপায়ার্ড না হয়
     current_time = int(time.time())
     random_num = random.randint(100000000000, 999999999999)
     
     url = f"https://api.ar-lottery01.com/api/Energy/GetPanel?gameCode=WinGo_1M&language=en&random={random_num}&signature=049C9345B6688083A6A25F71250CA2AD&timestamp={current_time}"
     
+    # এখানে আপনার ব্রাউজার থেকে পাওয়া আসল কুকিজ এবং হেডার বসাতে হবে যাতে সেশন ভ্যালিড থাকে
     headers = {
         "Host": "api.ar-lottery01.com",
         "Accept": "application/json, text/plain, */*",
         "Accept-Language": "en-US,en;q=0.9",
         "Origin": "https://raxiwin.com",
         "Referer": "https://raxiwin.com/",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        # "Cookie": "YOUR_ACTUAL_BROWSER_COOKIES_HERE"  <- ব্রাউজার থেকে লগইন থাকা অবস্থায় কুকিজ কপি করে এখানে বসাতে পারেন
     }
     try:
         response = requests.get(url, headers=headers, timeout=10)
@@ -53,7 +54,6 @@ def get_api_history():
             res_json = response.json()
             if 'data' in res_json:
                 data = res_json['data']
-                # স্ক্রিনশটের গঠন অনুযায়ী snapshot -> list থেকে ডাটা রিড করা
                 if isinstance(data, dict):
                     if 'snapshot' in data and isinstance(data['snapshot'], dict):
                         snap = data['snapshot']
@@ -127,7 +127,7 @@ async def send_auto_prediction(app):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    print("Raxi Win Dynamic API Automation Loop started successfully...")
+    print("Raxi Win Cookie-Session Automation Loop started...")
 
     while True:
         try:
@@ -204,7 +204,7 @@ async def main():
     await app.initialize()
     await app.start()
     threading.Thread(target=run_web, daemon=True).start()
-    print("Raxi Win Dynamic API Bot is running...")
+    print("Raxi Win Cookie Session Bot is running...")
     await send_auto_prediction(app)
 
 if __name__ == "__main__":
