@@ -24,9 +24,9 @@ def run_web():
 
 
 # ==========================================
-# 🤖 Telegram Bot Configurations (Environment Variable)
+# 🤖 Telegram Bot Configurations (Brand New Token)
 # ==========================================
-TOKEN = os.environ.get("BOT_TOKEN", "").strip()
+TOKEN = "8937609482:AAFpxFnCk7ZI38QYnUNbUST2A6eZHnWuAHQ"
 CHANNEL_ID = "@RexiWinAIPrediction"
 
 current_pattern = []
