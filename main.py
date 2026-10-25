@@ -24,9 +24,9 @@ def run_web():
 
 
 # ==========================================
-# 🤖 Telegram Bot Configurations
+# 🤖 Telegram Bot Configurations (Environment Variable)
 # ==========================================
-TOKEN = "8937609482:AAH9jBHEgawBytg3JLd4PzarSEC7Trn8xls"
+TOKEN = os.environ.get("BOT_TOKEN", "").strip()
 CHANNEL_ID = "@RexiWinAIPrediction"
 
 current_pattern = []
@@ -403,4 +403,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-        
+    
