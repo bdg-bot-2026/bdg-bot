@@ -24,7 +24,7 @@ def run_web():
 
 
 # ==========================================
-# 🤖 Telegram Bot Configurations (Brand New Token)
+# 🤖 Telegram Bot Configurations
 # ==========================================
 TOKEN = "8937609482:AAFpxFnCk7ZI38QYnUNbUST2A6eZHnWuAHQ"
 CHANNEL_ID = "@RexiWinAIPrediction"
@@ -34,7 +34,7 @@ pattern_index = 0
 
 
 # ==========================================
-# ⏰ Time & Live Game Period Synchronization Function
+# ⏰ Time & Live Game Period Synchronization
 # ==========================================
 def get_bd_time():
     try:
@@ -114,7 +114,7 @@ def get_high_tech_ai_prediction():
 
 
 # ==========================================
-# 🎨 Smart Color Evaluator Logic (Only Green & Red)
+# 🎨 Smart Color Evaluator Logic
 # ==========================================
 def get_smart_trend_color(pred_text):
     if pred_text == "BIG":
@@ -134,21 +134,21 @@ async def send_ready_alert(app, session_name, markup):
         f"🎯 <b>Get ready & prepare your account! / तैयार हो जाइए! / সবাই রেডি থাকুন!</b>\n\n"
         f"🇬🇧 <b>ENGLISH:</b>\n"
         f"💎 <b>Maintain Balance:</b> Follow safe 10-Level Martingale.\n"
-        f"🛡️ <b>2x Turnover Rule:</b> Complete 2x betting of your deposit amount before withdrawal.\n"
+        f"🛡️ <b>3x Turnover Rule:</b> Complete 3x betting of your deposit amount before withdrawal.\n"
         f"🚫 <b>No Illegal Bets:</b> Do NOT place Big & Small together.\n"
         f"⚠️ <b>No Red/Green Mix:</b> Do not bet on Red & Green simultaneously.\n"
         f"📱 <b>Single Device:</b> Do not use 2 accounts on 1 phone.\n"
         f"📶 <b>Network:</b> Avoid public Wi-Fi.\n\n"
         f"🇮🇳 <b>हिंदी (HINDI):</b>\n"
         f"💎 <b>बैलेंस बनाए रखें:</b> सुरक्षित 10-लेवल मार्टिंगेल फॉलो करें।\n"
-        f"🛡️ <b>2x टर्नओवर नियम:</b> विथड्रॉल से पहले 2x बेटिंग पूरी करें।\n"
+        f"🛡️ <b>3x टर्नओवर नियम:</b> विथड्रॉल से पहले 3x बेटिंग पूरी करें।\n"
         f"🚫 <b>कोई अवैध शर्त नहीं:</b> Big और Small एकसाथ न लगाएं।\n"
         f"⚠️ <b>रेड/ग्रीन मिक्स न करें:</b> एकसाथ दोनों पर बेट न लगाएं।\n"
         f"📱 <b>एक डिवाइस नियम:</b> एक फोन में दो आईडी लॉगिन न करें।\n"
         f"📶 <b>नेटवर्क चेतावनी:</b> पब्लिक वाई-फाई का उपयोग न करें।\n\n"
         f"🇮🇳 <b>বাংলা (BANGLA):</b>\n"
         f"💎 <b>ব্যালেন্স মেইনটেইন করুন:</b> নিরাপদ ১০ লেভেল মার্টিনগেল ফলো করুন।\n"
-        f"🛡️ <b>২x টার্নওভার রুল:</b> ডিপোজিটের পর ২x বেটিং কমপ্লিট করুন।\n"
+        f"🛡️ <b>৩x টার্নওভার রুল:</b> ডিপোজিটের পর ৩x বেটিং কমপ্লিট করুন।\n"
         f"🚫 <b>ইল্লিগাল বেট নিষেধ:</b> বিগ এবং স্মল একসঙ্গে কেউ করবেন না।\n"
         f"⚠️ <b>রেড-গ্রীন একসঙ্গে নয়: রেড ও গ্রীনে একসাথে বেট লাগাবেন না।</b>\n"
         f"📱 <b>এক ফোনে এক আইডি:</b> একটা ফোনে দুটো আইডি লগইন করবেন না।\n"
@@ -225,6 +225,20 @@ async def send_referral_promo(app, markup):
     except Exception as e:
         print(f"Promo Error: {e}")
 
+async def send_meeting_announcement(app, markup):
+    meeting_msg = (
+        f"📢 ✨ <b>দৈনিক লাইভ টেলিগ্রাম মিটিংয়ের ঘোষণা</b> ✨ 📢\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+        f"🎯 <b>প্রতিদিন সন্ধ্যা 7:30 PM টায় লাইভ টেলিগ্রাম মিটিং!</b>\n\n"
+        f"প্রতিদিন আমাদের সাথে যুক্ত হোন যেখানে আলোচনা করা হবে—কীভাবে ভালো প্রফিট করা যায়, শক্তিশালী টিম বিল্ড আপ করে প্রতিদিন প্যাসিভ ইনকাম করা যায়, ডেইলি স্যালারি ও ভালো কমিশন অর্জন করা যায় এবং এক্সপার্ট টিপস ও স্ট্র্যাটেজির মাধ্যমে দুর্দান্ত উইনিং নিশ্চিত করা যায়।\n\n"
+        f"👉 প্রতিদিন ঠিক সন্ধ্যা 7:30 PM টায় সবাই টেলিগ্রাম চ্যানেলে জয়েন করবেন! 🚀\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    )
+    try:
+        await app.bot.send_message(chat_id=CHANNEL_ID, text=meeting_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
+    except Exception as e:
+        print(f"Meeting Announcement Error: {e}")
+
 async def send_next_session_info(app, next_session_name, time_str):
     next_msg = (
         f"💎 ⏰ <b>NEXT SESSION INFO / अगली सेशन की जानकारी / পরবর্তী সেশনের তথ্য</b> ⏰ 💎\n"
@@ -257,6 +271,7 @@ async def send_auto_prediction(app):
     last_promo_date_session = ""    
     last_next_date_session = ""     
     last_mid_date_session = ""
+    last_meeting_date_session = ""  
 
     keyboard = [
         [InlineKeyboardButton("🎮 Play Raxi Win 🏆", url="https://raxiwin.com")],
@@ -271,6 +286,7 @@ async def send_auto_prediction(app):
             now = get_bd_time()
             hour = now.hour
             minute = now.minute
+            second = now.second
             current_date_str = now.strftime('%Y-%m-%d')
 
             alert_markup = InlineKeyboardMarkup([
@@ -361,6 +377,13 @@ async def send_auto_prediction(app):
                 if last_promo_date_session != promo_key:
                     await send_referral_promo(app, promo_markup)
                     last_promo_date_session = promo_key
+
+            # সেশন শেষ হওয়ার পর (সকাল ৮:০৭:৩০, দুপুর ৩:০৭:৩০, রাত ৯:০৭:৩০) শুধুমাত্র বাংলায় 7:30 PM মেনশনসহ মিটিং নোটিশ সেন্ড করার লজিক
+            if (hour == 8 and minute == 7 and second >= 30) or (hour == 15 and minute == 7 and second >= 30) or (hour == 21 and minute == 7 and second >= 30):
+                meeting_key = f"{current_date_str}_{hour}_MEETING_ANNOUNCE"
+                if last_meeting_date_session != meeting_key:
+                    await send_meeting_announcement(app, promo_markup)
+                    last_meeting_date_session = meeting_key
 
             if hour == 8 and minute == 7:
                 next_key = f"{current_date_str}_MORNING_NEXT"
