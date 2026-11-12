@@ -1,428 +1,260 @@
-import os
-import random
-from datetime import datetime, timedelta
-import pytz
+import time
+import requests
+import sqlite3
 import asyncio
-import threading
-from flask import Flask
-from telegram.ext import ApplicationBuilder
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.constants import ParseMode
+from datetime import datetime, timezone
+import pytz
+from telegram import Bot
 
 # ==========================================
-# 🌐 Flask Web Server (For Render / Keep-Alive)
-# ==========================================
-app_web = Flask(__name__)
-
-@app_web.route('/')
-def home():
-    return "Bot status: ONLINE (Raxi Win Time & Perfect Period Sync Active)"
-
-def run_web():
-    port = int(os.environ.get("PORT", 8080))
-    app_web.run(host='0.0.0.0', port=port)
-
-
-# ==========================================
-# 🤖 Telegram Bot Configurations
+# ⚙️ Configurations & Setup
 # ==========================================
 TOKEN = "8937609482:AAFpxFnCk7ZI38QYnUNbUST2A6eZHnWuAHQ"
 CHANNEL_ID = "@RexiWinAIPrediction"
+DB_NAME = "raxi_master_final.db"
 
-current_pattern = []
-pattern_index = 0
+bot = Bot(token=TOKEN)
+API_URL = "https://api.ar-lottery01.com/api/Energy/GetPanel?gameCode=WinGo_1M&language=en"
+BEARER_TOKEN = "YOUR_BEARER_TOKEN_HERE"  # আপনার আসল টোকেন এখানে বসাবেন
 
+# স্থায়ী Async Event Loop তৈরি
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 
 # ==========================================
-# ⏰ Time & Live Game Period Synchronization
+# 🗄️ Database Initialization
 # ==========================================
-def get_bd_time():
+def init_db():
+    conn = sqlite3.connect(DB_NAME, check_same_thread=False)
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS game_history (
+            period TEXT PRIMARY KEY,
+            actual_result TEXT,
+            prediction TEXT,
+            strategy TEXT,
+            status TEXT DEFAULT 'PENDING',
+            created_at TEXT,
+            result_time TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+init_db()
+
+# ==========================================
+# 🕒 Time & Period Generator
+# ==========================================
+def get_current_1min_period():
     try:
         bd_tz = pytz.timezone('Asia/Dhaka')
-        return datetime.now(bd_tz)
+        now_bd = datetime.now(bd_tz)
+        date_str = now_bd.strftime("%Y%m%d")
+        total_minutes = (now_bd.hour * 60) + now_bd.minute
+        period_count = 10000 + total_minutes + 1
+        return f"{date_str}1000{period_count}"
     except Exception:
-        return datetime.utcnow() + timedelta(hours=6)
+        now_utc = datetime.now(timezone.utc)
+        date_str = now_utc.strftime("%Y%m%d")
+        total_minutes_utc = (now_utc.hour * 60) + now_utc.minute
+        period_count = 10000 + total_minutes_utc + 1
+        return f"{date_str}1000{period_count}"
 
-def get_current_1min_period():
-    now_utc = datetime.now(pytz.utc)
-    date_str = now_utc.strftime("%Y%m%d")
+# ==========================================
+# 🧠 Advanced Market Trend & Statistical Evaluator
+# ==========================================
+def advanced_market_trend_evaluator():
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    # শুধুমাত্র যাচাইকৃত ফলাফলগুলো নিয়ে বিশ্লেষণ (সর্বোচ্চ ১০০ রাউন্ড)
+    cursor.execute("SELECT actual_result FROM game_history WHERE actual_result IN ('BIG', 'SMALL') ORDER BY rowid DESC LIMIT 100")
+    rows = cursor.fetchall()
+    conn.close()
+
+    total_records = len(rows)
     
-    total_minutes_utc = (now_utc.hour * 60) + now_utc.minute
-    period_count = 10000 + total_minutes_utc + 1
+    # ডেটা কালেকশন মোড: পর্যাপ্ত ডেটা (অন্তত ২০টি রেকর্ড) না হলে প্রেডিকশন দেবে না, শুধু ডেটা জমাবে
+    if total_records < 20:
+        return None, f"DATA_COLLECTION_ONLY ({total_records}/20 Records)"
+
+    results = [row[0] for row in rows] # results[0] হলো সবচেয়ে সাম্প্রতিক ফলাফল
     
-    return f"{date_str}1000{period_count}"
+    votes = {"BIG": 0, "SMALL": 0}
+    detected_trends = []
 
+    # ১. DRAGON TREND DETECTION (টানা ৪ বা তার বেশি একই ফল আসলে তা ট্র্যাক করা)
+    dragon_count = 1
+    for i in range(1, len(results)):
+        if results[i] == results[0]:
+            dragon_count += 1
+        else:
+            break
+            
+    if dragon_count >= 4:
+        reversal_target = "SMALL" if results[0] == "BIG" else "BIG"
+        votes[reversal_target] += 3.5
+        detected_trends.append(f"Dragon_Break({dragon_count}x {results[0]})")
 
-# ==========================================
-# 📊 Advanced AI Trend Evaluator (10 Strategies)
-# ==========================================
-def high_tech_ai_trend_evaluator():
-    strategies_weights = {
-        "DRAGON_TREND": 15,       
-        "THREE_BY_THREE": 12,     
-        "CROSS_WAVE": 12,         
-        "TWO_BY_TWO_ZONE": 10,    
-        "STABLE_ZIGZAG": 10,      
-        "SMART_MIXED": 10,
-        "MIRROR_REFLECTION": 8,
-        "FIBONACCI_STEP": 8,
-        "MOMENTUM_WAVE": 8,
-        "ALTERNATE_CLUSTER": 7
-    }
+    # ২. ZIGZAG / ALTERNATE CLUSTER DETECTION (বিকল্প ফলাফল আসা যেমন: BIG, SMALL, BIG, SMALL)
+    is_zigzag = True
+    for i in range(min(5, len(results) - 1)):
+        if results[i] == results[i+1]:
+            is_zigzag = False
+            break
+            
+    if is_zigzag:
+        next_zigzag = "SMALL" if results[0] == "BIG" else "BIG"
+        votes[next_zigzag] += 3.0
+        detected_trends.append("ZigZag_Alternate")
 
-    strategies = list(strategies_weights.keys())
-    weights = list(strategies_weights.values())
-    selected_strategy = random.choices(strategies, weights=weights, k=1)[0]
+    # ৩. TWO BY TWO ZONE DETECTION (যেমন: BIG, BIG, SMALL, SMALL)
+    if len(results) >= 4:
+        if results[0] == results[1] and results[2] == results[3] and results[0] != results[2]:
+            t22_target = "SMALL" if results[0] == "BIG" else "BIG"
+            votes[t22_target] += 2.5
+            detected_trends.append("TwoByTwo_Zone")
 
-    start = random.choice(["BIG", "SMALL"])
-    opposite = "SMALL" if start == "BIG" else "BIG"
-    pattern = []
+    # ৪. FREQUENCY BALANCING (সামগ্রিক ফ্রিকোয়েন্সি ও পার্সেন্টেজ চেক)
+    total_big = results.count('BIG')
+    total_small = results.count('SMALL')
+    big_pct = round((total_big / total_records) * 100, 2)
     
-    if selected_strategy == "DRAGON_TREND":
-        dragon_len = random.randint(5, 7)
-        pattern = [start] * dragon_len
-    elif selected_strategy == "THREE_BY_THREE":
-        pattern = [start, start, start, opposite, opposite, opposite]
-    elif selected_strategy == "CROSS_WAVE":
-        pattern = [start, start, opposite, opposite, opposite, start]
-    elif selected_strategy == "TWO_BY_TWO_ZONE":
-        pattern = [start, start, opposite, opposite, start, start, opposite, opposite]
-    elif selected_strategy == "STABLE_ZIGZAG":
-        pattern = [start, opposite, start, opposite, start, opposite, start]
-    elif selected_strategy == "MIRROR_REFLECTION":
-        pattern = [start, opposite, start, start, opposite, start]
-    elif selected_strategy == "FIBONACCI_STEP":
-        pattern = [start, start, opposite, start, opposite, opposite]
-    elif selected_strategy == "MOMENTUM_WAVE":
-        pattern = [start, opposite, opposite, start, start, opposite]
-    elif selected_strategy == "ALTERNATE_CLUSTER":
-        pattern = [start, start, opposite, opposite, start, opposite]
-    else:
-        pattern = [start, opposite, start, start, opposite, start]
+    if big_pct > 58:
+        votes["SMALL"] += 2.0
+        detected_trends.append(f"Freq_Overbought(Big {big_pct}%)")
+    elif big_pct < 42:
+        votes["BIG"] += 2.0
+        detected_trends.append(f"Freq_Oversold(Big {big_pct}%)")
 
-    return pattern
+    # যদি স্পেশাল কোনো ট্রেন্ড সক্রিয় না থাকে, তবে জেনারেল ফ্রিকোয়েন্সি ব্যালেন্স কাজ করবে
+    if not detected_trends:
+        fallback = "SMALL" if total_big >= total_small else "BIG"
+        votes[fallback] += 1.0
+        detected_trends.append("General_Frequency_Balance")
 
-def get_high_tech_ai_prediction():
-    global current_pattern, pattern_index
-    if not current_pattern or pattern_index >= len(current_pattern):
-        current_pattern = high_tech_ai_trend_evaluator()
-        pattern_index = 0
-    
-    raw_prediction = current_pattern[pattern_index]
-    pattern_index += 1
-    return raw_prediction
+    # সর্বোচ্চ ভোটপ্রাপ্ত প্রেডিকশন নির্বাচন
+    final_prediction = max(votes, key=votes.get)
+    combined_strategy = " + ".join(detected_trends)
 
+    return final_prediction, combined_strategy
+
+def get_performance_stats():
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM game_history WHERE status IN ('WIN', 'LOSS')")
+    completed = cursor.fetchone()[0]
+    if completed == 0:
+        return 0.0, 0, 0
+    cursor.execute("SELECT COUNT(*) FROM game_history WHERE status = 'WIN'")
+    wins = cursor.fetchone()[0]
+    conn.close()
+    accuracy = round((wins / completed) * 100, 2)
+    return accuracy, wins, completed
 
 # ==========================================
-# 🎨 Smart Color Evaluator Logic
+# 🚀 Execution & Telegram Loop
 # ==========================================
-def get_smart_trend_color(pred_text):
-    if pred_text == "BIG":
-        return random.choice(["GREEN 🟢", "GREEN 🟢", "RED 🔴"])
-    else:
-        return random.choice(["RED 🔴", "RED 🔴", "GREEN 🟢"])
-
-
-# ==========================================
-# 📢 Extra Supporting Message Functions
-# ==========================================
-async def send_ready_alert(app, session_name, markup):
-    alert_msg = (
-        f"<b>RAXI WIN VIP PREDICTION 1 Min:</b>\n"
-        f"🚨 🔥 <b>ATTENTION: {session_name} IS ABOUT TO START!</b> 🔥 🚨\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"🎯 <b>Get ready & prepare your account! / तैयार हो जाइए! / সবাই রেডি থাকুন!</b>\n\n"
-        f"🇬🇧 <b>ENGLISH:</b>\n"
-        f"💎 <b>Maintain Balance:</b> Follow safe 10-Level Martingale.\n"
-        f"🛡️ <b>3x Turnover Rule:</b> Complete 3x betting of your deposit amount before withdrawal.\n"
-        f"🚫 <b>No Illegal Bets:</b> Do NOT place Big & Small together.\n"
-        f"⚠️ <b>No Red/Green Mix:</b> Do not bet on Red & Green simultaneously.\n"
-        f"📱 <b>Single Device:</b> Do not use 2 accounts on 1 phone.\n"
-        f"📶 <b>Network:</b> Avoid public Wi-Fi.\n\n"
-        f"🇮🇳 <b>हिंदी (HINDI):</b>\n"
-        f"💎 <b>बैलेंस बनाए रखें:</b> सुरक्षित 10-लेवल मार्टिंगेल फॉलो करें।\n"
-        f"🛡️ <b>3x टर्नओवर नियम:</b> विथड्रॉल से पहले 3x बेटिंग पूरी करें।\n"
-        f"🚫 <b>कोई अवैध शर्त नहीं:</b> Big और Small एकसाथ न लगाएं।\n"
-        f"⚠️ <b>रेड/ग्रीन मिक्स न करें:</b> एकसाथ दोनों पर बेट न लगाएं।\n"
-        f"📱 <b>एक डिवाइस नियम:</b> एक फोन में दो आईडी लॉगिन न करें।\n"
-        f"📶 <b>नेटवर्क चेतावनी:</b> पब्लिक वाई-फाई का उपयोग न करें।\n\n"
-        f"🇮🇳 <b>বাংলা (BANGLA):</b>\n"
-        f"💎 <b>ব্যালেন্স মেইনটেইন করুন:</b> নিরাপদ ১০ লেভেল মার্টিনগেল ফলো করুন।\n"
-        f"🛡️ <b>৩x টার্নওভার রুল:</b> ডিপোজিটের পর ৩x বেটিং কমপ্লিট করুন।\n"
-        f"🚫 <b>ইল্লিগাল বেট নিষেধ:</b> বিগ এবং স্মল একসঙ্গে কেউ করবেন না।\n"
-        f"⚠️ <b>রেড-গ্রীন একসঙ্গে নয়: রেড ও গ্রীনে একসাথে বেট লাগাবেন না।</b>\n"
-        f"📱 <b>এক ফোনে এক আইডি:</b> একটা ফোনে দুটো আইডি লগইন করবেন না।\n"
-        f"📶 <b>ওয়াইফাই সতর্কবার্তা:</b> ওয়াইফাই প্লে বা পাবলিক নেটওয়ার্ক এড়িয়ে চলুন."
-    )
+async def send_telegram(message):
     try:
-        await app.bot.send_message(chat_id=CHANNEL_ID, text=alert_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
+        await bot.send_message(chat_id=CHANNEL_ID, text=message, parse_mode="HTML")
     except Exception as e:
-        print(f"Alert Error: {e}")
+        print(f"Telegram Error: {e}")
 
-async def send_level_chart_alert(app, markup):
-    chart_msg = (
-        f"💎 <b>RAXI WIN VIP 10-LEVEL MARTINGALE</b> 💎\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"🛡️ <b>OFFICIAL MONEY MANAGEMENT CHART</b>\n\n"
-        f"🎯 <i>Strictly follow this Martingale plan to protect your capital & maximize daily profits!</i>\n\n"
-        f"📊 <b>LEVEL BREAKDOWN:</b>\n"
-        f"▫️ <b>Level 1  ➜</b>  ₹1\n"
-        f"▫️ <b>Level 2  ➜</b>  ₹3\n"
-        f"▫️ <b>Level 3  ➜</b>  ₹7\n"
-        f"▫️ <b>Level 4  ➜</b>  ₹16\n"
-        f"▫️ <b>Level 5  ➜</b>  ₹40\n"
-        f"▫️ <b>Level 6  ➜</b>  ₹85\n"
-        f"▫️ <b>Level 7  ➜</b>  ₹200\n"
-        f"▫️ <b>Level 8  ➜</b>  ₹420\n"
-        f"▫️ <b>Level 9  ➜</b>  ₹900\n"
-        f"▫️ <b>Level 10 ➜</b>  ₹2000\n"
-        f"▫️ <b>Level 11 ➜</b>  ₹4500\n"
-        f"▫️ <b>Level 12 ➜</b>  ₹10000\n\n"
-        f"💰 <b>TOTAL REQUIRED BALANCE:</b>\n"
-        f"📌 <b>Up to Level 10 Total: ₹3,672</b>\n"
-        f"📌 <b>Up to Level 12 Total: ₹18,172</b>"
-    )
-    try:
-        await app.bot.send_message(chat_id=CHANNEL_ID, text=chart_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
-    except Exception as e:
-        print(f"Level Chart Error: {e}")
-
-async def send_mid_session_alert(app, markup):
-    profit_alert_msg = (
-        f"💎 🔔 <b>MID-SESSION PROFIT ALERT / हाफ-टाइम प्रॉफिट नोटिस / সেশনের মাঝামাঝি প্রফিট নোটিশ</b> 🔔 💎\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-        f"🇬🇧 <b>ENGLISH:</b>\n"
-        f"🎯 <b>Are you in Profit?</b> If you have already achieved your targeted win/profit, you can <b>conclude your trading session for today here!</b>\n"
-        f"🚫 There is no need to take further risks in the remaining periods. Secure your profit and wait for the next session! 💰✨\n\n"
-        f"🇮🇳 <b>हिंदी (HINDI):</b>\n"
-        f"🎯 <b>क्या आप प्रॉफिट में हैं?</b> अगर आपने अपना आज का टारगेट प्रॉफिट पूरा कर लिया है, तो आप <b>आज के लिए अपनी ट्रेडिंग यहीं समाप्त कर सकते हैं!</b>\n"
-        f"🚫 आगे के पीरियड्स में रिस्क लेने की कोई जरूरत नहीं है। अपना प्रॉफिट सुरक्षित करें और अगले सेशन का इंतजार करें! 💰✨\n\n"
-        f"🇮🇳 <b>বাংলা (BANGLA):</b>\n"
-        f"🎯 <b>আপনি কি প্রফিটে আছেন?</b> আপনি যদি ইতিমধ্যেই আপনার টার্গেট অনুযায়ী প্রফিট করে ফেলে থাকেন, তবে <b>আজকের মতো সেশনটি এখানেই সমাপ্ত করতে পারেন!</b>\n"
-        f"🚫 পরবর্তী পিরিয়ডগুলোতে আর নতুন করে রিস্ক নেওয়ার প্রয়োজন নেই। আপনার প্রফিট নিরাপদ রাখুন এবং পরবর্তী সেশনের জন্য অপেক্ষা করুন! 💰✨\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"💡 <i>Tip: Control your emotions & follow strict Money Management!</i>"
-    )
-    try:
-        await app.bot.send_message(chat_id=CHANNEL_ID, text=profit_alert_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
-    except Exception as e:
-        print(f"Mid-session Alert Error: {e}")
-
-async def send_referral_promo(app, markup):
-    promo_msg = (
-        f"💎 ✨ <b>MAXIMIZE YOUR EARNINGS WITH RAXI WIN!</b> ✨ 💎\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-        f"🇬🇧 <b>ENGLISH:</b>\n"
-        f"Build your powerful team and generate passive daily income! Earn lifetime commissions, daily salaries, and referral bonuses. Share your link now!\n\n"
-        f"🇮🇳 <b>हिंदी (HINDI):</b>\n"
-        f"अपनी खुद की मजबूत टीम बनाएं और रोजाना पैसिव इनकम कमाएं! लाइफटाइम कमीशन, डेली सैलरी और रेफरल बोनस पाएं। अभी अपना लिंक शेयर करें!\n\n"
-        f"🇮🇳 <b>বাংলা (BANGLA):</b>\n"
-        f"একটি শক্তিশালী টিম তৈরি করুন এবং প্রতিদিন প্যাসিভ ইনকাম করুন! লাইফটাইম কমিশন, ডেইলি স্যালারি এবং রেফারেল বোনাস উপভোগ করুন। এখনই শেয়ার করুন!\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━"
-    )
-    try:
-        await app.bot.send_message(chat_id=CHANNEL_ID, text=promo_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
-    except Exception as e:
-        print(f"Promo Error: {e}")
-
-async def send_meeting_announcement(app, markup):
-    meeting_msg = (
-        f"📢 ✨ <b>টেলিগ্রাম ভয়েস কল লাইভ প্রেডিকশন ঘোষণা</b> ✨ 📢\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-        f"🎯 <b>প্রতিদিন ঠিক রাত 8:00 PM টায় টেলিগ্রাম চ্যানেলে ভয়েস কলে লাইভ প্রেডিকশন দেওয়া হবে!</b>\n\n"
-        f"প্রতিদিন আমাদের সাথে যুক্ত হোন যেখানে আলোচনা করা হবে—কীভাবে ভালো প্রফিট করা যায়, শক্তিশালী টিম বিল্ড আপ করে প্রতিদিন প্যাসিভ ইনকাম করা যায়, ডেইলি স্যালারি ও ভালো কমিশন অর্জন করা যায় এবং এক্সপার্ট টিপস ও স্ট্র্যাটেজির মাধ্যমে দুর্দান্ত উইনিং নিশ্চিত করা যায়।\n\n"
-        f"👉 প্রতিদিন ঠিক রাত 8:00 PM টায় ভয়েস কলে লাইভ প্রেডিকশনে অংশ নিতে সবাই টেলিগ্রাম চ্যানেলে জয়েন করবেন! 🚀\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    )
-    try:
-        await app.bot.send_message(chat_id=CHANNEL_ID, text=meeting_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
-    except Exception as e:
-        print(f"Meeting Announcement Error: {e}")
-
-async def send_next_session_info(app, next_session_name, time_str):
-    next_msg = (
-        f"💎 ⏰ <b>NEXT SESSION INFO / अगली सेशन की जानकारी / পরবর্তী সেশনের তথ্য</b> ⏰ 💎\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"🇬🇧 🔹 <b>ENGLISH:</b>\n"
-        f"Next VIP Session: {next_session_name} at {time_str}. Get ready for the next profit wave!\n\n"
-        f"🇮🇳 🔸 <b>हिंदी (HINDI):</b>\n"
-        f"अगला वीआईपी सेशन: {time_str} पर {next_session_name} शुरू होगा। अगले प्रॉफिट वेव के लिए तैयार रहें!\n\n"
-        f"🇮🇳 🔹 <b>বাংলা (BANGLA):</b>\n"
-        f"পরবর্তী ভিআইপি সেশন: {time_str} এ {next_session_name} শুরু হবে। পরবর্তী প্রফিটের জন্য প্রস্তুত থাকুন!\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━"
-    )
-    markup = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🎮 Play Raxi Win 🏆", url="https://raxiwin.com")],
-        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/RexiWinAIPrediction")]
-    ])
-    try:
-        await app.bot.send_message(chat_id=CHANNEL_ID, text=next_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
-    except Exception as e:
-        print(f"Next Session Error: {e}")
-
-
-# ==========================================
-# 🚀 Telegram Automation Main Loop
-# ==========================================
-async def send_auto_prediction(app):
-    last_sent_period = ""
-    last_alert_date_session = ""    
-    last_chart_date_session = ""
-    last_promo_date_session = ""    
-    last_next_date_session = ""     
-    last_mid_date_session = ""
-    last_meeting_date_session = ""  
-
-    keyboard = [
-        [InlineKeyboardButton("🎮 Play Raxi Win 🏆", url="https://raxiwin.com")],
-        [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/RexiWinAIPrediction")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    print("Raxi Win Automation Loop started successfully with Adjusted Time & Exact Period Sync...")
+def run_master_bot():
+    print("🚀 Raxi Win Advanced Trend Analysis Bot Started...")
+    active_period = ""
 
     while True:
         try:
-            now = get_bd_time()
-            hour = now.hour
-            minute = now.minute
-            second = now.second
-            current_date_str = now.strftime('%Y-%m-%d')
+            headers = {"Authorization": f"Bearer {BEARER_TOKEN}"}
+            response = requests.get(API_URL, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                payload = response.json()
+                
+                # পিরিয়ড মিসম্যাচ রোধ করতে API থেকে আসা পিরিয়ড নিশ্চিত করা
+                api_period = payload.get("period")
+                actual_result = payload.get("result") 
+                
+                if api_period and api_period != active_period:
+                    timestamp_str = datetime.now(timezone.utc).isoformat()
 
-            alert_markup = InlineKeyboardMarkup([
-                [InlineKeyboardButton("🚀 Ready & Deposit", url="https://raxiwin.com")],
-                [InlineKeyboardButton("📢 Channel Link", url="https://t.me/RexiWinAIPrediction")]
-            ])
+                    # ১. আগের রাউন্ডের ফলাফল যাচাই ও উইন/লস আপডেট
+                    if actual_result and active_period:
+                        conn = sqlite3.connect(DB_NAME)
+                        cursor = conn.cursor()
+                        cursor.execute("SELECT prediction FROM game_history WHERE period = ?", (active_period,))
+                        row = cursor.fetchone()
+                        
+                        if row:
+                            predicted_val = row[0]
+                            if predicted_val:  # যদি ভ্যালিড প্রেডিকশন থাকে তবেই উইন/লস হিসাব করবে
+                                match_status = "WIN" if predicted_val == actual_result else "LOSS"
+                                cursor.execute(
+                                    "UPDATE game_history SET actual_result = ?, status = ?, result_time = ? WHERE period = ?", 
+                                    (actual_result, match_status, timestamp_str, active_period)
+                                )
+                                conn.commit()
+                                
+                                # একুরেসি হিসাব
+                                acc, wins, total = get_performance_stats()
+                                result_msg = (
+                                    f"📊 <b>TREND PERFORMANCE UPDATE</b>\n\n"
+                                    f"🔹 <b>Period:</b> {active_period}\n"
+                                    f"🎯 <b>Prediction:</b> {predicted_val} | 🟢 <b>Actual:</b> {actual_result}\n"
+                                    f"Status: {'✅ WIN' if match_status == 'WIN' else '❌ LOSS'}\n\n"
+                                    f"📈 <b>Model Accuracy:</b> {acc}% ({wins}/{total} Wins)"
+                                )
+                                loop.run_until_complete(send_telegram(result_msg))
+                            else:
+                                # ডেটা কালেকশন মোডে প্রেডিকশন None থাকলেও আসল ফলাফল সেভ করে রাখা হবে
+                                cursor.execute(
+                                    "UPDATE game_history SET actual_result = ?, result_time = ? WHERE period = ?", 
+                                    (actual_result, timestamp_str, active_period)
+                                )
+                                conn.commit()
+                        else:
+                            # যদি আগের পিরিয়ড ডেটাবেসে না থাকে, তবে নতুন এন্ট্রি হিসেবে সেভ হবে
+                            cursor.execute(
+                                "INSERT OR IGNORE INTO game_history (period, actual_result, status, created_at) VALUES (?, ?, 'SKIPPED', ?)",
+                                (active_period, actual_result, timestamp_str)
+                            )
+                            conn.commit()
+                        conn.close()
 
-            if hour == 7 and minute == 25:
-                alert_key = f"{current_date_str}_MORNING_ALERT"
-                if last_alert_date_session != alert_key:
-                    await send_ready_alert(app, "Morning Session (7:00 AM)", alert_markup)
-                    last_alert_date_session = alert_key
+                    # ২. অ্যাডভান্সড ট্রেন্ড এভালুয়েটর রান করা
+                    next_prediction, chosen_strategy = advanced_market_trend_evaluator()
 
-            elif hour == 14 and minute == 25:
-                alert_key = f"{current_date_str}_AFTERNOON_ALERT"
-                if last_alert_date_session != alert_key:
-                    await send_ready_alert(app, "Afternoon Session (2:00 PM)", alert_markup)
-                    last_alert_date_session = alert_key
-
-            elif hour == 20 and minute == 25:
-                alert_key = f"{current_date_str}_NIGHT_ALERT"
-                if last_alert_date_session != alert_key:
-                    await send_ready_alert(app, "Night Session (8:00 PM)", alert_markup)
-                    last_alert_date_session = alert_key
-
-            if hour == 7 and minute == 27:
-                chart_key = f"{current_date_str}_MORNING_CHART"
-                if last_chart_date_session != chart_key:
-                    await send_level_chart_alert(app, alert_markup)
-                    last_chart_date_session = chart_key
-
-            elif hour == 14 and minute == 27:
-                chart_key = f"{current_date_str}_AFTERNOON_CHART"
-                if last_chart_date_session != chart_key:
-                    await send_level_chart_alert(app, alert_markup)
-                    last_chart_date_session = chart_key
-
-            elif hour == 20 and minute == 27:
-                chart_key = f"{current_date_str}_NIGHT_CHART"
-                if last_chart_date_session != chart_key:
-                    await send_level_chart_alert(app, alert_markup)
-                    last_chart_date_session = chart_key
-
-            is_morning_session = (hour == 7 and minute >= 30) or (hour == 8 and minute <= 5)
-            is_afternoon_session = (hour == 14 and minute >= 30) or (hour == 15 and minute <= 5)
-            is_night_session = (hour == 20 and minute >= 30) or (hour == 21 and minute <= 5)
-
-            if is_morning_session or is_afternoon_session or is_night_session:
-                period_num = get_current_1min_period()
-                if period_num != last_sent_period:
-                    pred = get_high_tech_ai_prediction()
-                    pred_text = "SMALL" if pred == "SMALL" else "BIG"
-                    color_text = get_smart_trend_color(pred_text)
-                    
-                    msg = (
-                        f"💎 <b>RAXI WIN ULTRA AI PREDICTION</b> 💎\n"
-                        f"💎 <b>RAXI WIN VIP PREDICTION 1 Min</b> 💎\n\n"
-                        f"🔹 <b>PERIOD:</b> {period_num}\n"
-                        f"🎯 <b>PREDICTION:</b> {pred_text}\n"
-                        f"🎨 <b>COLOR:</b> {color_text}\n"
-                        f"───────────────────\n"
-                        f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
+                    # ৩. ডেটাবেসে পিরিয়ড ও প্রেডিকশন সেভ করা
+                    conn = sqlite3.connect(DB_NAME)
+                    cursor = conn.cursor()
+                    cursor.execute(
+                        "INSERT OR IGNORE INTO game_history (period, prediction, strategy, created_at) VALUES (?, ?, ?, ?)",
+                        (api_period, next_prediction, chosen_strategy, timestamp_str)
                     )
-                    
-                    await app.bot.send_message(
-                        chat_id=CHANNEL_ID,
-                        text=msg,
-                        parse_mode=ParseMode.HTML,
-                        reply_markup=reply_markup
-                    )
-                    
-                    print(f"Signal sent successfully for period: {period_num}")
-                    last_sent_period = period_num
+                    conn.commit()
+                    conn.close()
 
-            if (hour == 8 and minute == 0) or (hour == 15 and minute == 0) or (hour == 21 and minute == 0):
-                profit_key = f"{current_date_str}_{hour}_PROFIT_ALERT"
-                if last_mid_date_session != profit_key:
-                    await send_mid_session_alert(app, alert_markup)
-                    last_mid_date_session = profit_key
+                    # ৪. টেলিগ্রামে সিগন্যাল পাঠানো (যদি প্রেডিকশন এভেইলেবল থাকে)
+                    if next_prediction:
+                        signal_msg = (
+                            f"💎 <b>RAXI WIN TREND AI SIGNAL</b> 💎\n\n"
+                            f"🔹 <b>PERIOD:</b> {api_period}\n`"
+                            f"🎯 <b>PREDICTION:</b> <b>{next_prediction}</b>\n"
+                            f"📈 <b>ACTIVE MARKET TREND:</b> {chosen_strategy}"
+                        )
+                        loop.run_until_complete(send_telegram(signal_msg))
+                    else:
+                        print(f"Period {api_period}: Collecting historical data -> {chosen_strategy}")
 
-            promo_markup = InlineKeyboardMarkup([
-                [InlineKeyboardButton("🚀 Join & Start Refer", url="https://raxiwin.com")],
-                [InlineKeyboardButton("💎 Contact For Support", url="https://t.me/RexiWinAIPrediction")]
-            ])
-
-            if (hour == 8 and minute == 6) or (hour == 15 and minute == 6) or (hour == 21 and minute == 6):
-                promo_key = f"{current_date_str}_{hour}_PROMO"
-                if last_promo_date_session != promo_key:
-                    await send_referral_promo(app, promo_markup)
-                    last_promo_date_session = promo_key
-
-            if (hour == 8 and minute == 7 and second >= 30) or (hour == 15 and minute == 7 and second >= 30) or (hour == 21 and minute == 7 and second >= 30):
-                meeting_key = f"{current_date_str}_{hour}_MEETING_ANNOUNCE"
-                if last_meeting_date_session != meeting_key:
-                    await send_meeting_announcement(app, promo_markup)
-                    last_meeting_date_session = meeting_key
-
-            if hour == 8 and minute == 7:
-                next_key = f"{current_date_str}_MORNING_NEXT"
-                if last_next_date_session != next_key:
-                    await send_next_session_info(app, "Afternoon Session", "2:00 PM")
-                    last_next_date_session = next_key
-
-            elif hour == 15 and minute == 7:
-                next_key = f"{current_date_str}_AFTERNOON_NEXT"
-                if last_next_date_session != next_key:
-                    await send_next_session_info(app, "Night Session", "8:00 PM")
-                    last_next_date_session = next_key
-
-            elif hour == 21 and minute == 7:
-                next_key = f"{current_date_str}_NIGHT_NEXT"
-                if last_next_date_session != next_key:
-                    await send_next_session_info(app, "Morning Session", "7:00 AM (Tomorrow)")
-                    last_next_date_session = next_key
+                    active_period = api_period
 
         except Exception as e:
-            print(f"Loop Error: {e}")
+            print(f"Runtime Exception: {e}")
 
-        await asyncio.sleep(2)
-
-
-# ==========================================
-# ⚙️ Main Application Launcher
-# ==========================================
-async def main():
-    app = ApplicationBuilder().token(TOKEN).build()
-    
-    await app.initialize()
-    await app.start()
-    
-    threading.Thread(target=run_web, daemon=True).start()
-    
-    print("Raxi Win Ultra AI Bot is fully running and active...")
-    
-    await send_auto_prediction(app)
+        time.sleep(10)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    run_master_bot()
     
