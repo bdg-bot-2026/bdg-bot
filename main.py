@@ -18,7 +18,7 @@ DB_NAME = "raxi_master_final.db"
 
 bot = Bot(token=TOKEN)
 API_URL = "https://api.ar-lottery01.com/api/Energy/GetPanel?gameCode=WinGo_1M&language=en"
-BEARER_TOKEN = os.environ.get("BEARER_TOKEN", "YOUR_BEARER_TOKEN_HERE")  # Render Environment Variables থেকে নেবে
+BEARER_TOKEN = os.environ.get("BEARER_TOKEN", "YOUR_BEARER_TOKEN_HERE")
 
 # স্থায়ী Async Event Loop তৈরি
 loop = asyncio.new_event_loop()
@@ -83,15 +83,19 @@ def get_current_1min_period():
 def advanced_market_trend_evaluator():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
+    # শুধুমাত্র যাচাইকৃত ফলাফলগুলো নিয়ে বিশ্লেষণ (সর্বوচ্চ ১০০ রাউন্ড)
     cursor.execute("SELECT actual_result FROM game_history WHERE actual_result IN ('BIG', 'SMALL') ORDER BY rowid DESC LIMIT 100")
     rows = cursor.fetchall()
     conn.close()
 
     total_records = len(rows)
+    
+    # ডেটা কালেকশন মোড: পর্যাপ্ত ডেটা (অন্তত ২০টি রেকর্ড) না হলে প্রেডিকশন দেবে না, শুধু ডেটা জমাবে
     if total_records < 20:
         return None, f"DATA_COLLECTION_ONLY ({total_records}/20 Records)"
 
-    results = [row[0] for row in rows]
+    results = [row[0] for row in rows] # results[0] হলো সবচেয়ে সাম্প্রতিক ফলাফল
+    
     votes = {"BIG": 0, "SMALL": 0}
     detected_trends = []
 
@@ -108,7 +112,7 @@ def advanced_market_trend_evaluator():
         votes[reversal_target] += 3.5
         detected_trends.append(f"Dragon_Break({dragon_count}x {results[0]})")
 
-    # ২. ZIGZAG DETECTION
+    # ২. ZIGZAG / ALTERNATE CLUSTER DETECTION
     is_zigzag = True
     for i in range(min(5, len(results) - 1)):
         if results[i] == results[i+1]:
@@ -257,10 +261,10 @@ def run_master_bot():
         time.sleep(10)
 
 if __name__ == "__main__":
-    # ব্যাকগ্রাউন্ডে ফ্লাস্ক সার্ভার চালু করা যাতে রেন্ডারের পোর্ট স্ক্যান পাস হয়ে যায়
+    # ফ্লাস্ক সার্ভার ব্যাকগ্রাউন্ডে চালু করা হলো যাতে রেন্ডার পোর্ট বাইন্ডিং নিয়ে সমস্যা না করে
     web_thread = threading.Thread(target=run_web)
     web_thread.daemon = True
     web_thread.start()
 
-    # মূল বট লুপ রান করা
+    # মূল বট লুপ চালু রাখা
     run_master_bot()
