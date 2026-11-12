@@ -5,21 +5,37 @@ import asyncio
 from datetime import datetime, timezone
 import pytz
 from telegram import Bot
+import os
+from flask import Flask
+import threading
 
 # ==========================================
 # ⚙️ Configurations & Setup
 # ==========================================
-TOKEN = "8937609482:AAFpxFnCk7ZI38QYnUNbUST2A6eZHnWuAHQ"
-CHANNEL_ID = "@RexiWinAIPrediction"
+TOKEN = os.environ.get("TOKEN", "8937609482:AAFpxFnCk7ZI38QYnUNbUST2A6eZHnWuAHQ")
+CHANNEL_ID = os.environ.get("CHANNEL_ID", "@RexiWinAIPrediction")
 DB_NAME = "raxi_master_final.db"
 
 bot = Bot(token=TOKEN)
 API_URL = "https://api.ar-lottery01.com/api/Energy/GetPanel?gameCode=WinGo_1M&language=en"
-BEARER_TOKEN = "YOUR_BEARER_TOKEN_HERE"  # আপনার আসল টোকেন এখানে বসাবেন
+BEARER_TOKEN = os.environ.get("BEARER_TOKEN", "YOUR_BEARER_TOKEN_HERE")  # Render Environment Variables থেকে নেবে
 
 # স্থায়ী Async Event Loop তৈরি
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
+
+# ==========================================
+# 🌐 Flask Server for Render Port Binding
+# ==========================================
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Raxi Win AI Prediction Bot is Live and Running!"
+
+def run_web():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
 
 # ==========================================
 # 🗄️ Database Initialization
@@ -67,23 +83,19 @@ def get_current_1min_period():
 def advanced_market_trend_evaluator():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    # শুধুমাত্র যাচাইকৃত ফলাফলগুলো নিয়ে বিশ্লেষণ (সর্বোচ্চ ১০০ রাউন্ড)
     cursor.execute("SELECT actual_result FROM game_history WHERE actual_result IN ('BIG', 'SMALL') ORDER BY rowid DESC LIMIT 100")
     rows = cursor.fetchall()
     conn.close()
 
     total_records = len(rows)
-    
-    # ডেটা কালেকশন মোড: পর্যাপ্ত ডেটা (অন্তত ২০টি রেকর্ড) না হলে প্রেডিকশন দেবে না, শুধু ডেটা জমাবে
     if total_records < 20:
         return None, f"DATA_COLLECTION_ONLY ({total_records}/20 Records)"
 
-    results = [row[0] for row in rows] # results[0] হলো সবচেয়ে সাম্প্রতিক ফলাফল
-    
+    results = [row[0] for row in rows]
     votes = {"BIG": 0, "SMALL": 0}
     detected_trends = []
 
-    # ১. DRAGON TREND DETECTION (টানা ৪ বা তার বেশি একই ফল আসলে তা ট্র্যাক করা)
+    # ১. DRAGON TREND DETECTION
     dragon_count = 1
     for i in range(1, len(results)):
         if results[i] == results[0]:
@@ -96,7 +108,7 @@ def advanced_market_trend_evaluator():
         votes[reversal_target] += 3.5
         detected_trends.append(f"Dragon_Break({dragon_count}x {results[0]})")
 
-    # ২. ZIGZAG / ALTERNATE CLUSTER DETECTION (বিকল্প ফলাফল আসা যেমন: BIG, SMALL, BIG, SMALL)
+    # ২. ZIGZAG DETECTION
     is_zigzag = True
     for i in range(min(5, len(results) - 1)):
         if results[i] == results[i+1]:
@@ -108,14 +120,14 @@ def advanced_market_trend_evaluator():
         votes[next_zigzag] += 3.0
         detected_trends.append("ZigZag_Alternate")
 
-    # ৩. TWO BY TWO ZONE DETECTION (যেমন: BIG, BIG, SMALL, SMALL)
+    # ৩. TWO BY TWO ZONE DETECTION
     if len(results) >= 4:
         if results[0] == results[1] and results[2] == results[3] and results[0] != results[2]:
             t22_target = "SMALL" if results[0] == "BIG" else "BIG"
             votes[t22_target] += 2.5
             detected_trends.append("TwoByTwo_Zone")
 
-    # ৪. FREQUENCY BALANCING (সামগ্রিক ফ্রিকোয়েন্সি ও পার্সেন্টেজ চেক)
+    # ৪. FREQUENCY BALANCING
     total_big = results.count('BIG')
     total_small = results.count('SMALL')
     big_pct = round((total_big / total_records) * 100, 2)
@@ -127,13 +139,11 @@ def advanced_market_trend_evaluator():
         votes["BIG"] += 2.0
         detected_trends.append(f"Freq_Oversold(Big {big_pct}%)")
 
-    # যদি স্পেশাল কোনো ট্রেন্ড সক্রিয় না থাকে, তবে জেনারেল ফ্রিকোয়েন্সি ব্যালেন্স কাজ করবে
     if not detected_trends:
         fallback = "SMALL" if total_big >= total_small else "BIG"
         votes[fallback] += 1.0
         detected_trends.append("General_Frequency_Balance")
 
-    # সর্বোচ্চ ভোটপ্রাপ্ত প্রেডিকশন নির্বাচন
     final_prediction = max(votes, key=votes.get)
     combined_strategy = " + ".join(detected_trends)
 
@@ -172,15 +182,12 @@ def run_master_bot():
             
             if response.status_code == 200:
                 payload = response.json()
-                
-                # পিরিয়ড মিসম্যাচ রোধ করতে API থেকে আসা পিরিয়ড নিশ্চিত করা
                 api_period = payload.get("period")
                 actual_result = payload.get("result") 
                 
                 if api_period and api_period != active_period:
                     timestamp_str = datetime.now(timezone.utc).isoformat()
 
-                    # ১. আগের রাউন্ডের ফলাফল যাচাই ও উইন/লস আপডেট
                     if actual_result and active_period:
                         conn = sqlite3.connect(DB_NAME)
                         cursor = conn.cursor()
@@ -189,7 +196,7 @@ def run_master_bot():
                         
                         if row:
                             predicted_val = row[0]
-                            if predicted_val:  # যদি ভ্যালিড প্রেডিকশন থাকে তবেই উইন/লস হিসাব করবে
+                            if predicted_val:
                                 match_status = "WIN" if predicted_val == actual_result else "LOSS"
                                 cursor.execute(
                                     "UPDATE game_history SET actual_result = ?, status = ?, result_time = ? WHERE period = ?", 
@@ -197,7 +204,6 @@ def run_master_bot():
                                 )
                                 conn.commit()
                                 
-                                # একুরেসি হিসাব
                                 acc, wins, total = get_performance_stats()
                                 result_msg = (
                                     f"📊 <b>TREND PERFORMANCE UPDATE</b>\n\n"
@@ -208,14 +214,12 @@ def run_master_bot():
                                 )
                                 loop.run_until_complete(send_telegram(result_msg))
                             else:
-                                # ডেটা কালেকশন মোডে প্রেডিকশন None থাকলেও আসল ফলাফল সেভ করে রাখা হবে
                                 cursor.execute(
                                     "UPDATE game_history SET actual_result = ?, result_time = ? WHERE period = ?", 
                                     (actual_result, timestamp_str, active_period)
                                 )
                                 conn.commit()
                         else:
-                            # যদি আগের পিরিয়ড ডেটাবেসে না থাকে, তবে নতুন এন্ট্রি হিসেবে সেভ হবে
                             cursor.execute(
                                 "INSERT OR IGNORE INTO game_history (period, actual_result, status, created_at) VALUES (?, ?, 'SKIPPED', ?)",
                                 (active_period, actual_result, timestamp_str)
@@ -223,10 +227,8 @@ def run_master_bot():
                             conn.commit()
                         conn.close()
 
-                    # ২. অ্যাডভান্সড ট্রেন্ড এভালুয়েটর রান করা
                     next_prediction, chosen_strategy = advanced_market_trend_evaluator()
 
-                    # ৩. ডেটাবেসে পিরিয়ড ও প্রেডিকশন সেভ করা
                     conn = sqlite3.connect(DB_NAME)
                     cursor = conn.cursor()
                     cursor.execute(
@@ -236,11 +238,10 @@ def run_master_bot():
                     conn.commit()
                     conn.close()
 
-                    # ৪. টেলিগ্রামে সিগন্যাল পাঠানো (যদি প্রেডিকশন এভেইলেবল থাকে)
                     if next_prediction:
                         signal_msg = (
                             f"💎 <b>RAXI WIN TREND AI SIGNAL</b> 💎\n\n"
-                            f"🔹 <b>PERIOD:</b> {api_period}\n`"
+                            f"🔹 <b>PERIOD:</b> {api_period}\n"
                             f"🎯 <b>PREDICTION:</b> <b>{next_prediction}</b>\n"
                             f"📈 <b>ACTIVE MARKET TREND:</b> {chosen_strategy}"
                         )
@@ -256,5 +257,10 @@ def run_master_bot():
         time.sleep(10)
 
 if __name__ == "__main__":
+    # ব্যাকগ্রাউন্ডে ফ্লাস্ক সার্ভার চালু করা যাতে রেন্ডারের পোর্ট স্ক্যান পাস হয়ে যায়
+    web_thread = threading.Thread(target=run_web)
+    web_thread.daemon = True
+    web_thread.start()
+
+    # মূল বট লুপ রান করা
     run_master_bot()
-    
