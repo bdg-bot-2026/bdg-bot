@@ -4,7 +4,7 @@ import sqlite3
 from datetime import datetime, timezone
 import pytz
 import os
-from flask import Flask
+from flask import Flask, request, jsonify
 import threading
 
 # ==========================================
@@ -18,13 +18,43 @@ API_URL = "https://api.ar-lottery01.com/api/Energy/GetPanel?gameCode=WinGo_1M&la
 BEARER_TOKEN = os.environ.get("BEARER_TOKEN", "YOUR_BEARER_TOKEN_HERE")
 
 # ==========================================
-# 🌐 Flask Server for Render Port Binding
+# 🌐 Flask Server & Google Assistant Webhook
 # ==========================================
 app = Flask(__name__)
 
 @app.route('/')
 def home():
     return "Raxi Win AI Prediction Bot is Live and Running!"
+
+@app.route('/webhook', methods=['POST'])
+def google_assistant_webhook():
+    try:
+        req = request.get_json(silent=True, force=True)
+        print("Google Assistant Request received:", req)
+
+        # ডাটাবেস থেকে সর্বশেষ প্রেডিকশন ফেচ করা
+        conn = sqlite3.connect(DB_NAME)
+        cursor = conn.cursor()
+        cursor.execute("SELECT period, prediction, strategy FROM game_history ORDER BY rowid DESC LIMIT 1")
+        row = cursor.fetchone()
+        conn.close()
+
+        if row:
+            period, prediction, strategy = row
+            response_text = f"The latest prediction for period {period} is {prediction}. Active strategy is {strategy}."
+        else:
+            response_text = "Currently, no prediction data is available. Please try again soon."
+
+        # Google Assistant / Dialogflow-এর জন্য ফরম্যাট করা রেসপন্স
+        return jsonify({
+            "fulfillmentText": response_text
+        })
+
+    except Exception as e:
+        print(f"Webhook Error: {e}")
+        return jsonify({
+            "fulfillmentText": "Sorry, I am having trouble fetching the prediction right now."
+        })
 
 def run_web():
     port = int(os.environ.get("PORT", 10000))
@@ -148,7 +178,6 @@ def run_master_bot():
 
     while True:
         try:
-            # আরও নিখুঁত ব্রাউজার হেডার্স যা 403 Forbidden এড়াতে সাহায্য করবে
             headers = {
                 "Authorization": f"Bearer {BEARER_TOKEN}",
                 "Accept": "application/json, text/plain, */*",
@@ -166,7 +195,8 @@ def run_master_bot():
             
             print("API STATUS:", response.status_code)
             print("API RESPONSE TIME:", response.elapsed.total_seconds())
-            print("ERROR BODY / RESPONSE:", response.text[:1000])
+            print("API ERROR BODY:", response.text[:1500])
+            print("CONTENT TYPE:", response.headers.get("Content-Type"))
 
             if response.status_code == 200:
                 payload = response.json()
