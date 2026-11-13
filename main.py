@@ -1,10 +1,8 @@
 import time
 import requests
 import sqlite3
-import asyncio
 from datetime import datetime, timezone
 import pytz
-from telegram import Bot
 import os
 from flask import Flask
 import threading
@@ -16,13 +14,8 @@ TOKEN = os.environ.get("TOKEN", "8937609482:AAFpxFnCk7ZI38QYnUNbUST2A6eZHnWuAHQ"
 CHANNEL_ID = os.environ.get("CHANNEL_ID", "@RexiWinAIPrediction")
 DB_NAME = "raxi_master_final.db"
 
-bot = Bot(token=TOKEN)
 API_URL = "https://api.ar-lottery01.com/api/Energy/GetPanel?gameCode=WinGo_1M&language=en"
 BEARER_TOKEN = os.environ.get("BEARER_TOKEN", "YOUR_BEARER_TOKEN_HERE")
-
-# স্থায়ী Async Event Loop তৈরি
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
 
 # ==========================================
 # 🌐 Flask Server for Render Port Binding
@@ -60,42 +53,39 @@ def init_db():
 init_db()
 
 # ==========================================
-# 🕒 Time & Period Generator
+# 📨 Direct Telegram Sender (No Async/Loop)
 # ==========================================
-def get_current_1min_period():
+def send_telegram(message):
     try:
-        bd_tz = pytz.timezone('Asia/Dhaka')
-        now_bd = datetime.now(bd_tz)
-        date_str = now_bd.strftime("%Y%m%d")
-        total_minutes = (now_bd.hour * 60) + now_bd.minute
-        period_count = 10000 + total_minutes + 1
-        return f"{date_str}1000{period_count}"
-    except Exception:
-        now_utc = datetime.now(timezone.utc)
-        date_str = now_utc.strftime("%Y%m%d")
-        total_minutes_utc = (now_utc.hour * 60) + now_utc.minute
-        period_count = 10000 + total_minutes_utc + 1
-        return f"{date_str}1000{period_count}"
+        url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+        payload = {
+            "chat_id": CHANNEL_ID,
+            "text": message,
+            "parse_mode": "HTML"
+        }
+        response = requests.post(url, json=payload, timeout=10)
+        if response.status_code != 200:
+            print(f"Telegram API Error: {response.text}")
+    except Exception as e:
+        print(f"Telegram Exception: {e}")
 
 # ==========================================
-# 🧠 Advanced Market Trend & Statistical Evaluator
+# 🧠 Advanced Market Trend Evaluator
 # ==========================================
 def advanced_market_trend_evaluator():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    # শুধুমাত্র যাচাইকৃত ফলাফলগুলো নিয়ে বিশ্লেষণ (সর্বোচ্চ ১০০ রাউন্ড)
     cursor.execute("SELECT actual_result FROM game_history WHERE actual_result IN ('BIG', 'SMALL') ORDER BY rowid DESC LIMIT 100")
     rows = cursor.fetchall()
     conn.close()
 
     total_records = len(rows)
     
-    # ডেটা কালেকশন মোড: টেস্টের জন্য মাত্র ৩টি রেকর্ড হলেই প্রেডিকশন শুরু করবে
+    # টেস্টের জন্য মাত্র ৩টি রেকর্ড হলেই প্রেডিকশন শুরু করবে
     if total_records < 3:
         return None, f"DATA_COLLECTION_ONLY ({total_records}/3 Records)"
 
-    results = [row[0] for row in rows] # results[0] হলো সবচেয়ে সাম্প্রতিক ফলাফল
-    
+    results = [row[0] for row in rows]
     votes = {"BIG": 0, "SMALL": 0}
     detected_trends = []
 
@@ -167,16 +157,10 @@ def get_performance_stats():
     return accuracy, wins, completed
 
 # ==========================================
-# 🚀 Execution & Telegram Loop
+# 🚀 Execution & Main Bot Loop
 # ==========================================
-async def send_telegram(message):
-    try:
-        await bot.send_message(chat_id=CHANNEL_ID, text=message, parse_mode="HTML")
-    except Exception as e:
-        print(f"Telegram Error: {e}")
-
 def run_master_bot():
-    print("🚀 Raxi Win Advanced Trend Analysis Bot Started...")
+    print("🚀 Raxi Win Advanced Trend Analysis Bot Started (Synchronous Mode)...")
     active_period = ""
 
     while True:
@@ -216,7 +200,7 @@ def run_master_bot():
                                     f"Status: {'✅ WIN' if match_status == 'WIN' else '❌ LOSS'}\n\n"
                                     f"📈 <b>Model Accuracy:</b> {acc}% ({wins}/{total} Wins)"
                                 )
-                                loop.run_until_complete(send_telegram(result_msg))
+                                send_telegram(result_msg)
                             else:
                                 cursor.execute(
                                     "UPDATE game_history SET actual_result = ?, result_time = ? WHERE period = ?", 
@@ -249,7 +233,7 @@ def run_master_bot():
                             f"🎯 <b>PREDICTION:</b> <b>{next_prediction}</b>\n"
                             f"📈 <b>ACTIVE MARKET TREND:</b> {chosen_strategy}"
                         )
-                        loop.run_until_complete(send_telegram(signal_msg))
+                        send_telegram(signal_msg)
                     else:
                         print(f"Period {api_period}: Collecting historical data -> {chosen_strategy}")
 
