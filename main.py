@@ -148,12 +148,17 @@ def run_master_bot():
 
     while True:
         try:
+            # আরও নিখুঁত ব্রাউজার হেডার্স যা 403 Forbidden এড়াতে সাহায্য করবে
             headers = {
                 "Authorization": f"Bearer {BEARER_TOKEN}",
-                "Accept": "application/json",
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Accept": "application/json, text/plain, */*",
+                "Accept-Language": "en-US,en;q=0.9",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                 "Origin": "https://raxi12.com",
-                "Referer": "https://raxi12.com/"
+                "Referer": "https://raxi12.com/",
+                "Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+                "Sec-Ch-Ua-Mobile": "?0",
+                "Sec-Ch-Ua-Platform": '"Windows"'
             }
             
             print("API REQUEST STARTED")
@@ -161,7 +166,7 @@ def run_master_bot():
             
             print("API STATUS:", response.status_code)
             print("API RESPONSE TIME:", response.elapsed.total_seconds())
-            print("API RESPONSE:", response.text[:1000])
+            print("ERROR BODY / RESPONSE:", response.text[:1000])
 
             if response.status_code == 200:
                 payload = response.json()
