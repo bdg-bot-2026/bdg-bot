@@ -53,7 +53,7 @@ def init_db():
 init_db()
 
 # ==========================================
-# 📨 Direct Telegram Sender (No Async/Loop)
+# 📨 Direct Telegram Sender with Logs
 # ==========================================
 def send_telegram(message):
     try:
@@ -64,8 +64,8 @@ def send_telegram(message):
             "parse_mode": "HTML"
         }
         response = requests.post(url, json=payload, timeout=10)
-        if response.status_code != 200:
-            print(f"Telegram API Error: {response.text}")
+        print("TELEGRAM STATUS:", response.status_code)
+        print("TELEGRAM RESPONSE:", response.text)
     except Exception as e:
         print(f"Telegram Exception: {e}")
 
@@ -80,8 +80,8 @@ def advanced_market_trend_evaluator():
     conn.close()
 
     total_records = len(rows)
+    print(f"Database Total Verified Records: {total_records}")
     
-    # টেস্টের জন্য মাত্র ৩টি রেকর্ড হলেই প্রেডিকশন শুরু করবে
     if total_records < 3:
         return None, f"DATA_COLLECTION_ONLY ({total_records}/3 Records)"
 
@@ -89,7 +89,6 @@ def advanced_market_trend_evaluator():
     votes = {"BIG": 0, "SMALL": 0}
     detected_trends = []
 
-    # ১. DRAGON TREND DETECTION
     dragon_count = 1
     for i in range(1, len(results)):
         if results[i] == results[0]:
@@ -102,7 +101,6 @@ def advanced_market_trend_evaluator():
         votes[reversal_target] += 3.5
         detected_trends.append(f"Dragon_Break({dragon_count}x {results[0]})")
 
-    # ২. ZIGZAG / ALTERNATE CLUSTER DETECTION
     is_zigzag = True
     for i in range(min(5, len(results) - 1)):
         if results[i] == results[i+1]:
@@ -114,14 +112,12 @@ def advanced_market_trend_evaluator():
         votes[next_zigzag] += 3.0
         detected_trends.append("ZigZag_Alternate")
 
-    # ৩. TWO BY TWO ZONE DETECTION
     if len(results) >= 4:
         if results[0] == results[1] and results[2] == results[3] and results[0] != results[2]:
             t22_target = "SMALL" if results[0] == "BIG" else "BIG"
             votes[t22_target] += 2.5
             detected_trends.append("TwoByTwo_Zone")
 
-    # ৪. FREQUENCY BALANCING
     total_big = results.count('BIG')
     total_small = results.count('SMALL')
     big_pct = round((total_big / total_records) * 100, 2)
@@ -143,31 +139,23 @@ def advanced_market_trend_evaluator():
 
     return final_prediction, combined_strategy
 
-def get_performance_stats():
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM game_history WHERE status IN ('WIN', 'LOSS')")
-    completed = cursor.fetchone()[0]
-    if completed == 0:
-        return 0.0, 0, 0
-    cursor.execute("SELECT COUNT(*) FROM game_history WHERE status = 'WIN'")
-    wins = cursor.fetchone()[0]
-    conn.close()
-    accuracy = round((wins / completed) * 100, 2)
-    return accuracy, wins, completed
-
 # ==========================================
 # 🚀 Execution & Main Bot Loop
 # ==========================================
 def run_master_bot():
-    print("🚀 Raxi Win Advanced Trend Analysis Bot Started (Synchronous Mode)...")
+    print("🚀 Raxi Win Advanced Trend Analysis Bot Started (Debug Mode)...")
     active_period = ""
 
     while True:
         try:
             headers = {"Authorization": f"Bearer {BEARER_TOKEN}"}
-            response = requests.get(API_URL, headers=headers, timeout=10)
+            print("API REQUEST STARTED")
+            response = requests.get(API_URL, headers=headers, timeout=15)
             
+            print("API STATUS:", response.status_code)
+            print("API RESPONSE TIME:", response.elapsed.total_seconds())
+            print("API RESPONSE:", response.text[:1000])
+
             if response.status_code == 200:
                 payload = response.json()
                 api_period = payload.get("period")
@@ -192,13 +180,11 @@ def run_master_bot():
                                 )
                                 conn.commit()
                                 
-                                acc, wins, total = get_performance_stats()
                                 result_msg = (
                                     f"📊 <b>TREND PERFORMANCE UPDATE</b>\n\n"
                                     f"🔹 <b>Period:</b> {active_period}\n"
                                     f"🎯 <b>Prediction:</b> {predicted_val} | 🟢 <b>Actual:</b> {actual_result}\n"
-                                    f"Status: {'✅ WIN' if match_status == 'WIN' else '❌ LOSS'}\n\n"
-                                    f"📈 <b>Model Accuracy:</b> {acc}% ({wins}/{total} Wins)"
+                                    f"Status: {'✅ WIN' if match_status == 'WIN' else '❌ LOSS'}"
                                 )
                                 send_telegram(result_msg)
                             else:
