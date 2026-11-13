@@ -83,16 +83,16 @@ def get_current_1min_period():
 def advanced_market_trend_evaluator():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    # শুধুমাত্র যাচাইকৃত ফলাফলগুলো নিয়ে বিশ্লেষণ (সর্বوচ্চ ১০০ রাউন্ড)
+    # শুধুমাত্র যাচাইকৃত ফলাফলগুলো নিয়ে বিশ্লেষণ (সর্বোচ্চ ১০০ রাউন্ড)
     cursor.execute("SELECT actual_result FROM game_history WHERE actual_result IN ('BIG', 'SMALL') ORDER BY rowid DESC LIMIT 100")
     rows = cursor.fetchall()
     conn.close()
 
     total_records = len(rows)
     
-    # ডেটা কালেকশন মোড: পর্যাপ্ত ডেটা (অন্তত ২০টি রেকর্ড) না হলে প্রেডিকশন দেবে না, শুধু ডেটা জমাবে
-    if total_records < 20:
-        return None, f"DATA_COLLECTION_ONLY ({total_records}/20 Records)"
+    # ডেটা কালেকশন মোড: টেস্টের জন্য মাত্র ৩টি রেকর্ড হলেই প্রেডিকশন শুরু করবে
+    if total_records < 3:
+        return None, f"DATA_COLLECTION_ONLY ({total_records}/3 Records)"
 
     results = [row[0] for row in rows] # results[0] হলো সবচেয়ে সাম্প্রতিক ফলাফল
     
@@ -261,10 +261,8 @@ def run_master_bot():
         time.sleep(10)
 
 if __name__ == "__main__":
-    # ফ্লাস্ক সার্ভার ব্যাকগ্রাউন্ডে চালু করা হলো যাতে রেন্ডার পোর্ট বাইন্ডিং নিয়ে সমস্যা না করে
     web_thread = threading.Thread(target=run_web)
     web_thread.daemon = True
     web_thread.start()
 
-    # মূল বট লুপ চালু রাখা
     run_master_bot()
