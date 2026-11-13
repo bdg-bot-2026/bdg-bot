@@ -143,12 +143,19 @@ def advanced_market_trend_evaluator():
 # 🚀 Execution & Main Bot Loop
 # ==========================================
 def run_master_bot():
-    print("🚀 Raxi Win Advanced Trend Analysis Bot Started (Debug Mode)...")
+    print("🚀 Raxi Win Advanced Trend Analysis Bot Started (Fixed Headers Mode)...")
     active_period = ""
 
     while True:
         try:
-            headers = {"Authorization": f"Bearer {BEARER_TOKEN}"}
+            headers = {
+                "Authorization": f"Bearer {BEARER_TOKEN}",
+                "Accept": "application/json",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Origin": "https://raxi12.com",
+                "Referer": "https://raxi12.com/"
+            }
+            
             print("API REQUEST STARTED")
             response = requests.get(API_URL, headers=headers, timeout=15)
             
