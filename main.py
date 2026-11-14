@@ -18,7 +18,7 @@ app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
-    return "Bot status: ONLINE (Raxi Win Indian Time Schedule & Stateful AI Active)"
+    return "Bot status: ONLINE (Raxi Win Indian Time Schedule & Ultra AI Active)"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
@@ -361,14 +361,14 @@ async def send_auto_prediction(app):
                     pred_text = "SMALL" if pred == "SMALL" else "BIG"
                     color_text = get_smart_trend_color(pred_text)
                     
+                    # 🛠️ Updated Format: Ultra AI Prediction with clean alignment & zero gap issues
                     msg = (
-                        f"💎 <b>RAXI WIN STATEFUL AI PREDICTION</b> 💎\n"
-                        f"💎 <b>RAXI WIN VIP PREDICTION 1 Min</b> 💎\n\n"
-                        f"🔹 <b>PERIOD:</b> {period_num}\n"
-                        f"🎯 <b>PREDICTION:</b> {pred_text}\n"
-                        f"🎨 <b>COLOR:</b> {color_text}\n"
-                        f"───────────────────\n"
-                        f"💡 <i>Recommended: Safe 1-10 Level Martingale</i>"
+                        f"💎 RAXI WIN ULTRA AI PREDICTION 💎\n"
+                        f"💎 RAXI WIN VIP PREDICTION 1 Min 💎\n\n"
+                        f"🔷 PERIOD: {period_num}\n"
+                        f"🎯 PREDICTION: {pred_text}\n"
+                        f"🎨 COLOR: {color_text}\n\n"
+                        f"💡 Recommended: Safe 1-10 Level Martingale"
                     )
                     
                     await app.bot.send_message(
@@ -378,7 +378,7 @@ async def send_auto_prediction(app):
                         reply_markup=reply_markup
                     )
                     
-                    print(f"Signal sent successfully with 100-Period Memory Analysis for period: {period_num}")
+                    print(f"Signal sent successfully with Ultra AI format for period: {period_num}")
                     last_sent_period = period_num
 
             # ৬. দুপুর ৩:৩০ মিনিটে মিডিলে প্রফিট অ্যালার্ট (ইন্ডিয়ান টাইম)
