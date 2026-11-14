@@ -361,14 +361,15 @@ async def send_auto_prediction(app):
                     pred_text = "SMALL" if pred == "SMALL" else "BIG"
                     color_text = get_smart_trend_color(pred_text)
                     
-                    # 🛠️ Restored Bold & Highlighted HTML Tags (Same as the original reference image style)
+                    # 🛠️ Exact Format: Bold Titles, Bold Labels with Normal Values & Normal Footer
                     msg = (
                         f"<b>💎 RAXI WIN ULTRA AI PREDICTION 💎</b>\n"
                         f"<b>💎 RAXI WIN VIP PREDICTION 1 Min 💎</b>\n\n"
-                        f"<b>🔷 PERIOD: {period_num}</b>\n"
-                        f"<b>🎯 PREDICTION: {pred_text}</b>\n"
-                        f"<b>🎨 COLOR: {color_text}</b>\n\n"
-                        f"<b>💡 Recommended: Safe 1-10 Level Martingale</b>"
+                        f"🔷 <b>PERIOD:</b> {period_num}\n"
+                        f"🎯 <b>PREDICTION:</b> {pred_text}\n"
+                        f"🎨 <b>COLOR:</b> {color_text}\n"
+                        f"───────────────────\n"
+                        f"💡 Recommended: Safe 1-10 Level Martingale"
                     )
                     
                     await app.bot.send_message(
@@ -378,7 +379,7 @@ async def send_auto_prediction(app):
                         reply_markup=reply_markup
                     )
                     
-                    print(f"Signal sent successfully with Bold Ultra AI format for period: {period_num}")
+                    print(f"Signal sent successfully with precise reference style for period: {period_num}")
                     last_sent_period = period_num
 
             # ৬. দুপুর ৩:৩০ মিনিটে মিডিলে প্রফিট অ্যালার্ট (ইন্ডিয়ান টাইম)
