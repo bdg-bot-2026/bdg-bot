@@ -26,10 +26,10 @@ def run_web():
 
 
 # ==========================================
-# 🤖 Telegram Bot Configurations
+# 🤖 Telegram Bot Configurations (Private Channel ID Updated)
 # ==========================================
 TOKEN = "8937609482:AAFpxFnCk7ZI38QYnUNbUST2A6eZHnWuAHQ"
-CHANNEL_ID = "@RexiWinAIPrediction"
+CHANNEL_ID = -1003744216692
 
 current_pattern = []
 pattern_index = 0
