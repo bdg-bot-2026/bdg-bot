@@ -28,7 +28,7 @@ def run_web():
 # ==========================================
 # 🤖 Telegram Bot Configurations (Private Channel ID Updated)
 # ==========================================
-TOKEN = os.environ.get("BOT_TOKEN", "8937609482:AAFn4P_MNvfCVu0F_Y06TuVzigR_vQFTc1c").strip()
+TOKEN = os.environ.get("BOT_TOKEN", "8937609482:AAFB3oMP4s70s5L4krgetPVDw761FEW2wcI").strip()
 CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1003744216692"))
 
 current_pattern = []
