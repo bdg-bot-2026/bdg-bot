@@ -270,11 +270,11 @@ async def send_meeting_announcement(app, markup):
     meeting_msg = (
         f"📢 ✨ <b>ডেইলি প্রেডিকশন শিডিউল ঘোষণা</b> ✨ 📢\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-        f"🎯 <b>আমাদের প্রতিদিনের প্রেডিকশন শিডিউল ও লাইভ স্ট্রিম নির্দেশনা:</b>\n\n"
-        f"🟢 <b>সকাল ৯:০০ টায়:</b> টেলিগ্রাম চ্যানেলে লাইভ স্ট্রিম চালু করা হবে। সবাই সকাল ৯:০০ টায় টেলিগ্রামে জয়েন করবেন।\n"
-        f"🟡 <b>দুপুর ৩:০০ টা (ইন্ডিয়ান টাইম):</b> এআই (AI) সিস্টেম থেকে অটোমেটিক প্রেডিকশন আসবে।\n"
-        f"🔵 <b>রাত ৮:০০ টায়:</b> টেলিগ্রাম চ্যানেলে লাইভ স্ট্রিম চালু করা হবে। সবাই রাত ৮:০০ টায় টেলিগ্রামে জয়েন করবেন।\n\n"
-        f"👉 সবাই নির্দিষ্ট সময়ে টেলিগ্রাম লাইভ স্ট্রিমে ও ভয়েস কলে একটিভ থাকবেন! 🚀\n"
+        f"🎯 <b>আমাদের প্রতিদিনের প্রেডিকশন শিডিউল নির্দেশনা:</b>\n\n"
+        f"🟢 <b>সকাল ৯:০০ টা (ইন্ডিয়ান টাইম):</b> অটোমেটিক প্রেডিকশন সেশন শুরু হবে।\n"
+        f"🟡 <b>দুপুর ৩:০০ টা (ইন্ডিয়ান টাইম):</b> অটোমেটিক প্রেডিকশন সেশন শুরু হবে।\n"
+        f"🔵 <b>রাত ৮:০০ টা (ইন্ডিয়ান টাইম):</b> অটোমেটিক প্রেডিকশন সেশন শুরু হবে।\n\n"
+        f"👉 সবাই নির্দিষ্ট সময়ে টেলিগ্রামে একটিভ থাকবেন! 🚀\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     )
     try:
@@ -288,11 +288,11 @@ async def send_next_session_info(app, next_session_name, time_str):
         f"💎 ⏰ <b>NEXT SESSION INFO / अगली सेशन की जानकारी / পরবর্তী সেশনের তথ্য</b> ⏰ 💎\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🇬🇧 🔹 <b>ENGLISH:</b>\n"
-        f"Next Session: {next_session_name} at {time_str}. Get ready for the next profit wave!\n\n"
+        f"Next Session: {next_session_name} at {time_str}. Get ready!\n\n"
         f"🇮🇳 🔸 <b>हिंदी (HINDI):</b>\n"
-        f"अगला सेशन: {time_str} पर {next_session_name} शुरू होगा।\n\n"
+        f"अगला सेशन: {time_str} पर {next_session_name}। तैयार रहें!\n\n"
         f"🇮🇳 🔹 <b>বাংলা (BANGLA):</b>\n"
-        f"পরবর্তী সেশন: {time_str} এ {next_session_name} শুরু হবে। প্রস্তুত থাকুন!\n"
+        f"পরবর্তী সেশন: {time_str} এ {next_session_name}। প্রস্তুত থাকুন!\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━"
     )
     markup = InlineKeyboardMarkup([
@@ -335,7 +335,7 @@ async def send_auto_prediction(app):
             "team_time": (9, 36),
             "meeting_time": (9, 37),
             "next_time": (9, 38),
-            "next_session_name": "Afternoon Session (Indian Time 3:00 PM)",
+            "next_session_name": "Afternoon Session",
             "next_time_str": "3:00 PM (Indian Time)",
         },
         {
@@ -349,7 +349,7 @@ async def send_auto_prediction(app):
             "team_time": (15, 36),
             "meeting_time": (15, 37),
             "next_time": (15, 38),
-            "next_session_name": "Night Live Stream / Voice Prediction",
+            "next_session_name": "Night Session",
             "next_time_str": "8:00 PM (Indian Time)",
         },
         {
@@ -363,7 +363,7 @@ async def send_auto_prediction(app):
             "team_time": (20, 36),
             "meeting_time": (20, 37),
             "next_time": (20, 38),
-            "next_session_name": "Morning Session (Indian Time 9:00 AM)",
+            "next_session_name": "Morning Session",
             "next_time_str": "9:00 AM (Indian Time)",
         },
     ]
@@ -460,4 +460,7 @@ async def main():
 
     print("Raxi Win 3-Session Indian Time Bot is fully running and active...")
 
-    await send_auto_
+    await send_auto_prediction(app)
+
+if __name__ == "__main__":
+    asyncio.run(main())
