@@ -1,6 +1,6 @@
 import os
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import pytz
 import asyncio
 import threading
@@ -22,11 +22,11 @@ def home():
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
-    app_web.run(host='0.0.0.0', port=port)
+    app_web.run(host='0.0.0.0', port=port, use_reloader=False)
 
 
 # ==========================================
-# 🤖 Telegram Bot Configurations (Private Channel ID Updated)
+# 🤖 Telegram Bot Configurations
 # ==========================================
 TOKEN = os.environ.get("BOT_TOKEN", "8937609482:AAFB3oMP4s70s5L4krgetPVDw761FEW2wcI").strip()
 CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1003744216692"))
@@ -39,17 +39,17 @@ prediction_history = deque(maxlen=100)
 
 
 # ==========================================
-# ⏰ Time & Live Game Period Synchronization (Indian Standard Time)
+# ⏰ Time & Live Game Period Synchronization (IST & UTC)
 # ==========================================
 def get_ist_time():
     try:
         ist_tz = pytz.timezone('Asia/Kolkata')
         return datetime.now(ist_tz)
     except Exception:
-        return datetime.utcnow() + timedelta(hours=5, minutes=30)
+        return datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
 
 def get_current_1min_period():
-    now_utc = datetime.now(pytz.utc)
+    now_utc = datetime.now(timezone.utc)
     date_str = now_utc.strftime("%Y%m%d")
     total_minutes_utc = (now_utc.hour * 60) + now_utc.minute
     period_count = 10000 + total_minutes_utc + 1
@@ -142,8 +142,22 @@ def get_smart_trend_color(pred_text):
 
 
 # ==========================================
-# 📢 Extra Supporting Message Functions
+# 📢 Safe Sender & Supporting Message Functions
 # ==========================================
+async def safe_send_message(app, text, markup=None):
+    try:
+        await app.bot.send_message(
+            chat_id=CHANNEL_ID,
+            text=text,
+            parse_mode=ParseMode.HTML,
+            reply_markup=markup
+        )
+        return True
+    except Exception as e:
+        print(f"[SEND ERROR] Target {CHANNEL_ID}: {e}")
+        return False
+
+
 async def send_ready_alert(app, session_name, markup):
     alert_msg = (
         f"<b>RAXI WIN VIP PREDICTION 1 Min:</b>\n"
@@ -172,10 +186,7 @@ async def send_ready_alert(app, session_name, markup):
         f"📱 <b>এক ফোনে এক আইডি:</b> একটা ফোনে দুটো আইডি লগইন করবেন না।\n"
         f"📶 <b>ওয়াইফাই সতর্কবার্তা:</b> ওয়াইফাই প্লে বা পাবলিক নেটওয়ার্ক এড়িয়ে চলুন।"
     )
-    try:
-        await app.bot.send_message(chat_id=CHANNEL_ID, text=alert_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
-    except Exception as e:
-        print(f"Alert Error: {e}")
+    await safe_send_message(app, alert_msg, markup)
 
 
 async def send_level_chart_alert(app, markup):
@@ -201,10 +212,7 @@ async def send_level_chart_alert(app, markup):
         f"📌 <b>Up to Level 10 Total: ₹3,672</b>\n"
         f"📌 <b>Up to Level 12 Total: ₹18,172</b>"
     )
-    try:
-        await app.bot.send_message(chat_id=CHANNEL_ID, text=chart_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
-    except Exception as e:
-        print(f"Level Chart Error: {e}")
+    await safe_send_message(app, chart_msg, markup)
 
 
 async def send_prediction_signal(app, period_num, pred_text, color_text, markup):
@@ -217,12 +225,7 @@ async def send_prediction_signal(app, period_num, pred_text, color_text, markup)
         f"───────────────────\n"
         f"💡 Recommended: Safe 1-12 Level Martingale"
     )
-    await app.bot.send_message(
-        chat_id=CHANNEL_ID,
-        text=msg,
-        parse_mode=ParseMode.HTML,
-        reply_markup=markup
-    )
+    return await safe_send_message(app, msg, markup)
 
 
 async def send_mid_session_alert(app, markup):
@@ -241,10 +244,7 @@ async def send_mid_session_alert(app, markup):
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"💡 <i>Tip: Control your emotions & follow strict Money Management!</i>"
     )
-    try:
-        await app.bot.send_message(chat_id=CHANNEL_ID, text=profit_alert_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
-    except Exception as e:
-        print(f"Mid-session Alert Error: {e}")
+    await safe_send_message(app, profit_alert_msg, markup)
 
 
 async def send_team_building_message(app, markup):
@@ -260,10 +260,7 @@ async def send_team_building_message(app, markup):
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🔗 <i>Share your referral link now & start building your empire!</i>"
     )
-    try:
-        await app.bot.send_message(chat_id=CHANNEL_ID, text=team_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
-    except Exception as e:
-        print(f"Team Building Error: {e}")
+    await safe_send_message(app, team_msg, markup)
 
 
 async def send_next_session_info(app, next_session_name, time_str):
@@ -273,19 +270,16 @@ async def send_next_session_info(app, next_session_name, time_str):
         f"🇬🇧 🔹 <b>ENGLISH:</b>\n"
         f"Next Session: {next_session_name} at {time_str}. Get ready!\n\n"
         f"🇮🇳 🔸 <b>हिंदी (HINDI):</b>\n"
-        f"अगला सेशन: {time_str} पर {next_session_name}। तैयार रहें!\n\n"
+        f"अगला सेशन: {time_str} पर <b>{next_session_name}</b> शुरू होगा। तैयार रहें!\n\n"
         f"🇮🇳 🔹 <b>বাংলা (BANGLA):</b>\n"
-        f"পরবর্তী সেশন: {time_str} এ {next_session_name}। প্রস্তুত থাকুন!\n"
+        f"পরবর্তী সেশন: {time_str}-এ <b>{next_session_name}</b> শুরু হবে। প্রস্তুত থাকুন!\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━"
     )
     markup = InlineKeyboardMarkup([
         [InlineKeyboardButton("🎮 Play Raxi Win 🏆", url="https://raxiwin.com")],
         [InlineKeyboardButton("📊 Join VIP Channel", url="https://t.me/RexiWinAIPrediction")]
     ])
-    try:
-        await app.bot.send_message(chat_id=CHANNEL_ID, text=next_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
-    except Exception as e:
-        print(f"Next Session Error: {e}")
+    await safe_send_message(app, next_msg, markup)
 
 
 # ==========================================
@@ -357,20 +351,19 @@ async def send_auto_prediction(app):
             current_date_str = now.strftime('%Y-%m-%d')
 
             sent_keys = {k for k in sent_keys if k.startswith(current_date_str)}
-
             in_any_prediction_window = False
 
             for s in sessions:
                 s_name = s["name"]
 
-                # ১. Ready Alert (8:55 / 14:55 / 19:55)
+                # ১. Ready Alert
                 if current_hm == s["alert_time"]:
                     key = f"{current_date_str}_{s_name}_ALERT"
                     if key not in sent_keys:
                         await send_ready_alert(app, s["label"], alert_markup)
                         sent_keys.add(key)
 
-                # ২. Level Chart Alert (8:57 / 14:57 / 19:57)
+                # ২. Level Chart Alert
                 if current_hm == s["chart_time"]:
                     key = f"{current_date_str}_{s_name}_CHART"
                     if key not in sent_keys:
@@ -386,25 +379,26 @@ async def send_auto_prediction(app):
                         pred_text = "SMALL" if pred == "SMALL" else "BIG"
                         color_text = get_smart_trend_color(pred_text)
 
-                        await send_prediction_signal(app, period_num, pred_text, color_text, reply_markup)
-                        print(f"[{s_name}] Signal sent for period: {period_num}")
-                        last_sent_period = period_num
+                        sent_ok = await send_prediction_signal(app, period_num, pred_text, color_text, reply_markup)
+                        if sent_ok:
+                            print(f"[{s_name}] Signal sent for period: {period_num}")
+                            last_sent_period = period_num
 
-                # ৪. Mid-Session Profit Alert (9:30 / 15:30 / 20:30)
+                # ৪. Mid-Session Profit Alert
                 if current_hm == s["mid_time"]:
                     key = f"{current_date_str}_{s_name}_MID"
                     if key not in sent_keys:
                         await send_mid_session_alert(app, alert_markup)
                         sent_keys.add(key)
 
-                # ৫. Team Building Message (9:36 / 15:36 / 20:36)
+                # ৫. Team Building Message
                 if current_hm == s["team_time"]:
                     key = f"{current_date_str}_{s_name}_TEAM"
                     if key not in sent_keys:
                         await send_team_building_message(app, alert_markup)
                         sent_keys.add(key)
 
-                # ৬. Next Session Info (9:38 / 15:38 / 20:38)
+                # ৬. Next Session Info
                 if current_hm == s["next_time"]:
                     key = f"{current_date_str}_{s_name}_NEXT"
                     if key not in sent_keys:
@@ -415,7 +409,7 @@ async def send_auto_prediction(app):
                 last_sent_period = ""
 
         except Exception as e:
-            print(f"Loop Error: {e}")
+            print(f"[LOOP ERROR] {e}")
 
         await asyncio.sleep(2)
 
@@ -429,11 +423,18 @@ async def main():
     await app.initialize()
     await app.start()
 
-    threading.Thread(target=run_web, daemon=True).start()
+    try:
+        bot_info = await app.bot.get_me()
+        chat_info = await app.bot.get_chat(CHANNEL_ID)
+        print(f"Bot Active: @{bot_info.username} | Connected To: {chat_info.title} ({CHANNEL_ID})")
+    except Exception as e:
+        print(f"[STARTUP CHECK ERROR] Token/Channel check failed: {e}")
 
+    threading.Thread(target=run_web, daemon=True).start()
     print("Raxi Win 3-Session Indian Time Bot is fully running and active...")
 
     await send_auto_prediction(app)
 
 if __name__ == "__main__":
     asyncio.run(main())
+    
