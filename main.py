@@ -266,23 +266,6 @@ async def send_team_building_message(app, markup):
         print(f"Team Building Error: {e}")
 
 
-async def send_meeting_announcement(app, markup):
-    meeting_msg = (
-        f"📢 ✨ <b>ডেইলি প্রেডিকশন শিডিউল ঘোষণা</b> ✨ 📢\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-        f"🎯 <b>আমাদের প্রতিদিনের প্রেডিকশন শিডিউল নির্দেশনা:</b>\n\n"
-        f"🟢 <b>সকাল ৯:০০ টা (ইন্ডিয়ান টাইম):</b> অটোমেটিক প্রেডিকশন সেশন শুরু হবে।\n"
-        f"🟡 <b>দুপুর ৩:০০ টা (ইন্ডিয়ান টাইম):</b> অটোমেটিক প্রেডিকশন সেশন শুরু হবে।\n"
-        f"🔵 <b>রাত ৮:০০ টা (ইন্ডিয়ান টাইম):</b> অটোমেটিক প্রেডিকশন সেশন শুরু হবে।\n\n"
-        f"👉 সবাই নির্দিষ্ট সময়ে টেলিগ্রামে একটিভ থাকবেন! 🚀\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    )
-    try:
-        await app.bot.send_message(chat_id=CHANNEL_ID, text=meeting_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
-    except Exception as e:
-        print(f"Meeting Announcement Error: {e}")
-
-
 async def send_next_session_info(app, next_session_name, time_str):
     next_msg = (
         f"💎 ⏰ <b>NEXT SESSION INFO / अगली सेशन की जानकारी / পরবর্তী সেশনের তথ্য</b> ⏰ 💎\n"
@@ -333,7 +316,6 @@ async def send_auto_prediction(app):
             "pred_max_minute": 35,
             "mid_time": (9, 30),
             "team_time": (9, 36),
-            "meeting_time": (9, 37),
             "next_time": (9, 38),
             "next_session_name": "Afternoon Session",
             "next_time_str": "3:00 PM (Indian Time)",
@@ -347,7 +329,6 @@ async def send_auto_prediction(app):
             "pred_max_minute": 35,
             "mid_time": (15, 30),
             "team_time": (15, 36),
-            "meeting_time": (15, 37),
             "next_time": (15, 38),
             "next_session_name": "Night Session",
             "next_time_str": "8:00 PM (Indian Time)",
@@ -361,7 +342,6 @@ async def send_auto_prediction(app):
             "pred_max_minute": 35,
             "mid_time": (20, 30),
             "team_time": (20, 36),
-            "meeting_time": (20, 37),
             "next_time": (20, 38),
             "next_session_name": "Morning Session",
             "next_time_str": "9:00 AM (Indian Time)",
@@ -424,14 +404,7 @@ async def send_auto_prediction(app):
                         await send_team_building_message(app, alert_markup)
                         sent_keys.add(key)
 
-                # ৬. Schedule Announcement (9:37 / 15:37 / 20:37)
-                if current_hm == s["meeting_time"]:
-                    key = f"{current_date_str}_{s_name}_MEETING"
-                    if key not in sent_keys:
-                        await send_meeting_announcement(app, alert_markup)
-                        sent_keys.add(key)
-
-                # ৭. Next Session Info (9:38 / 15:38 / 20:38)
+                # ৬. Next Session Info (9:38 / 15:38 / 20:38)
                 if current_hm == s["next_time"]:
                     key = f"{current_date_str}_{s_name}_NEXT"
                     if key not in sent_keys:
