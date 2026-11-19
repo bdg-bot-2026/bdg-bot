@@ -28,8 +28,8 @@ def run_web():
 # ==========================================
 # 🤖 Telegram Bot Configurations (Private Channel ID Updated)
 # ==========================================
-TOKEN = "8937609482:AAFpxFnCk7ZI38QYnUNbUST2A6eZHnWuAHQ"
-CHANNEL_ID = -1003744216692
+TOKEN = os.environ.get("BOT_TOKEN", "8937609482:AAFpxFnCk7ZI38QYnUNbUST2A6eZHnWuAHQ")
+CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1003744216692"))
 
 current_pattern = []
 pattern_index = 0
@@ -64,11 +64,11 @@ def analytical_ai_trend_evaluator():
     recent_small_count = sum(1 for p in prediction_history if p == "SMALL")
 
     strategies_weights = {
-        "DRAGON_TREND": 15,       
-        "THREE_BY_THREE": 12,     
-        "CROSS_WAVE": 12,         
-        "TWO_BY_TWO_ZONE": 10,    
-        "STABLE_ZIGZAG": 10,      
+        "DRAGON_TREND": 15,
+        "THREE_BY_THREE": 12,
+        "CROSS_WAVE": 12,
+        "TWO_BY_TWO_ZONE": 10,
+        "STABLE_ZIGZAG": 10,
         "SMART_MIXED": 10,
         "MIRROR_REFLECTION": 8,
         "FIBONACCI_STEP": 8,
@@ -93,8 +93,7 @@ def analytical_ai_trend_evaluator():
             start = "BIG"
 
     opposite = "SMALL" if start == "BIG" else "BIG"
-    pattern = []
-    
+
     if selected_strategy == "DRAGON_TREND":
         dragon_len = random.randint(4, 6)
         pattern = [start] * dragon_len
@@ -124,10 +123,10 @@ def get_high_tech_ai_prediction():
     if not current_pattern or pattern_index >= len(current_pattern):
         current_pattern = analytical_ai_trend_evaluator()
         pattern_index = 0
-    
+
     raw_prediction = current_pattern[pattern_index]
     pattern_index += 1
-    
+
     prediction_history.append(raw_prediction)
     return raw_prediction
 
@@ -152,26 +151,26 @@ async def send_ready_alert(app, session_name, markup):
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🎯 <b>Get ready & prepare your account! / तैयार हो जाइए! / সবাই রেডি থাকুন!</b>\n\n"
         f"🇬🇧 <b>ENGLISH:</b>\n"
-        f"💎 <b>Maintain Balance:</b> Follow safe 10-Level Martingale.\n"
+        f"💎 <b>Maintain Balance:</b> Follow safe 10-12 Level Martingale.\n"
         f"🛡️ <b>3x Turnover Rule:</b> Complete 3x betting of your deposit amount before withdrawal.\n"
         f"🚫 <b>No Illegal Bets:</b> Do NOT place Big & Small together.\n"
         f"⚠️ <b>No Red/Green Mix:</b> Do not bet on Red & Green simultaneously.\n"
         f"📱 <b>Single Device:</b> Do not use 2 accounts on 1 phone.\n"
         f"📶 <b>Network:</b> Avoid public Wi-Fi.\n\n"
         f"🇮🇳 <b>हिंदी (HINDI):</b>\n"
-        f"💎 <b>बैलेंस बनाए रखें:</b> सुरक्षित 10-लेवल मार्टिंगेल फॉलो करें।\n"
+        f"💎 <b>बैलेंस बनाए रखें:</b> सुरक्षित 10-12 लेवल मार्टिंगेल फॉलो करें।\n"
         f"🛡️ <b>3x टर्नओवर नियम:</b> विथड्रॉल से पहले 3x बेटिंग पूरी करें।\n"
         f"🚫 <b>कोई अवैध शर्त नहीं:</b> Big और Small एकसाथ न लगाएं।\n"
         f"⚠️ <b>रेड/ग्रीन मिक्स न करें:</b> एकसाथ दोनों पर बेट न लगाएं।\n"
         f"📱 <b>एक डिवाइस नियम:</b> एक फोन में दो आईडी लॉगिन न करें।\n"
         f"📶 <b>नेटवर्क चेतावनी:</b> पब्लिक वाई-फाई का उपयोग न करें।\n\n"
         f"🇮🇳 <b>বাংলা (BANGLA):</b>\n"
-        f"💎 <b>ব্যালেন্স মেইনটেইন করুন:</b> নিরাপদ ১০ লেভেল মার্টিনগেল ফলো করুন।\n"
+        f"💎 <b>ব্যালেন্স মেইনটেইন করুন:</b> নিরাপদ ১০-১২ লেভেল মার্টিনগেল ফলো করুন।\n"
         f"🛡️ <b>৩x টার্নওভার রুল:</b> ডিপোজিটের পর ৩x বেটিং কমপ্লিট করুন।\n"
         f"🚫 <b>ইল্লিগাল বেট নিষেধ:</b> বিগ এবং স্মল একসঙ্গে কেউ করবেন না।\n"
-        f"⚠️ <b>রেড-গ্রীন একসঙ্গে নয়: রেড ও গ্রীনে একসাথে বেট লাগাবেন না।</b>\n"
+        f"⚠️ <b>রেড-গ্রীন একসঙ্গে নয়:</b> রেড ও গ্রীনে একসাথে বেট লাগাবেন না।\n"
         f"📱 <b>এক ফোনে এক আইডি:</b> একটা ফোনে দুটো আইডি লগইন করবেন না।\n"
-        f"📶 <b>ওয়াইফাই সতর্কবার্তা:</b> ওয়াইফাই প্লে বা পাবলিক নেটওয়ার্ক এড়িয়ে চলুন."
+        f"📶 <b>ওয়াইফাই সতর্কবার্তা:</b> ওয়াইফাই প্লে বা পাবলিক নেটওয়ার্ক এড়িয়ে চলুন।"
     )
     try:
         await app.bot.send_message(chat_id=CHANNEL_ID, text=alert_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
@@ -181,7 +180,7 @@ async def send_ready_alert(app, session_name, markup):
 
 async def send_level_chart_alert(app, markup):
     chart_msg = (
-        f"💎 <b>RAXI WIN VIP 10-LEVEL MARTINGALE</b> 💎\n"
+        f"💎 <b>RAXI WIN VIP 10-12 LEVEL MARTINGALE</b> 💎\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🛡️ <b>OFFICIAL MONEY MANAGEMENT CHART</b>\n\n"
         f"🎯 <i>Strictly follow this Martingale plan to protect your capital & maximize daily profits!</i>\n\n"
@@ -206,6 +205,24 @@ async def send_level_chart_alert(app, markup):
         await app.bot.send_message(chat_id=CHANNEL_ID, text=chart_msg, parse_mode=ParseMode.HTML, reply_markup=markup)
     except Exception as e:
         print(f"Level Chart Error: {e}")
+
+
+async def send_prediction_signal(app, period_num, pred_text, color_text, markup):
+    msg = (
+        f"<b>💎 RAXI WIN ULTRA AI PREDICTION 💎</b>\n"
+        f"<b>💎 RAXI WIN VIP PREDICTION 1 Min 💎</b>\n\n"
+        f"🔷 <b>PERIOD:</b> {period_num}\n"
+        f"🎯 <b>PREDICTION:</b> {pred_text}\n"
+        f"🎨 <b>COLOR:</b> {color_text}\n"
+        f"───────────────────\n"
+        f"💡 Recommended: Safe 1-12 Level Martingale"
+    )
+    await app.bot.send_message(
+        chat_id=CHANNEL_ID,
+        text=msg,
+        parse_mode=ParseMode.HTML,
+        reply_markup=markup
+    )
 
 
 async def send_mid_session_alert(app, markup):
@@ -289,18 +306,11 @@ async def send_next_session_info(app, next_session_name, time_str):
 
 
 # ==========================================
-# 🚀 Telegram Automation Main Loop (Indian Time Schedule Active)
+# 🚀 Telegram Automation Main Loop (3 Sessions Identical Flow)
 # ==========================================
 async def send_auto_prediction(app):
     last_sent_period = ""
-    last_alert_date_session = ""    
-    last_chart_date_session = ""
-    last_next_date_session = ""     
-    last_mid_date_session = ""
-    last_team_date_session = ""
-    last_meeting_date_session = ""  
-    last_morning_schedule_date = ""
-    last_night_schedule_date = ""
+    sent_keys = set()
 
     keyboard = [
         [InlineKeyboardButton("🎮 Play Raxi Win 🏆", url="https://raxiwin.com")],
@@ -308,107 +318,128 @@ async def send_auto_prediction(app):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    print("Raxi Win Indian Time Schedule Loop started...")
+    alert_markup = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🚀 Ready & Deposit", url="https://raxiwin.com")],
+        [InlineKeyboardButton("📢 Channel Link", url="https://t.me/RexiWinAIPrediction")]
+    ])
+
+    sessions = [
+        {
+            "name": "MORNING",
+            "label": "Morning Session (Indian Time 9:00 AM)",
+            "alert_time": (8, 55),
+            "chart_time": (8, 57),
+            "pred_hour": 9,
+            "pred_max_minute": 35,
+            "mid_time": (9, 30),
+            "team_time": (9, 36),
+            "meeting_time": (9, 37),
+            "next_time": (9, 38),
+            "next_session_name": "Afternoon Session (Indian Time 3:00 PM)",
+            "next_time_str": "3:00 PM (Indian Time)",
+        },
+        {
+            "name": "AFTERNOON",
+            "label": "Afternoon Session (Indian Time 3:00 PM)",
+            "alert_time": (14, 55),
+            "chart_time": (14, 57),
+            "pred_hour": 15,
+            "pred_max_minute": 35,
+            "mid_time": (15, 30),
+            "team_time": (15, 36),
+            "meeting_time": (15, 37),
+            "next_time": (15, 38),
+            "next_session_name": "Night Live Stream / Voice Prediction",
+            "next_time_str": "8:00 PM (Indian Time)",
+        },
+        {
+            "name": "NIGHT",
+            "label": "Night Session (Indian Time 8:00 PM)",
+            "alert_time": (19, 55),
+            "chart_time": (19, 57),
+            "pred_hour": 20,
+            "pred_max_minute": 35,
+            "mid_time": (20, 30),
+            "team_time": (20, 36),
+            "meeting_time": (20, 37),
+            "next_time": (20, 38),
+            "next_session_name": "Morning Session (Indian Time 9:00 AM)",
+            "next_time_str": "9:00 AM (Indian Time)",
+        },
+    ]
+
+    print("Raxi Win 3-Session Indian Time Schedule Loop started...")
 
     while True:
         try:
             now = get_ist_time()
-            hour = now.hour
-            minute = now.minute
-            second = now.second
+            current_hm = (now.hour, now.minute)
             current_date_str = now.strftime('%Y-%m-%d')
 
-            alert_markup = InlineKeyboardMarkup([
-                [InlineKeyboardButton("🚀 Ready & Deposit", url="https://raxiwin.com")],
-                [InlineKeyboardButton("📢 Channel Link", url="https://t.me/RexiWinAIPrediction")]
-            ])
+            sent_keys = {k for k in sent_keys if k.startswith(current_date_str)}
 
-            # ১. সকাল ১০:০০ টা (ইন্ডিয়ান টাইম) - ডেইলি শিডিউল ঘোষণা
-            if hour == 10 and minute == 0:
-                morning_key = f"{current_date_str}_MORNING_SCHEDULE"
-                if last_morning_schedule_date != morning_key:
-                    await send_meeting_announcement(app, alert_markup)
-                    last_morning_schedule_date = morning_key
+            in_any_prediction_window = False
 
-            # ২. রাত ৯:০০ টা (ইন্ডিয়ান টাইম) - ডেইলি শিডিউল ঘোষণা
-            if hour == 21 and minute == 0:
-                night_key = f"{current_date_str}_NIGHT_SCHEDULE"
-                if last_night_schedule_date != night_key:
-                    await send_meeting_announcement(app, alert_markup)
-                    last_night_schedule_date = night_key
+            for s in sessions:
+                s_name = s["name"]
 
-            # ৩. দুপুর ২:৫৫ মিনিটে রেডি অ্যালার্ট (ইন্ডিয়ান টাইম)
-            if hour == 14 and minute == 55:
-                alert_key = f"{current_date_str}_AFTERNOON_ALERT"
-                if last_alert_date_session != alert_key:
-                    await send_ready_alert(app, "Afternoon Session (Indian Time 3:00 PM)", alert_markup)
-                    last_alert_date_session = alert_key
+                # ১. Ready Alert (8:55 / 14:55 / 19:55)
+                if current_hm == s["alert_time"]:
+                    key = f"{current_date_str}_{s_name}_ALERT"
+                    if key not in sent_keys:
+                        await send_ready_alert(app, s["label"], alert_markup)
+                        sent_keys.add(key)
 
-            # ৪. দুপুর ২:৫৭ মিনিটে চার্ট অ্যালার্ট (ইন্ডিয়ান টাইম)
-            if hour == 14 and minute == 57:
-                chart_key = f"{current_date_str}_AFTERNOON_CHART"
-                if last_chart_date_session != chart_key:
-                    await send_level_chart_alert(app, alert_markup)
-                    last_chart_date_session = chart_key
+                # ২. Level Chart Alert (8:57 / 14:57 / 19:57)
+                if current_hm == s["chart_time"]:
+                    key = f"{current_date_str}_{s_name}_CHART"
+                    if key not in sent_keys:
+                        await send_level_chart_alert(app, alert_markup)
+                        sent_keys.add(key)
 
-            # ৫. মূল সেশন সময়: ইন্ডিয়ান টাইম দুপুর ৩:০০ টা থেকে ৩:৩৫ মিনিট পর্যন্ত
-            is_afternoon_session = (hour == 15 and minute <= 35)
+                # ৩. Prediction Window (:00 থেকে :35 পর্যন্ত)
+                if (now.hour == s["pred_hour"] and now.minute <= s["pred_max_minute"]):
+                    in_any_prediction_window = True
+                    period_num = get_current_1min_period()
+                    if period_num != last_sent_period:
+                        pred = get_high_tech_ai_prediction()
+                        pred_text = "SMALL" if pred == "SMALL" else "BIG"
+                        color_text = get_smart_trend_color(pred_text)
 
-            if is_afternoon_session:
-                period_num = get_current_1min_period()
-                if period_num != last_sent_period:
-                    pred = get_high_tech_ai_prediction()
-                    pred_text = "SMALL" if pred == "SMALL" else "BIG"
-                    color_text = get_smart_trend_color(pred_text)
-                    
-                    # 🛠️ Exact Format: Bold Titles, Bold Labels with Normal Values & Normal Footer
-                    msg = (
-                        f"<b>💎 RAXI WIN ULTRA AI PREDICTION 💎</b>\n"
-                        f"<b>💎 RAXI WIN VIP PREDICTION 1 Min 💎</b>\n\n"
-                        f"🔷 <b>PERIOD:</b> {period_num}\n"
-                        f"🎯 <b>PREDICTION:</b> {pred_text}\n"
-                        f"🎨 <b>COLOR:</b> {color_text}\n"
-                        f"───────────────────\n"
-                        f"💡 Recommended: Safe 1-10 Level Martingale"
-                    )
-                    
-                    await app.bot.send_message(
-                        chat_id=CHANNEL_ID,
-                        text=msg,
-                        parse_mode=ParseMode.HTML,
-                        reply_markup=reply_markup
-                    )
-                    
-                    print(f"Signal sent successfully with precise reference style for period: {period_num}")
-                    last_sent_period = period_num
+                        await send_prediction_signal(app, period_num, pred_text, color_text, reply_markup)
+                        print(f"[{s_name}] Signal sent for period: {period_num}")
+                        last_sent_period = period_num
 
-            # ৬. দুপুর ৩:৩০ মিনিটে মিডিলে প্রফিট অ্যালার্ট (ইন্ডিয়ান টাইম)
-            if hour == 15 and minute == 30:
-                profit_key = f"{current_date_str}_AFTERNOON_PROFIT_ALERT"
-                if last_mid_date_session != profit_key:
-                    await send_mid_session_alert(app, alert_markup)
-                    last_mid_date_session = profit_key
+                # ৪. Mid-Session Profit Alert (9:30 / 15:30 / 20:30)
+                if current_hm == s["mid_time"]:
+                    key = f"{current_date_str}_{s_name}_MID"
+                    if key not in sent_keys:
+                        await send_mid_session_alert(app, alert_markup)
+                        sent_keys.add(key)
 
-            # ৭. দুপুর ৩:৩৬ মিনিটে টিম বিল্ডিং মেসেজ (ইন্ডিয়ান টাইম)
-            if hour == 15 and minute == 36:
-                team_key = f"{current_date_str}_AFTERNOON_TEAM"
-                if last_team_date_session != team_key:
-                    await send_team_building_message(app, alert_markup)
-                    last_team_date_session = team_key
+                # ৫. Team Building Message (9:36 / 15:36 / 20:36)
+                if current_hm == s["team_time"]:
+                    key = f"{current_date_str}_{s_name}_TEAM"
+                    if key not in sent_keys:
+                        await send_team_building_message(app, alert_markup)
+                        sent_keys.add(key)
 
-            # ৮. দুপুর ৩:৩৭ মিনিটে সেশন শেষে শিডিউল অ্যানাউন্সমেন্ট (ইন্ডিয়ান টাইম)
-            if hour == 15 and minute == 37:
-                meeting_key = f"{current_date_str}_AFTERNOON_MEETING"
-                if last_meeting_date_session != meeting_key:
-                    await send_meeting_announcement(app, alert_markup)
-                    last_meeting_date_session = meeting_key
+                # ৬. Schedule Announcement (9:37 / 15:37 / 20:37)
+                if current_hm == s["meeting_time"]:
+                    key = f"{current_date_str}_{s_name}_MEETING"
+                    if key not in sent_keys:
+                        await send_meeting_announcement(app, alert_markup)
+                        sent_keys.add(key)
 
-            # ৯. দুপুর ৩:৩৮ মিনিটে পরবর্তী সেশন নোটিশ (ইন্ডিয়ান টাইম)
-            if hour == 15 and minute == 38:
-                next_key = f"{current_date_str}_AFTERNOON_NEXT"
-                if last_next_date_session != next_key:
-                    await send_next_session_info(app, "Night Live Stream / Voice Prediction", "8:00 PM (Indian Time)")
-                    last_next_date_session = next_key
+                # ৭. Next Session Info (9:38 / 15:38 / 20:38)
+                if current_hm == s["next_time"]:
+                    key = f"{current_date_str}_{s_name}_NEXT"
+                    if key not in sent_keys:
+                        await send_next_session_info(app, s["next_session_name"], s["next_time_str"])
+                        sent_keys.add(key)
+
+            if not in_any_prediction_window:
+                last_sent_period = ""
 
         except Exception as e:
             print(f"Loop Error: {e}")
@@ -421,15 +452,12 @@ async def send_auto_prediction(app):
 # ==========================================
 async def main():
     app = ApplicationBuilder().token(TOKEN).build()
-    
+
     await app.initialize()
     await app.start()
-    
-    threading.Thread(target=run_web, daemon=True).start()
-    
-    print("Raxi Win Indian Time Bot is fully running and active...")
-    
-    await send_auto_prediction(app)
 
-if __name__ == "__main__":
-    asyncio.run(main())
+    threading.Thread(target=run_web, daemon=True).start()
+
+    print("Raxi Win 3-Session Indian Time Bot is fully running and active...")
+
+    await send_auto_
