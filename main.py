@@ -165,21 +165,21 @@ async def send_ready_alert(app, session_name, markup):
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🎯 <b>Get ready & prepare your account! / तैयार हो जाइए! / সবাই রেডি থাকুন!</b>\n\n"
         f"🇬🇧 <b>ENGLISH:</b>\n"
-        f"💎 <b>Maintain Balance:</b> Follow safe 10-12 Level Martingale.\n"
+        f"💎 <b>Maintain Balance:</b> Follow safe 1-10 Level Martingale.\n"
         f"🛡️ <b>3x Turnover Rule:</b> Complete 3x betting of your deposit amount before withdrawal.\n"
         f"🚫 <b>No Illegal Bets:</b> Do NOT place Big & Small together.\n"
         f"⚠️ <b>No Red/Green Mix:</b> Do not bet on Red & Green simultaneously.\n"
         f"📱 <b>Single Device:</b> Do not use 2 accounts on 1 phone.\n"
         f"📶 <b>Network:</b> Avoid public Wi-Fi.\n\n"
         f"🇮🇳 <b>हिंदी (HINDI):</b>\n"
-        f"💎 <b>बैलेंस बनाए रखें:</b> सुरक्षित 10-12 लेवल मार्टिंगेल फॉलो करें।\n"
+        f"💎 <b>बैलेंस बनाए रखें:</b> सुरक्षित 1-10 लेवल मार्टिंगेल फॉलो करें।\n"
         f"🛡️ <b>3x टर्नओवर नियम:</b> विथड्रॉल से पहले 3x बेटिंग पूरी करें।\n"
         f"🚫 <b>कोई अवैध शर्त नहीं:</b> Big और Small एकसाथ न लगाएं।\n"
         f"⚠️ <b>रेड/ग्रीन मिक्स न करें:</b> एकसाथ दोनों पर बेट न लगाएं।\n"
         f"📱 <b>एक डिवाइस नियम:</b> एक फोन में दो आईडी लॉगिन न करें।\n"
         f"📶 <b>नेटवर्क चेतावनी:</b> पब्लिक वाई-फाई का उपयोग न करें।\n\n"
         f"🇮🇳 <b>বাংলা (BANGLA):</b>\n"
-        f"💎 <b>ব্যালেন্স মেইনটেইন করুন:</b> নিরাপদ ১০-১২ লেভেল মার্টিনগেল ফলো করুন।\n"
+        f"💎 <b>ব্যালেন্স মেইনটেইন করুন:</b> নিরাপদ ১-১০ লেভেল মার্টিনগেল ফলো করুন।\n"
         f"🛡️ <b>৩x টার্নওভার রুল:</b> ডিপোজিটের পর ৩x বেটিং কমপ্লিট করুন।\n"
         f"🚫 <b>ইল্লিগাল বেট নিষেধ:</b> বিগ এবং স্মল একসঙ্গে কেউ করবেন না।\n"
         f"⚠️ <b>রেড-গ্রীন একসঙ্গে নয়:</b> রেড ও গ্রীনে একসাথে বেট লাগাবেন না।\n"
@@ -191,7 +191,7 @@ async def send_ready_alert(app, session_name, markup):
 
 async def send_level_chart_alert(app, markup):
     chart_msg = (
-        f"💎 <b>RAXI WIN VIP 10-12 LEVEL MARTINGALE</b> 💎\n"
+        f"💎 <b>RAXI WIN VIP 1-10 LEVEL MARTINGALE</b> 💎\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🛡️ <b>OFFICIAL MONEY MANAGEMENT CHART</b>\n\n"
         f"🎯 <i>Strictly follow this Martingale plan to protect your capital & maximize daily profits!</i>\n\n"
@@ -205,12 +205,9 @@ async def send_level_chart_alert(app, markup):
         f"▫️ <b>Level 7  ➜</b>  ₹200\n"
         f"▫️ <b>Level 8  ➜</b>  ₹420\n"
         f"▫️ <b>Level 9  ➜</b>  ₹900\n"
-        f"▫️ <b>Level 10 ➜</b>  ₹2000\n"
-        f"▫️ <b>Level 11 ➜</b>  ₹4500\n"
-        f"▫️ <b>Level 12 ➜</b>  ₹10000\n\n"
+        f"▫️ <b>Level 10 ➜</b>  ₹2000\n\n"
         f"💰 <b>TOTAL REQUIRED BALANCE:</b>\n"
-        f"📌 <b>Up to Level 10 Total: ₹3,672</b>\n"
-        f"📌 <b>Up to Level 12 Total: ₹18,172</b>"
+        f"📌 <b>Up to Level 10 Total: ₹3,672</b>"
     )
     await safe_send_message(app, chart_msg, markup)
 
@@ -223,7 +220,7 @@ async def send_prediction_signal(app, period_num, pred_text, color_text, markup)
         f"🎯 <b>PREDICTION:</b> {pred_text}\n"
         f"🎨 <b>COLOR:</b> {color_text}\n"
         f"───────────────────\n"
-        f"💡 Recommended: Safe 1-12 Level Martingale"
+        f"💡 Recommended: Safe 1-10 Level Martingale"
     )
     return await safe_send_message(app, msg, markup)
 
@@ -437,4 +434,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-    
+        
