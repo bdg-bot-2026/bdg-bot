@@ -163,12 +163,12 @@ async def send_ready_alert(app, session_name, markup):
         f"<b>RAXI WIN VIP PREDICTION 1 Min:</b>\n"
         f"🚨 🔥 <b>ATTENTION: {session_name} IS ABOUT TO START!</b> 🔥 🚨\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"🎯 <b>Get ready & prepare your account! / तैयार हो जाइए! / সবাই রেডি থাকুন!</b>\n\n"
+        f"🎯 <b>Get ready &amp; prepare your account! / तैयार हो जाइए! / সবাই রেডি থাকুন!</b>\n\n"
         f"🇬🇧 <b>ENGLISH:</b>\n"
         f"💎 <b>Maintain Balance:</b> Follow safe 1-10 Level Martingale.\n"
         f"🛡️ <b>3x Turnover Rule:</b> Complete 3x betting of your deposit amount before withdrawal.\n"
-        f"🚫 <b>No Illegal Bets:</b> Do NOT place Big & Small together.\n"
-        f"⚠️ <b>No Red/Green Mix:</b> Do not bet on Red & Green simultaneously.\n"
+        f"🚫 <b>No Illegal Bets:</b> Do NOT place Big &amp; Small together.\n"
+        f"⚠️ <b>No Red/Green Mix:</b> Do not bet on Red &amp; Green simultaneously.\n"
         f"📱 <b>Single Device:</b> Do not use 2 accounts on 1 phone.\n"
         f"📶 <b>Network:</b> Avoid public Wi-Fi.\n\n"
         f"🇮🇳 <b>हिंदी (HINDI):</b>\n"
@@ -191,10 +191,10 @@ async def send_ready_alert(app, session_name, markup):
 
 async def send_level_chart_alert(app, markup):
     chart_msg = (
-        f"💎 <b>RAXI WIN VIP 1-10 LEVEL MARTINGALE</b> 💎\n"
+        f"💎 <b>RAXI WIN VIP 10-LEVEL MARTINGALE</b> 💎\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🛡️ <b>OFFICIAL MONEY MANAGEMENT CHART</b>\n\n"
-        f"🎯 <i>Strictly follow this Martingale plan to protect your capital & maximize daily profits!</i>\n\n"
+        f"🎯 <i>Strictly follow this Martingale plan to protect your capital &amp; maximize daily profits!</i>\n\n"
         f"📊 <b>LEVEL BREAKDOWN:</b>\n"
         f"▫️ <b>Level 1  ➜</b>  ₹1\n"
         f"▫️ <b>Level 2  ➜</b>  ₹3\n"
@@ -205,9 +205,12 @@ async def send_level_chart_alert(app, markup):
         f"▫️ <b>Level 7  ➜</b>  ₹200\n"
         f"▫️ <b>Level 8  ➜</b>  ₹420\n"
         f"▫️ <b>Level 9  ➜</b>  ₹900\n"
-        f"▫️ <b>Level 10 ➜</b>  ₹2000\n\n"
+        f"▫️ <b>Level 10 ➜</b>  ₹2000\n"
+        f"▫️ <b>Level 11 ➜</b>  ₹4500\n"
+        f"▫️ <b>Level 12 ➜</b>  ₹10000\n\n"
         f"💰 <b>TOTAL REQUIRED BALANCE:</b>\n"
-        f"📌 <b>Up to Level 10 Total: ₹3,672</b>"
+        f"📌 <b>Up to Level 10 Total: ₹3,672</b>\n"
+        f"📌 <b>Up to Level 12 Total: ₹18,172</b>"
     )
     await safe_send_message(app, chart_msg, markup)
 
@@ -239,14 +242,14 @@ async def send_mid_session_alert(app, markup):
         f"🎯 <b>আপনি কি প্রফিটে আছেন?</b> আপনি যদি ইতিমধ্যেই আপনার টার্গেট অনুযায়ী প্রফিট করে ফেলে থাকেন, তবে <b>আজকের মতো সেশনটি এখানেই সমাপ্ত করতে পারেন!</b>\n"
         f"🚫 পরবর্তী পিরিয়ডগুলোতে আর নতুন করে রিস্ক নেওয়ার প্রয়োজন নেই। আপনার প্রফিট নিরাপদ রাখুন এবং পরবর্তী সেশনের জন্য অপেক্ষা করুন! 💰✨\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"💡 <i>Tip: Control your emotions & follow strict Money Management!</i>"
+        f"💡 <i>Tip: Control your emotions &amp; follow strict Money Management!</i>"
     )
     await safe_send_message(app, profit_alert_msg, markup)
 
 
 async def send_team_building_message(app, markup):
     team_msg = (
-        f"💎 👥 <b>TEAM BUILDING & DAILY INCOME / टीम बिल्डिंग और इनकम / টিম বিল্ডিং ও ডেইলি ইনকাম</b> 👥 💎\n"
+        f"💎 👥 <b>TEAM BUILDING &amp; DAILY INCOME / टीम बिल्डिंग और इनकम / টিম বিল্ডিং ও ডেইলি ইনকাম</b> 👥 💎\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
         f"🇬🇧 <b>ENGLISH:</b>\n"
         f"🎯 <b>Want to maximize your earnings?</b> Build your own VIP prediction team! Refer your friends, create a strong team, and earn massive daily commissions automatically! 🚀💰\n\n"
@@ -255,7 +258,7 @@ async def send_team_building_message(app, markup):
         f"🇮🇳 <b>বাংলা (BANGLA):</b>\n"
         f"🎯 <b>আপনার ইনকাম আরও বাড়াতে চান?</b> আজই আপনার নিজস্ব একটি শক্তিশালী ভিআইপি টিম তৈরি করুন! বন্ধুদের ইনভাইট বা রেফার করুন, টিম বড় করুন এবং প্রতিদিন নিশ্চিত প্যাসিভ ইনকাম উপভোগ করুন! 🚀💰\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"🔗 <i>Share your referral link now & start building your empire!</i>"
+        f"🔗 <i>Share your referral link now &amp; start building your empire!</i>"
     )
     await safe_send_message(app, team_msg, markup)
 
@@ -434,4 +437,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-        
